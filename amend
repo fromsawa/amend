@@ -1,0 +1,246 @@
+#!/usr/bin/env lua5.3
+
+local copyright = "Copyright (C) 2021-2022 Yogev Sawa"
+local license = "UNLICENSE (see <http://unlicense.org/>)" -- see below
+local invocation = "amend [<options>...]"
+local description = "Utility for updating or automatic generation of source code."
+local usage =
+    [[
+This tool must be executed inside the source code tree where it 
+expects to find '.amend/project.lua' in the top source folder.
+For details, see 'amend/README.md'.
+
+Options:
+    help                         show this help
+    <component> [arguments]      execute a component or command
+]]
+
+--[[>>[amend.copyright]
+    Copyright (C) 2021-2022 Yogev Sawa
+]]
+--[[>>[amend.license]
+    UNLICENSE
+
+    This is free and unencumbered software released into the public domain.
+    
+    Anyone is free to copy, modify, publish, use, compile, sell, or
+    distribute this software, either in source code form or as a compiled
+    binary, for any purpose, commercial or non-commercial, and by any
+    means.
+
+    In jurisdictions that recognize copyright laws, the author or authors
+    of this software dedicate any and all copyright interest in the
+    software to the public domain. We make this dedication for the benefit
+    of the public at large and to the detriment of our heirs and
+    successors. We intend this dedication to be an overt act of
+    relinquishment in perpetuity of all present and future rights to this
+    software under copyright law.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+    OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+    ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.
+
+    For more information, please refer to <http://unlicense.org/>
+]]
+
+-->>[amend.api.lua.package] #+ Package
+
+local dirsep = package.config:sub(1, 1)
+local pathsep = package.config:sub(3, 3)
+local modulemark = package.config:sub(5, 5)
+
+local package_path_stack = {}
+local package_meta = {
+    -->> ##+ `package:addpath(path)`
+    -- Add search directory to script path.
+    addpath = function(_, dir)
+        local newpath =
+            table.concat({dir, modulemark}, dirsep) ..
+            ".lua" .. pathsep .. table.concat({dir, modulemark, "init"}, dirsep) .. ".lua"
+        package.path = newpath .. pathsep .. package.path
+
+        -- also update push/pop stack
+        for i, p in ipairs(package_path_stack) do
+            package_path_stack[i] = newpath .. pathsep .. package_path_stack[i]
+        end
+    end,
+    -->> ##+ `package:pushpath(path)`
+    -- Temporarily add a script search path.
+    pushpath = function(_, dir)
+        table.insert(package_path_stack, package.path)
+        local newpath =
+            table.concat({dir, modulemark}, dirsep) ..
+            ".lua" .. pathsep .. table.concat({dir, modulemark, "init"}, dirsep) .. ".lua"
+        package.path = newpath .. pathsep .. package.path
+    end,
+    -->> ##+ `package:poppath()`
+    -- Remove previously added script search path.
+    poppath = function(_)
+        local n = #package_path_stack
+        if n > 0 then
+            package.path = package_path_stack[n]
+            table.remove(package_path_stack)
+        end
+    end
+}
+package_meta.__index = package_meta
+setmetatable(package, package_meta)
+
+-->>[amend.api.globals] 
+--
+--      EXECDIR             Path, where ''amend.lua'' was started.
+--      ROOTDIR             Project root (where ''.amend/project.lua'' was found).
+--      PROJECTFILE         Full path to the ''.amend/project.lua'' file.
+--      PROJECT             Project settings.
+--      CONFIG              Amend settings.
+--      TOOLS               System tools (see 'amend/tools.lua')
+--      PATHS               Additional module paths.
+--      IGNORE              Files or directories generally to ignore (list of regex patterns, using .gitingore if available).
+--      VERBOSE             Verbosity level.
+
+-- prepare IGNORE list
+IGNORE = {"[.]", "[.][.]", "[.]amend", "[.]git", "[.]gitignore"}
+
+-- store EXECDIR
+local lfs = require "lfs" -- amend.filesystem cannot be loaded yet
+EXECDIR = lfs.currentdir()
+
+-- find ROOTDIR
+local found = false
+while not found do
+    ROOTDIR = lfs.currentdir()
+    PROJECTFILE = table.concat({ROOTDIR, ".amend", "project.lua"}, dirsep)
+    local attr = lfs.attributes(PROJECTFILE)
+    if attr then
+        found = true
+        break
+    end
+
+    -- stop at file-system root
+    lfs.chdir("..")
+    if ROOTDIR == lfs.currentdir() then
+        break
+    end
+end
+lfs.chdir(EXECDIR)
+
+-- bail out, if not found, execute otherwise
+if not found then
+    print [[
+The project root could not be found.
+
+See 'amend/README.md' for further information.
+]]
+    os.exit(1)
+end
+
+-- load project config
+dofile(PROJECTFILE)
+if PATHS[0] then
+    package:addpath(PATHS[0])
+end
+for _, path in ipairs(PATHS) do
+    package:addpath(ROOTDIR .. dirsep .. path)
+end
+
+-- load modules (all go into global)
+local initstatus, errmsg = pcall(require, "amend.init")
+if not initstatus then
+    print(errmsg) -- FOR DEVELOPMENT ONLY
+
+    -- amend.init is not installed in Lua's search path,
+    -- so we try to find it within the tree under ROOTDIR
+    local function findpath(path)
+        for file in lfs.dir(path) do
+            if file:sub(1, 1) ~= "." then
+                local dir = path .. dirsep .. file
+                if lfs.attributes(dir).mode == "directory" then
+                    package:pushpath(dir)
+                    initstatus = pcall(require, "amend.init")
+                    if initstatus then
+                        package:poppath()
+                        print("FOUND", dir)
+                        return dir
+                    end
+                    package:poppath()
+
+                    local found = findpath(dir)
+                    if found then
+                        return found
+                    end
+                end
+            end
+        end
+    end
+
+    local found = findpath(ROOTDIR)
+    if found then
+        package:addpath(found)
+        PATHS[0] = found
+    end
+end
+
+-- bail out, if not found
+if not initstatus then
+    print [[
+The "amend" module directory could not be found.
+
+See 'amend/README.md' for further information.
+]]
+    os.exit(1)
+end
+
+-- initialize config
+require "amend.project"
+
+-- load .gitignore, etc.
+fs.readwild(fs.concat(ROOTDIR, ".gitignore"), IGNORE)
+
+-- [[ OPTIONS ]]
+require "amend.message"
+
+OPTIONS = {}
+OPTIONS.interpreter = arg[-1]
+OPTIONS.invocation = arg[0]
+
+if #arg == 0 then
+    OPTIONS.component = "all"
+else
+    for i, k in ipairs(arg) do
+        if i == 1 then
+            if table.has({"-h", "--help", "-help", "-?", "/h", "/?"}, k) then
+                OPTIONS.component = "help"
+            else
+                OPTIONS.component = k
+            end
+        else
+            table.insert(OPTIONS, k)
+        end
+    end
+end
+
+-- [[ COMPONENTS ]]
+component.find()
+
+-- [[ EXECUTE ]]
+if OPTIONS.component == "help" then
+    local printf = io.printf
+    printf([[
+%s
+%s
+
+%s
+
+Usage:
+%s
+]], invocation, copyright, description, usage)
+
+    component.help()
+else
+    package:addpath(".amend")
+    component.run(OPTIONS.component)
+end
