@@ -130,6 +130,7 @@ end
 --      .gitignore
 --
 -- The project file contains the general configuration variables:
+-- 
 --      PROJECT             Project settings.
 --      CONFIG              Amend settings.
 --      TOOLS               System tools (see 'amend/tools.lua')
