@@ -15,7 +15,6 @@ local function builtin(m)
     tinsert(COMPONENTS, b)
 end
 
-builtin 'amend.component.docs'
 builtin 'amend.component.dirs'
 builtin 'amend.component.all'
 builtin 'amend.component.edit'

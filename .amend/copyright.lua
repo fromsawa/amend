@@ -2,7 +2,7 @@
 message "Updating copyrights..."
 
 local symbol = "©" -- copyright symbol
-local pattern = {"Yogev Sawa"} -- copyright pattern(s)
+local pattern = {"Yogev Sawa"} -- copyright name pattern(s)
 local year = tonumber(OPTIONS[1] or os.date("%Y")) -- year
 
 function fix_copyright(fname)
@@ -15,6 +15,7 @@ function fix_copyright(fname)
     local bpos, epos, copyright, sym, year_from, year_to, name =
         txt:find("(Copyright)[ ]*([^0-9]*)[ ]*([0-9]+)[-]*([0-9]*)[ ]+([^\n]+)")
 
+    -- edit files (if applicable)
     if table.has(pattern, name) then
         year_from = tonumber(year_from)
         year_to = tonumber(year_to)

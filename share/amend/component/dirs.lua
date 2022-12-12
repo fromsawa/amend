@@ -12,7 +12,7 @@ return {
             function(d)
                 print(d[0])
             end,
-            {exclude = INGORE}
+            {exclude = IGNORE, mode = 'directory', recurse = true}
         )
     end
 }

@@ -20,6 +20,7 @@ component = require "amend.component"
 edit = require "amend.edit"
 csv = require "amend.csv"
 rdbl = require "amend.rdbl"
+tools = require "amend.tools"
 
 -- get current file name
 function filename()

@@ -9,14 +9,14 @@ local tunpack = table.unpack
 local sformat = string.format
 local printf = io.printf
 
-VERBOSE = 3
+VERBOSE = VERBOSE or 2
 
 -- FIXME document
 ERROR = {-2}
 WARNING = {-1}
 NOTICE = {0}
-INFO = {1}
-STATUS = {2}
+STATUS = {1}
+INFO = {2}
 DEBUG = {3}
 TRACE = {4, 5, 6, 7, 8, 9}
 
@@ -32,6 +32,10 @@ function message(...)
     local level = {0} -- NOTICE
 
     if type(args[1]) == "table" then
+        while type(t) == 'table' do 
+            t = table.unpack(t); 
+        end
+
         level = tremove(args, 1)
 
         if #args == 0 then
@@ -57,6 +61,8 @@ function message(...)
         if prefix then
             printf(prefix)
         end
+
+        -- FIXME add "[<level>]" to output
         print(sformat(tunpack(args)))
     end
 end

@@ -168,6 +168,7 @@ end
 -- ::args
 --      file                The file name (containing wildcard patterns and comments).
 --      tbl [optional]      Existing table (with regex patterns).
+--
 local function readwild(file, tbl)
     tbl = tbl or {}
 
@@ -181,8 +182,9 @@ local function readwild(file, tbl)
                 tinsert(tbl, pattern)
             end
         end
+
+        f:close()
     end
-    f:close()
 
     return tbl
 end

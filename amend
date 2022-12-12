@@ -5,22 +5,19 @@ local license = "UNLICENSE (see <http://unlicense.org/>)" -- see below
 local invocation = "amend [<options>...]"
 local version = "0.90"
 local description = "Utility for revising source code."
-local usage =
-    [[
+local usage = [[
     This tool must be executed inside the source code tree where it 
     expects to find '.amend/project.lua' in the top source folder.
-    For details, see accompanied 'amend/README.md' or online documentation
-    at https://fromsawa.github.io/amend/.
+    For details, see possibly accompanied 'amend/README.md' and 
+    online documentation at https://fromsawa.github.io/amend/.
 
 Options:
     --help                       show this help
     --version                    show amend version
+    --verbose=value              set verbosity (use help for a list)
     <component> [arguments]      execute a component or command
 ]]
 
---[[>>[amend.copyright]
-    Copyright (C) 2021-2022 Yogev Sawa
-]]
 --[[>>[amend.license]
     UNLICENSE
 
@@ -50,7 +47,7 @@ Options:
     For more information, please refer to <http://unlicense.org/>
 ]]
 
--->>[amend.api.lua.package] #+ Package
+-- >>[amend.api.lua.package] #+ Package
 
 local dirsep = package.config:sub(1, 1)
 local pathsep = package.config:sub(3, 3)
@@ -58,12 +55,11 @@ local modulemark = package.config:sub(5, 5)
 
 local package_path_stack = {}
 local package_meta = {
-    -->> ##+ `package:addpath(path)`
+    -- >> ##+ `package:addpath(path)`
     -- Add search directory to script path.
     addpath = function(_, dir)
-        local newpath =
-            table.concat({dir, modulemark}, dirsep) ..
-            ".lua" .. pathsep .. table.concat({dir, modulemark, "init"}, dirsep) .. ".lua"
+        local newpath = table.concat({dir, modulemark}, dirsep) .. ".lua" .. pathsep ..
+                            table.concat({dir, modulemark, "init"}, dirsep) .. ".lua"
         package.path = newpath .. pathsep .. package.path
 
         -- also update push/pop stack
@@ -71,16 +67,15 @@ local package_meta = {
             package_path_stack[i] = newpath .. pathsep .. package_path_stack[i]
         end
     end,
-    -->> ##+ `package:pushpath(path)`
+    -- >> ##+ `package:pushpath(path)`
     -- Temporarily add a script search path.
     pushpath = function(_, dir)
         table.insert(package_path_stack, package.path)
-        local newpath =
-            table.concat({dir, modulemark}, dirsep) ..
-            ".lua" .. pathsep .. table.concat({dir, modulemark, "init"}, dirsep) .. ".lua"
+        local newpath = table.concat({dir, modulemark}, dirsep) .. ".lua" .. pathsep ..
+                            table.concat({dir, modulemark, "init"}, dirsep) .. ".lua"
         package.path = newpath .. pathsep .. package.path
     end,
-    -->> ##+ `package:poppath()`
+    -- >> ##+ `package:poppath()`
     -- Remove previously added script search path.
     poppath = function(_)
         local n = #package_path_stack
@@ -115,37 +110,49 @@ Usage:
     end
 end
 
--->>[amend.api.globals] 
+-- >>[amend.api.globals] 
+--
+-- The following global variables are set or determined at startup:
 --
 --      EXECDIR             Path, where ''amend.lua'' was started.
 --      ROOTDIR             Project root (where ''.amend/project.lua'' was found).
 --      PROJECTFILE         Full path to the ''.amend/project.lua'' file.
+--
+-- To separate source from other files, the variable
+--
+--      IGNORE              Files or directories generally to ignore.
+-- 
+-- is populated (regular expressions) at startup. This list is automatically
+-- extended if ''amend'' finds the following files, containing wild-card patterns,
+-- in the ''ROOTDIR'':
+--
+--      .amend/ignore
+--      .gitignore
+--
+-- The project file contains the general configuration variables:
 --      PROJECT             Project settings.
 --      CONFIG              Amend settings.
 --      TOOLS               System tools (see 'amend/tools.lua')
 --      PATHS               Additional module paths.
---      IGNORE              Files or directories generally to ignore (list of regex patterns, using .gitingore if available).
---      VERBOSE             Verbosity level.
+--
+-- See [amend.api.project] for details.
 
--- prepare IGNORE list
-IGNORE = {"[.]", "[.][.]", "[.]amend", "[.]git", "[.]gitignore"}
-
--- store EXECDIR
+-- set EXECDIR
 local lfs = require "lfs" -- amend.filesystem cannot be loaded yet
 EXECDIR = lfs.currentdir()
 
--- find ROOTDIR
-local found = false
-while not found do
+-- find ROOTDIR/PROJECTFILE
+local hasprojectfile = false
+while not hasprojectfile do
     ROOTDIR = lfs.currentdir()
     PROJECTFILE = table.concat({ROOTDIR, ".amend", "project.lua"}, dirsep)
     local attr = lfs.attributes(PROJECTFILE)
     if attr then
-        found = true
+        hasprojectfile = true
         break
     end
 
-    -- stop at file-system root
+    -- stop condition
     lfs.chdir("..")
     if ROOTDIR == lfs.currentdir() then
         break
@@ -153,15 +160,21 @@ while not found do
 end
 lfs.chdir(EXECDIR)
 
+-- prepare IGNORE list
+IGNORE = {"[.]", "[.][.]", "[.]amend", "[.]git", "[.]gitignore"}
+
 -- load project config
-if found then
+if hasprojectfile then
     dofile(PROJECTFILE)
-    if PATHS[0] then
-        package:addpath(PATHS[0])
+
+    -- supplement search path
+    for _, p in ipairs(PATHS or {}) do
+        package:addpath(ROOTDIR .. dirsep .. p)
     end
-    for _, path in ipairs(PATHS) do
-        package:addpath(ROOTDIR .. dirsep .. path)
-    end
+
+    -- load .amend/ignore, .gitignore, etc.
+    fs.readwild(fs.concat(ROOTDIR, ".amend", "ignore"), IGNORE)
+    fs.readwild(fs.concat(ROOTDIR, ".gitignore"), IGNORE)
 end
 
 -- load modules (all go into global)
@@ -185,18 +198,68 @@ See 'https://fromsawa.github.io/amend/#installation' for further information.
     os.exit(1)
 end
 
--- check for general options (--help,--version)
-if not PROJECT then
-    for _, k in ipairs(arg) do
-        if table.has({"-h", "--help", "-help", "-?", "/h", "/?"}, k) then
-            showhelp()
-        elseif table.has({"-v", "--version"}, k) then
-            print(version)
-        end
-        os.exit()
-    end
+-- initial argument parsing
+require "amend.message"
 
-    print[[
+local opts = {}
+local i = 1
+while i <= #arg do
+    local k = arg[i]
+
+    if not PROJECT and table.has({"-h", "--help", "-help", "-?", "/h", "/?"}, k) then
+        showhelp()
+        os.exit()
+    elseif table.has({"-t", "--template"}, k) then
+        -- FIXME implement a template project mechanism and add to 'usage'
+    elseif table.has({"--version"}, k) then
+        print(version)
+        os.exit()
+    elseif k:match("^--verbose=") then
+        local level = k:match("^--verbose=(.*)")
+        local known = {
+            'error',
+            'warning',
+            'notice',
+            'info',
+            'status',
+            'debug',
+            'trace',
+            error = ERROR[1],
+            warning = WARNING[1],
+            notice = NOTICE[1],
+            status = STATUS[1],
+            info = INFO[1],
+            debug = DEBUG[1],
+            trace = TRACE[#TRACE]
+        }
+
+        if level == "help" then
+            print "Verbosity levels:"
+            for _, k in ipairs(known) do
+                print('    ' .. k, known[k])
+            end
+            print "or, alternatively, the respective value."
+
+            os.exit()
+        end
+
+        VERBOSE = tonumber(level) or known[level]
+        if not VERBOSE then
+            print("Verbosity level '" .. level .. "' is not know.")
+            print("Use 'help' for a list.")
+            os.exit(1)
+        end
+
+        message(DEBUG, "verbosity set to: %d", VERBOSE)
+    else
+        table.insert(opts, k)
+    end
+    i = i + 1
+end
+
+-- we're done, if no project file was found
+if not PROJECT then
+    print [[
 No project found. Exiting...
 
 See 'amend --help' for further information.
@@ -204,23 +267,19 @@ See 'amend --help' for further information.
     os.exit()
 end
 
--- initialize config
+-- initialize project
 require "amend.project"
 
--- load .gitignore, etc.
-fs.readwild(fs.concat(ROOTDIR, ".gitignore"), IGNORE)
-
 -- [[ OPTIONS ]]
-require "amend.message"
-
 OPTIONS = {}
 OPTIONS.interpreter = arg[-1]
 OPTIONS.invocation = arg[0]
 
-if #arg == 0 then
+if #opts == 0 then
     OPTIONS.component = "all"
 else
-    for i, k in ipairs(arg) do
+    for i, k in ipairs(opts) do
+        print("OPTS", i, k)
         if i == 1 then
             if table.has({"-h", "--help", "-help", "-?", "/h", "/?"}, k) then
                 OPTIONS.component = "help"
