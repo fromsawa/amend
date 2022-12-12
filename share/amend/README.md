@@ -1,11 +1,14 @@
-# Amend tool
+# Amend
+
+Source code revision tool.
+
+## Description
 
 FIXME
 
 ## API
 
 ### Globals
-
 
      EXECDIR             Path, where ''amend.lua'' was started.
      ROOTDIR             Project root (where ''.amend/project.lua'' was found).

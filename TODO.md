@@ -1,0 +1,2 @@
+- create https://fromsawa.github.io/amend/#installation
+- self documentation
