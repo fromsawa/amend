@@ -1,11 +1,18 @@
 --[[
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]] --[[>>[amend.api.logging] Message logging
-]] local tremove = table.remove
+]] 
+
+--[[>>[amend.api.logging] Message logging
+]] 
+
+local tremove = table.remove
 local tunpack = table.unpack
 local sformat = string.format
-local printf = io.printf
+local iowrite = io.write
+local printf = function(fmt, ...) 
+    iowrite(sformat(fmt, ...))
+end
 
 --- #+ `VERBOSE`
 -- Default verbosity level.
@@ -62,7 +69,8 @@ function message(...)
         if level[1] >= TRACE[1] then
             local dbg = debug.getinfo(2)
 
-            local _, dfile, _ = fs.parts(dbg.short_src)
+            local dfile = dbg.short_src:match(".*(amend[/\\].*)$") 
+            dfile = dfile or  dbg.short_src
             prefix = sformat("[%s:%d] ", dfile, dbg.currentline)
         else
             local prefs = {
@@ -133,4 +141,7 @@ function verbosity(level)
     end
 
     message(DEBUG, "verbosity set to: %d", VERBOSE)
+    return VERBOSE
 end
+
+VERBOSE = verbosity(VERBOSE)

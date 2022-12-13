@@ -14,3 +14,7 @@ function os.command(program, ...)
     local cmd = stringformat(program,...)
     return osexecute(cmd)
 end
+
+-- [[ MODULE ]]
+message(TRACE[10], "extended os library")
+return os

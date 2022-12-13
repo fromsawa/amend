@@ -31,7 +31,7 @@ Example:
 local mod = {}
 
 COMPONENTS = {}
-require "amend.component.builtin"
+require "amend.builtin"
 require "amend.message"
 
 local printf = io.printf
@@ -48,7 +48,7 @@ local function help()
     for _, v in ipairs(COMPONENTS) do
         if v.scope == "builtin" then
             local cmpnt = v.invocation or v.name
-            printf("    %-28s %s.\n", cmpnt, v.comment or "")
+            printf("    %-28s %s\n", cmpnt, v.comment or "")
         end
     end
 
@@ -259,4 +259,5 @@ mod.help = help
 mod.find = find
 mod.run = run
 
+message(TRACE[10], "loaded component module")
 return mod

@@ -89,6 +89,35 @@ local function io_dump(value, options)
     local fmt_integer = format.integer or "%d"
     local fmt_number = format.number or "%g"
 
+    local function findobj(obj, tbl, res)
+        for k,v in pairs(tbl) do
+            if v ~= _G.package then
+                if v == obj then
+                    table.insert(res, k)
+                    return true
+                elseif type(v) == 'table' then
+                    table.insert(res, k)
+                    
+                    if findobj(obj, v, res) then
+                        return true
+                    end
+
+                    table.remove(res)
+                end
+            end
+        end
+
+        return false
+    end
+
+    local function fnname(d)
+        local keys = {}
+        if findobj(d, _G, keys) then
+            return table.concat(keys, ".")
+        end
+        return tostring(d)
+    end
+
     local function _tostr(d)
         if type(d) == "number" then
             if math.type(d) == "integer" then
@@ -96,6 +125,8 @@ local function io_dump(value, options)
             else
                 return string.format(fmt_number, d)
             end
+        elseif type(d) == "function" then
+            return fnname(d)
         end
         return tostring(d)
     end
@@ -126,7 +157,18 @@ local function io_dump(value, options)
             break
         end
 
-        if isempty then
+        local mt = getmetatable(value)
+        if mt and mt.__dump then
+            mt.__dump(t, { 
+                indent = indent,
+                level = level,
+                stream = stream,
+                format = format,
+                quoted = quoted,
+                always_index = always_index,
+                nocomma = false
+            })
+        elseif isempty then
             stream:write("{}")
         else
             stream:write("{\n")
@@ -269,4 +311,5 @@ function io.command(program, ...)
 end
 
 -- [[ MODULE ]]
+message(TRACE[10], "extended io library")
 return io

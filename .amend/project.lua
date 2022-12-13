@@ -6,33 +6,36 @@
         NAME            Project name.
         VERSION         Project version.
 
-    If a CMakeLists.txt file is present, these values are automatically detected.
+    as well as 
 
-    Additional variable(s) are:
-        USE             List of languages and tools required.
+        USES            List of tools in use.
 
     Users are free to add additional entries.
 ]]
 PROJECT = {
     NAME = "amend",
-    USES = { 'GIT' },
-    VERSION = "0.90",
+    USES = {
+        "CLANG",
+        "GIT"
+    },
+    VERSION = "0.90"
 }
 
 --[[
     Amend configuration.
 
-    FIXME
 ]]
 CONFIG = {
+    EXTENSIONS = {},
+    LANG = {}
 }
 
 --[[
     Tools.
-
-    FIXME
 ]]
 TOOLS = {
+    ["clang-format"] = auto,
+    ["git"] = auto
 }
 
 --[[

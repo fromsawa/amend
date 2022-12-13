@@ -2,8 +2,10 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
+
 --[[>>[amend.api.lua.table] #+ Table
 ]]
+
 -->> ##+ `table.has(tbl, item)`
 -- Check if array-part of a table has an element.
 -- ::args
@@ -112,3 +114,36 @@ local function tmerge(t, other)
     return t
 end
 table.merge = tmerge
+
+-->> ##+ `table.unique(t)`
+-- Make array elements unique.
+function table.unique(t)
+    local seen = {}
+
+    local i = 1
+    while i <= #t do
+        local v = t[i]
+        if seen[v] then
+            table.remove(t, i)
+        else
+            seen[v] = true
+            i = i + 1
+        end
+    end
+
+    return t
+end
+
+-->> ##+ `table.insert_unique(t, v)`
+-- Add a unique value.
+function table.insert_unique(t, v)
+    if not table.has(t, v) then
+        table.insert(t, v)
+    end
+
+    return t
+end
+
+-- [[ MODULE ]]
+message(TRACE[10], "extended table library")
+return table

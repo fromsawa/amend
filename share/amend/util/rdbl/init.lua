@@ -2,8 +2,7 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[==========================================================================[
-    ::title[rdbl] ReaDaBLe
+--[==========================================================================[>>[amend.api.util.rdbl] ReaDaBLe
 
     ::foreword
     Configuration files suck - yet they are invaluable. They are especially valuable if they are
@@ -24,7 +23,7 @@
         The author does recognize the ideas behind YAML. He also wants to express, that alternatives,
         such as XML or JSON, have their merit. 
 
-    noYAML provides a simple sub-set of YAML, is easy to parse and consitent.
+    RDBL provides a simple sub-set of YAML, is easy to parse and consitent.
 
     ::image<
         ::type comic
@@ -49,4 +48,5 @@ modimport "amend.util.rdbl.export"
 modimport "amend.util.rdbl.import"
 
 -- [[ MODULE ]]
+message(TRACE[10], "loaded util.rdbl module")
 return M

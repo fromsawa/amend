@@ -121,3 +121,7 @@ function string.wrap(s, max_column, no_concat)
         return table.concat(res, "\n")
     end
 end
+
+-- [[ MODULE ]]
+message(TRACE[10], "extended string library")
+return string

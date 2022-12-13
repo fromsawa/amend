@@ -2,7 +2,7 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[>>[amend.api.filesystem] #+ Extensions to LuaFileSystem.
+--[[>>[amend.api.util.filesystem] #+ Extensions to LuaFileSystem.
 ]]
 local mod = {}
 
@@ -371,7 +371,25 @@ end
 -- FIXME
 local function filetype(fname)
     local _, _, ext = parts(fname)
-    return EXTENSION[ext]
+    return EXTENSIONS[ext]
+end
+
+-->> ##+ `fs.which(executable)`
+--
+-- Get full path to an executable.
+-- 
+local function which(executable)
+    -- FIXME windows
+    local sep = ":"
+    local search = os.getenv("PATH")
+    local list = string.split(search, sep)
+
+    for _, path in ipairs(list) do
+        local res = concat(path, executable)
+        if exists(res) then
+            return res
+        end
+    end
 end
 
 --- Touch all files, ensuring same access and modification time.
@@ -413,6 +431,8 @@ mod.rename = os.rename
 mod.rmkdir = rmkdir
 mod.grep = grep
 mod.filetype = filetype
+mod.which = which
 mod.touchall = touchall
 
+message(TRACE[10], "loaded util.filesystem module")
 return mod

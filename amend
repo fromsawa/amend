@@ -49,7 +49,9 @@ Options:
 
 setmetatable(usage, {
     __call = function(self, full)
-        local printf = io.printf
+        local printf = function(fmt, ...)
+            io.write(string.format(fmt, ...))
+        end
 
         printf([[
 Amend v%s
@@ -63,7 +65,7 @@ Invocation:
 
 Usage:
 %s
-    ]], version, copyright, license, description, invocation, self[0])
+]], version, copyright, license, description, invocation, self[1])
 
         if full then
             component.help()
@@ -177,6 +179,38 @@ if hasprojectfile then
     end
 end
 
+-- initial argument parsing
+local function have(t, v)
+    for _,k in ipairs(t) do
+        if k == v then
+            return true
+        end
+    end
+    return false
+end
+
+local opts = {}
+local i = 1
+while i <= #arg do
+    local k = arg[i]
+
+    if not PROJECT and have({"-h", "--help", "-help", "-?", "/h", "/?"}, k) then
+        usage()
+        os.exit()
+    elseif have({"-u", "--update"}, k) then
+        PROJECT = PROJECT or {}
+        PROJECT.UPDATE = true
+    elseif have({"--version"}, k) then
+        print(version)
+        os.exit()
+    elseif k:match("^--verbose=") then
+        VERBOSE = k:match("^--verbose=(.*)")
+    else
+        table.insert(opts, k)
+    end
+    i = i + 1
+end
+
 -- load modules (all go into global)
 local initstatus, errmsg = pcall(require, "amend.init")
 if not initstatus then
@@ -187,7 +221,9 @@ if not initstatus then
     package:addpath(table.concat({ownpath, "share"}, dirsep))
     initstatus, errmsg = pcall(require, "amend.init")
 
-    print(errmsg)
+    if not initstatus then
+        print(errmsg) -- FOR DEVELOPMENT ONLY
+    end
 end
 
 -- bail out, if not found
@@ -203,31 +239,6 @@ end
 -- load .amend/ignore, .gitignore, etc.
 fs.readwild(fs.concat(ROOTDIR, ".amend", "ignore"), IGNORE)
 fs.readwild(fs.concat(ROOTDIR, ".gitignore"), IGNORE)
-
--- initial argument parsing
-require "amend.message"
-
-local opts = {}
-local i = 1
-while i <= #arg do
-    local k = arg[i]
-
-    if not PROJECT and table.has({"-h", "--help", "-help", "-?", "/h", "/?"}, k) then
-        usage()
-        os.exit()
-    elseif table.has({"-t", "--template"}, k) then
-        -- FIXME implement a template project mechanism and add to 'usage'
-    elseif table.has({"--version"}, k) then
-        print(version)
-        os.exit()
-    elseif k:match("^--verbose=") then
-        local level = k:match("^--verbose=(.*)")
-        verbosity(level)
-    else
-        table.insert(opts, k)
-    end
-    i = i + 1
-end
 
 -- we're done, if no project file was found
 if not PROJECT then
@@ -251,7 +262,6 @@ if #opts == 0 then
     OPTIONS.component = "all"
 else
     for i, k in ipairs(opts) do
-        print("OPTS", i, k)
         if i == 1 then
             if table.has({"-h", "--help", "-help", "-?", "/h", "/?"}, k) then
                 OPTIONS.component = "help"

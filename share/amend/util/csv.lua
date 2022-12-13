@@ -2,7 +2,7 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[>>[amend.api.csv] #+ CSV-file tools.
+--[[>>[amend.api.util.csv] #+ CSV-file tools.
 ]]
 local mod = {}
 
@@ -87,4 +87,5 @@ function mod.load(fname, opts)
 end
 
 -- [[ MODULE ]]
+message(TRACE[10], "loaded util.csv module")
 return mod
