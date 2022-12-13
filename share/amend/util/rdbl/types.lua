@@ -7,7 +7,7 @@
 
     FIXME
 ]]
-local M = require "amend.rdbl.version"
+local M = require "amend.util.rdbl.version"
 
 local mnan = 0 / 0
 local minf = 1 / 0

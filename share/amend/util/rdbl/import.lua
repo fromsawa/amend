@@ -7,10 +7,10 @@
 
     FIXME
 ]]
-local M = require "amend.rdbl.version"
+local M = require "amend.util.rdbl.version"
 local modimport = M.modimport
 
-modimport "amend.rdbl.types"
+modimport "amend.util.rdbl.types"
 
 local mtype = math.type
 local tinsert = table.insert

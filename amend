@@ -5,7 +5,7 @@ local license = "UNLICENSE (see <http://unlicense.org/>)" -- see below
 local invocation = "amend [<options>...]"
 local version = "0.90"
 local description = "Utility for revising source code."
-local usage = [[
+local usage = {[[
     This tool must be executed inside the source code tree where it 
     expects to find '.amend/project.lua' in the top source folder.
     For details, see possibly accompanied 'amend/README.md' and 
@@ -16,7 +16,7 @@ Options:
     --version                    show amend version
     --verbose=value              set verbosity (use help for a list)
     <component> [arguments]      execute a component or command
-]]
+]]}
 
 --[[>>[amend.license]
     UNLICENSE
@@ -46,6 +46,31 @@ Options:
 
     For more information, please refer to <http://unlicense.org/>
 ]]
+
+setmetatable(usage, {
+    __call = function(self, full)
+        local printf = io.printf
+
+        printf([[
+Amend v%s
+%s
+License: %s
+
+%s
+
+Invocation:
+    %s
+
+Usage:
+%s
+    ]], version, copyright, license, description, invocation, self[0])
+
+        if full then
+            component.help()
+        end
+    end
+})
+
 
 -- >>[amend.api.lua.package] #+ Package
 
@@ -87,28 +112,6 @@ local package_meta = {
 }
 package_meta.__index = package_meta
 setmetatable(package, package_meta)
-
-local function showhelp(full)
-    local printf = io.printf
-
-    printf([[
-Amend v%s
-%s
-License: %s
-
-%s
-
-Invocation:
-    %s
-
-Usage:
-%s
-]], version, copyright, license, description, invocation, usage)
-
-    if full then
-        component.help()
-    end
-end
 
 -- >>[amend.api.globals] 
 --
@@ -172,10 +175,6 @@ if hasprojectfile then
     for _, p in ipairs(PATHS or {}) do
         package:addpath(ROOTDIR .. dirsep .. p)
     end
-
-    -- load .amend/ignore, .gitignore, etc.
-    fs.readwild(fs.concat(ROOTDIR, ".amend", "ignore"), IGNORE)
-    fs.readwild(fs.concat(ROOTDIR, ".gitignore"), IGNORE)
 end
 
 -- load modules (all go into global)
@@ -187,6 +186,8 @@ if not initstatus then
 
     package:addpath(table.concat({ownpath, "share"}, dirsep))
     initstatus, errmsg = pcall(require, "amend.init")
+
+    print(errmsg)
 end
 
 -- bail out, if not found
@@ -199,6 +200,10 @@ See 'https://fromsawa.github.io/amend/#installation' for further information.
     os.exit(1)
 end
 
+-- load .amend/ignore, .gitignore, etc.
+fs.readwild(fs.concat(ROOTDIR, ".amend", "ignore"), IGNORE)
+fs.readwild(fs.concat(ROOTDIR, ".gitignore"), IGNORE)
+
 -- initial argument parsing
 require "amend.message"
 
@@ -208,7 +213,7 @@ while i <= #arg do
     local k = arg[i]
 
     if not PROJECT and table.has({"-h", "--help", "-help", "-?", "/h", "/?"}, k) then
-        showhelp()
+        usage()
         os.exit()
     elseif table.has({"-t", "--template"}, k) then
         -- FIXME implement a template project mechanism and add to 'usage'
@@ -298,7 +303,7 @@ component.find()
 
 -- [[ EXECUTE ]]
 if OPTIONS.component == "help" then
-    showhelp(true)
+    usage(true)
 else
     package:addpath(".amend")
     component.run(OPTIONS.component)

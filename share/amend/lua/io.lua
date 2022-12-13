@@ -83,6 +83,7 @@ local function io_dump(value, options)
     local key = options.key
     local quoted = options.quoted
     local always_index = options.index
+    local nocomma = options.nocomma
 
     local format = options.format or {}
     local fmt_integer = format.integer or "%d"
@@ -130,8 +131,8 @@ local function io_dump(value, options)
         else
             stream:write("{\n")
 
-            ks = getkeys(value)
-            for _, k in ipairs(ks) do
+            local ks = getkeys(value)
+            for i, k in ipairs(ks) do
                 if math.type(k) == "integer" and k >= 1 and k <= #value and not always_index then
                     io_dump(
                         value[k],
@@ -141,7 +142,8 @@ local function io_dump(value, options)
                             stream = stream,
                             format = format,
                             quoted = quoted,
-                            always_index = always_index
+                            always_index = always_index,
+                            nocomma = (i == #ks)
                         }
                     )
                 else
@@ -154,7 +156,8 @@ local function io_dump(value, options)
                             stream = stream,
                             format = format,
                             quoted = quoted,
-                            always_index = always_index
+                            always_index = always_index,
+                            nocomma = (i == #ks)
                         }
                     )
                 end
@@ -191,7 +194,8 @@ local function io_dump(value, options)
         stream:write(_tostr(value))
     end
 
-    if level > 0 then
+    -- comman and newline
+    if not nocomma then
         stream:write(",\n")
     else
         stream:write("\n")
@@ -222,12 +226,15 @@ function io.dump(value, options)
     options.indent = options.indent or "    "
     options.level = options.level or 0
     options.format = options.format or {}
+    options.nocomma = (options.level == 0)
 
-    -- dump
+    -- prefix (if applicable)
     if options.prefix then
         options.stream:write(string.rep(options.indent, options.level))
         options.stream:write(options.prefix .. " ")
     end
+
+    -- dump
     return io_dump(value, options)
 end
 

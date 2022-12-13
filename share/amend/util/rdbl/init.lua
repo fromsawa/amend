@@ -38,15 +38,15 @@
     ::[.export]
 --]==========================================================================]
 
-local M = require "amend.rdbl.version"
+local M = require "amend.util.rdbl.version"
 local modimport = M.modimport
 
 -- TODO:
 -- - use "array" or "sequence" - or even have array for {} and sequence for -?
 
-modimport "amend.rdbl.types"
-modimport "amend.rdbl.export"
-modimport "amend.rdbl.import"
+modimport "amend.util.rdbl.types"
+modimport "amend.util.rdbl.export"
+modimport "amend.util.rdbl.import"
 
 -- [[ MODULE ]]
 return M

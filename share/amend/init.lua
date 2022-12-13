@@ -15,12 +15,12 @@ require "amend.lua.string"
 require "amend.lua.table"
 
 -- amend functionality
-fs = require "amend.filesystem"
+fs = require "amend.util.filesystem"
 component = require "amend.component"
-edit = require "amend.edit"
-csv = require "amend.csv"
-rdbl = require "amend.rdbl"
-tools = require "amend.tools"
+csv = require "amend.util.csv"
+rdbl = require "amend.util.rdbl"
+edit = require "amend.builtin.edit"
+tools = require "amend.tool"
 
 -- get current file name
 function filename()
