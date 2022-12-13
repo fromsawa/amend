@@ -222,41 +222,7 @@ while i <= #arg do
         os.exit()
     elseif k:match("^--verbose=") then
         local level = k:match("^--verbose=(.*)")
-        local known = {
-            'error',
-            'warning',
-            'notice',
-            'info',
-            'status',
-            'debug',
-            'trace',
-            error = ERROR[1],
-            warning = WARNING[1],
-            notice = NOTICE[1],
-            status = STATUS[1],
-            info = INFO[1],
-            debug = DEBUG[1],
-            trace = TRACE[#TRACE]
-        }
-
-        if level == "help" then
-            print "Verbosity levels:"
-            for _, k in ipairs(known) do
-                print('    ' .. k, known[k])
-            end
-            print "or, alternatively, the respective value."
-
-            os.exit()
-        end
-
-        VERBOSE = tonumber(level) or known[level]
-        if not VERBOSE then
-            print("Verbosity level '" .. level .. "' is not know.")
-            print("Use 'help' for a list.")
-            os.exit(1)
-        end
-
-        message(DEBUG, "verbosity set to: %d", VERBOSE)
+        verbosity(level)
     else
         table.insert(opts, k)
     end
