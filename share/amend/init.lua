@@ -24,7 +24,7 @@ function filename()
     return cwd .. dirsep .. module
 end
 
---- FIXME
+-- FIXME
 auto = {}
 setmetatable(auto, {
     __dump = function(self, options)

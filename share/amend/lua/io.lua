@@ -7,7 +7,7 @@
 local stdout = io.stdout
 local sformat = string.format
 
--->> ##+ `io.printf(...)`
+--- `io.printf(...)`
 -- Equivalent to C's ''printf''
 function io.printf(...)
     return stdout:write(sformat(...))
@@ -244,7 +244,7 @@ local function io_dump(value, options)
     end
 end
 
--->> ##+ `io.dump(value, options)`
+--- `io.dump(value, options)`
 -- Dump value.
 -- ::args
 --      value                   Value to stream to output.
@@ -280,7 +280,7 @@ function io.dump(value, options)
     return io_dump(value, options)
 end
 
--->> ##+ `io.readall(fname)`
+--- `io.readall(fname)`
 -- Read file.
 -- ::args
 --      fname           The file name.
@@ -290,7 +290,7 @@ function io.readall(fname)
     return f:read("a")
 end
 
--->> ##+ `io.command(program, ...)`
+--- `io.command(program, ...)`
 -- Execute command and read output.
 -- ::args
 --          program                 The command to execute (as format string).

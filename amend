@@ -18,8 +18,7 @@ Options:
     <component> [arguments]      execute a component or command
 ]]}
 
---[[>>[amend.license]
-    UNLICENSE
+--[[>>[amend.license] UNLICENSE
 
     This is free and unencumbered software released into the public domain.
     
@@ -74,7 +73,7 @@ Usage:
 })
 
 
--- >>[amend.api.lua.package] #+ Package
+-->>[amend.api.lua.package] Package
 
 local dirsep = package.config:sub(1, 1)
 local pathsep = package.config:sub(3, 3)
@@ -82,7 +81,7 @@ local modulemark = package.config:sub(5, 5)
 
 local package_path_stack = {}
 local package_meta = {
-    -- >> ##+ `package:addpath(path)`
+    --- `package:addpath(path)`
     -- Add search directory to script path.
     addpath = function(_, dir)
         local newpath = table.concat({dir, modulemark}, dirsep) .. ".lua" .. pathsep ..
@@ -94,7 +93,7 @@ local package_meta = {
             package_path_stack[i] = newpath .. pathsep .. package_path_stack[i]
         end
     end,
-    -- >> ##+ `package:pushpath(path)`
+    --- `package:pushpath(path)`
     -- Temporarily add a script search path.
     pushpath = function(_, dir)
         table.insert(package_path_stack, package.path)
@@ -102,7 +101,7 @@ local package_meta = {
                             table.concat({dir, modulemark, "init"}, dirsep) .. ".lua"
         package.path = newpath .. pathsep .. package.path
     end,
-    -- >> ##+ `package:poppath()`
+    --- `package:poppath()`
     -- Remove previously added script search path.
     poppath = function(_)
         local n = #package_path_stack
@@ -115,7 +114,7 @@ local package_meta = {
 package_meta.__index = package_meta
 setmetatable(package, package_meta)
 
--- >>[amend.api.globals] 
+-->>[amend.api.globals] Global variables.
 --
 -- The following global variables are set or determined at startup:
 --

@@ -4,7 +4,7 @@
 ]]
 --[[>>[amend.api.lua.string] #+ String
 ]]
--->> ##+ `string.any(s, tbl, exact)`
+--- `string.any(s, tbl, exact)`
 -- Match elements from a table.
 --
 -- ::args
@@ -26,26 +26,26 @@ function string.any(s, tbl, exact)
     end
 end
 
--->> ##+ `string.trim(s)`
+--- `string.trim(s)`
 -- Trim string.
 function string.trim(s)
     s = s and s:match "^%s*(.-)%s*$"
     return s and s:gsub("[\n]+$", "\n")
 end
 
--->> ##+ `string.title(s)`
+--- `string.title(s)`
 -- Make string "titlecase".
 function string.title(s)
     return s:sub(1, 1):upper() .. s:sub(2, -1)
 end
 
--->> ##+ `string.untitle(s)`
+--- `string.untitle(s)`
 -- Undo "titlecase".
 function string.untitle(s)
     return s:sub(1, 1):lower() .. s:sub(2, -1)
 end
 
--->> ##+ `string:split(sSeparator, nMax, bRegexp)`
+--- `string:split(sSeparator, nMax, bRegexp)`
 -- String split.
 -- See http://lua-users.org/wiki/SplitJoin
 function string:split(sSeparator, nMax, bRegexp)
@@ -73,7 +73,7 @@ function string:split(sSeparator, nMax, bRegexp)
     return aRecord
 end
 
--->> ##+ `string.wrap(s, col)`
+--- `string.wrap(s, col)`
 -- Wrap string (each line is detected as a paragraph) to specified column-width.
 function string.wrap(s, max_column, no_concat)
     assert(type(s) == "string", "expected a string")

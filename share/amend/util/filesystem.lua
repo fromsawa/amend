@@ -30,7 +30,7 @@ local chdir = fs.chdir
 local mkdir = fs.mkdir
 local touch = fs.touch
 
--->> ##+ `fs.exists(filename)`
+--- `fs.exists(filename)`
 -- Check if file exists.
 -- ::args
 --      filename        Path or file-name to check.
@@ -41,7 +41,7 @@ local function exists(filename)
     return attributes(filename) ~= nil
 end
 
--->> ##+ `fs.isnewer(file, another)`
+--- `fs.isnewer(file, another)`
 -- Check if a ''file'' is newer than ''another''.
 -- ::returns
 --      ''nil'' if `file` does not exist,
@@ -61,7 +61,7 @@ local function isnewer(file, another)
     end
 end
 
--->> ##+ `fs.anynewer(file, ...)`
+--- `fs.anynewer(file, ...)`
 -- Check if any other file is newer than `file`.
 --
 -- FIXME
@@ -85,7 +85,7 @@ local function anynewer(file, ...)
     end
 end
 
--->> ##+ `fs.concat(...)`
+--- `fs.concat(...)`
 -- Concatenate path elements.
 -- ::args
 --      ...             List of path elements.
@@ -96,7 +96,7 @@ local function concat(...)
     return tconcat({...}, dirsep)
 end
 
--->> ##+ `fs.parts(fname)`
+--- `fs.parts(fname)`
 -- Get parts of a file name (path, file and extension).
 -- ::args
 --      fname           The file- or path-name.
@@ -124,7 +124,7 @@ local function parts(fname)
     return p, f, e
 end
 
--->> ##+ `fs.relpath(path, root)`
+--- `fs.relpath(path, root)`
 -- Get relative path with respect to a "root".
 -- ::args
 --      path            The 'path' to split.
@@ -163,7 +163,7 @@ local function wildtorx(s)
     return s
 end
 
--->> ##+ `fs.readwild(file, tbl)`
+--- `fs.readwild(file, tbl)`
 -- Read a wildcard pattern file.
 -- ::args
 --      file                The file name (containing wildcard patterns and comments).
@@ -189,7 +189,7 @@ local function readwild(file, tbl)
     return tbl
 end
 
--->> ##+ `fs.dodir(path, callback, options)`
+--- `fs.dodir(path, callback, options)`
 -- Execute a function for each directory element possibly recursively.
 -- ::args
 --      path                    The path to iterate over.
@@ -316,7 +316,7 @@ setmetatable(
     }
 )
 
--->> ##+ `fs.pushd(dir)`
+--- `fs.pushd(dir)`
 -- "Push" directory.
 --
 -- Equivalent of shell command ''pushd''.
@@ -326,7 +326,7 @@ local function pushd(dir)
     chdir(dir)
 end
 
--->> ##+ `fs.popd()`
+--- `fs.popd()`
 -- "Pop" directory.
 --
 -- Equivalent of shell command ''popd''.
@@ -336,7 +336,7 @@ local function popd()
     tremove(stackd)
 end
 
--->> ##+ `fs.rmkdir(fpath)`
+--- `fs.rmkdir(fpath)`
 -- Recursively create directory.
 -- ::args
 --      fpath       The directory-path to create.
@@ -355,7 +355,7 @@ local function rmkdir(fpath)
     return mkdir(fpath)
 end
 
--->> ##+ `fs.grep(fname, pattern)`
+--- `fs.grep(fname, pattern)`
 -- Grep-like matching
 --
 local function grep(fname, pattern)
@@ -366,7 +366,7 @@ local function grep(fname, pattern)
     end
 end
 
--->> ##+ `fs.filetype(fname)`
+--- `fs.filetype(fname)`
 -- Get file type (from extension).
 -- FIXME
 local function filetype(fname)
@@ -374,7 +374,7 @@ local function filetype(fname)
     return EXTENSIONS[ext]
 end
 
--->> ##+ `fs.which(executable)`
+--- `fs.which(executable)`
 --
 -- Get full path to an executable.
 -- 

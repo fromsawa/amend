@@ -6,7 +6,7 @@
 --[[>>[amend.api.lua.table] #+ Table
 ]]
 
--->> ##+ `table.has(tbl, item)`
+--- `table.has(tbl, item)`
 -- Check if array-part of a table has an element.
 -- ::args
 --      tbl         The table to check.
@@ -22,7 +22,7 @@ function table.has(tbl, item)
     return nil
 end
 
--->> ##+ `table.kpairs(tbl)`
+--- `table.kpairs(tbl)`
 -- Key-only table iterator.
 -- This function ignores integer-valued keys.
 function table.kpairs(tbl)
@@ -42,7 +42,7 @@ function table.kpairs(tbl)
     return iter, tbl, nil
 end
 
--->> ##+ `table.count(tbl)`
+--- `table.count(tbl)`
 -- Count all keys in a table.
 function table.count(tbl)
     local n = 0
@@ -54,7 +54,7 @@ end
 
 local hint_tag = {}
 
--->> ##+ `table.hint(tbl)`
+--- `table.hint(tbl)`
 -- Get/set "hint" table.
 -- FIXME
 function table.hint(tbl)
@@ -73,14 +73,14 @@ function table.hint(tbl)
     return mt
 end
 
--->> ##+ `table.top(tbl, idx)`
+--- `table.top(tbl, idx)`
 -- Get array items from top
 function table.top(tbl, idx)
     idx = idx or 0
     return tbl[#tbl - idx]
 end
 
--->> ##+ `table.copy(tbl)`
+--- `table.copy(tbl)`
 -- Create a table copy.
 local function tcopy(t)
     if type(t) ~= "table" then
@@ -97,7 +97,7 @@ local function tcopy(t)
 end
 table.copy = tcopy
 
--->> ##+ `table.merge(t, other)`
+--- `table.merge(t, other)`
 -- Merge another table into ''t''
 local function tmerge(t, other)
     assert(type(t) == "table")
@@ -115,7 +115,7 @@ local function tmerge(t, other)
 end
 table.merge = tmerge
 
--->> ##+ `table.unique(t)`
+--- `table.unique(t)`
 -- Make array elements unique.
 function table.unique(t)
     local seen = {}
@@ -134,7 +134,7 @@ function table.unique(t)
     return t
 end
 
--->> ##+ `table.insert_unique(t, v)`
+--- `table.insert_unique(t, v)`
 -- Add a unique value.
 function table.insert_unique(t, v)
     if not table.has(t, v) then

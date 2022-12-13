@@ -10,7 +10,7 @@ local strim = string.trim
 local slen = string.len
 local tinsert = table.insert
 
--->> `csv.load(fname, [opts])`
+--- `csv.load(fname, [opts])`
 --  Read a CSV file.
 -- ::args 
 --      fname       File name.

@@ -15,7 +15,6 @@
 PROJECT = {
     NAME = "amend",
     USES = {
-        "CLANG",
         "GIT"
     },
     VERSION = "0.90"
@@ -34,7 +33,6 @@ CONFIG = {
     Tools.
 ]]
 TOOLS = {
-    ["clang-format"] = auto,
     ["git"] = auto
 }
 

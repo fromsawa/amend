@@ -2,8 +2,7 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[
-    ::[noyaml.import] Data import.
+--[[>>[amend.api.util.rdbl.import] Data import.
 
     FIXME
 ]]

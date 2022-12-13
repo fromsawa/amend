@@ -2,8 +2,7 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[
-    ::[rdbl.version] ReaDaBLe specification.
+--[[>>[amend.api.util.rdbl.version] ReaDaBLe specification.
 
     The typical structure of an RDBL document is:
 

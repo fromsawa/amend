@@ -3,5 +3,7 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] 
 
+-->>[amend]
+
 --- Current ''amend'' version.
 VERSION = {0, 90}

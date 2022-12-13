@@ -2,8 +2,7 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[
-    ::[noyaml.types] Types.
+--[[>>[amend.api.util.rdbl.types] Types.
 
     FIXME
 ]]

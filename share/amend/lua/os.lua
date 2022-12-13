@@ -8,7 +8,7 @@
 local stringformat = string.format
 local osexecute = os.execute
 
--->> ##+ `os.command(program, ...)`
+--- `os.command(program, ...)`
 -- Execute a command.
 function os.command(program, ...)
     local cmd = stringformat(program,...)

@@ -2,8 +2,7 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[
-    ::[noyaml.export] Data export.
+--[[>>[amend.api.util.rdbl.export] Data export.
 
     FIXME
 ]]
@@ -39,9 +38,8 @@ local toliteral = M.toliteral
 
 local _DOCUMENT = M._DOCUMENT
 
---[[
-    Export class.
-]]
+--- Export class.
+--
 local export_mt = {
     --- Setup exporter.
     --
