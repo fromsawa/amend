@@ -2,6 +2,7 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
+
 --[===[>>[amend.api.components]
 
 "Amend components" can be created anywhere in the source code tree in a sub-folder ".amend".
@@ -238,7 +239,7 @@ Use 'help' for more information.
     end
 end
 
--->> #+ `depends '<name>'`
+--- `depends '<name>'`
 -- Include a dependecy.
 function depends(name)
     message(TRACE, 'depends(%s)', name)

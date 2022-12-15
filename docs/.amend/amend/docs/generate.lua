@@ -28,7 +28,7 @@ local function generate(config)
     local db = {
         config = config,
         files = {},
-        hierarchy = {}
+        structure = {}
     }
 
     -- generate file list
@@ -60,10 +60,10 @@ local function generate(config)
     end, {
         mode = "file",
         exclude = {fs.relpath(fs.currentdir(), config.input.directory), table.unpack(config.exclude.patterns or {})},
-        recurse = true
+        recurse = false
     })
 
-    -- parse sources (and build hierarchy)
+    -- parse sources (and build document structure)
     for _,file in pairs(db.files) do
         M.parse(db, file)
     end

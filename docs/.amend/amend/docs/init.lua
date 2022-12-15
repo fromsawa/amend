@@ -7,6 +7,7 @@ local M = require 'amend.docs.module'
 
 require 'amend.docs.generate'
 require 'amend.docs.parser'
+require 'amend.docs.tokenizer'
 
 --- Raise an error.
 local function raise(context, fmt, ...)

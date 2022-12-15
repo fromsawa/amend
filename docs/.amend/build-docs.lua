@@ -5,12 +5,12 @@ local docs = require "amend.docs"
 
 local config = {
     input = {
-        directory = ROOTDIR
+        directory = ROOTDIR,
     },
     output = {
         directory = "amend",
         template = ".amend/index.in.md",
-        reference = "amend"
+        root = "amend"
     },
     include = {
         patterns = {},

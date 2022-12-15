@@ -72,20 +72,28 @@ Usage:
     end
 })
 
-
--->>[amend.api.lua.package] Package
-
+-- >>[amend.api.lua.package] Lua ''package'' extensions.
+-- 
+-- **Note**:<br/>
+-- In addition to standard [Lua](https://github.com/lua/lua/blob/master/luaconf.h) conventions,
+-- here, also the ''?/__init.lua'' file is searched. 
+-- 
+-- {
 local dirsep = package.config:sub(1, 1)
 local pathsep = package.config:sub(3, 3)
 local modulemark = package.config:sub(5, 5)
+local dotlua = ".lua"
 
 local package_path_stack = {}
 local package_meta = {
-    --- `package:addpath(path)`
-    -- Add search directory to script path.
+    --- Add search directory to script search path.
+    -- 
+    -- `package:addpath(path)`
     addpath = function(_, dir)
-        local newpath = table.concat({dir, modulemark}, dirsep) .. ".lua" .. pathsep ..
-                            table.concat({dir, modulemark, "init"}, dirsep) .. ".lua"
+        local newpath = make_search_path(dir, modulemark)
+        local newpath = table.concat({dir, modulemark}, dirsep) .. dotlua .. pathsep ..
+                            table.concat({dir, modulemark, "init"}, dirsep) .. dotlua .. pathsep ..
+                            table.concat({dir, modulemark, "__init"}, dirsep) .. dotlua
         package.path = newpath .. pathsep .. package.path
 
         -- also update push/pop stack
@@ -93,16 +101,19 @@ local package_meta = {
             package_path_stack[i] = newpath .. pathsep .. package_path_stack[i]
         end
     end,
-    --- `package:pushpath(path)`
-    -- Temporarily add a script search path.
+    --- Temporarily add a script search path. 
+    --
+    --`package:pushpath(path)`
     pushpath = function(_, dir)
         table.insert(package_path_stack, package.path)
-        local newpath = table.concat({dir, modulemark}, dirsep) .. ".lua" .. pathsep ..
-                            table.concat({dir, modulemark, "init"}, dirsep) .. ".lua"
+        local newpath = table.concat({dir, modulemark}, dirsep) .. dotlua .. pathsep ..
+                            table.concat({dir, modulemark, "init"}, dirsep) .. dotlua .. pathsep ..
+                            table.concat({dir, modulemark, "__init"}, dirsep) .. dotlua
         package.path = newpath .. pathsep .. package.path
     end,
-    --- `package:poppath()`
-    -- Remove previously added script search path.
+    --- Remove previously added script search path.
+    -- 
+    -- `package:poppath()`
     poppath = function(_)
         local n = #package_path_stack
         if n > 0 then
@@ -113,8 +124,9 @@ local package_meta = {
 }
 package_meta.__index = package_meta
 setmetatable(package, package_meta)
+-- }
 
--->>[amend.api.globals] Global variables.
+-- >>[amend.api.globals] Global variables.
 --
 -- The following global variables are set or determined at startup:
 --
@@ -180,7 +192,7 @@ end
 
 -- initial argument parsing
 local function have(t, v)
-    for _,k in ipairs(t) do
+    for _, k in ipairs(t) do
         if k == v then
             return true
         end

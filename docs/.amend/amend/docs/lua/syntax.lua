@@ -8,6 +8,8 @@ local strlen = string.len
 
 --- Extract documentation from Lua files.
 --
+-- **Note**: At the point of writing, only comments are extracted.
+-- 
 return function(node)
     message(STATUS, "extracting %q...", node.file)
     node.type = "source"
@@ -29,11 +31,11 @@ return function(node)
             else
                 tinsert(comment, {line, lineno, epos})
             end
-        elseif state == 'longstring' then
-            local bpos, epos = line:find(pattern)
-            if bpos then
-                state = nil
-            end
+        -- elseif state == 'longstring' then
+        --     local bpos, epos = line:find(pattern)
+        --     if bpos then
+        --         state = nil
+        --     end
         else
             local bpos, epos = line:find("[ \t]*%-%-")
             if bpos == 1 then -- only deal with pure comments
@@ -68,12 +70,12 @@ return function(node)
                     tinsert(comment, {text, lineno, epos})
                 end
             else
-                -- swallow long strings
-                bpos, epos = line:find("[[][^[]*[[]")
-                if bpos then
-                    state = 'longstring'
-                    pattern = '[]]' .. line:sub(bpos + 1, epos - 1) .. '[]]'
-                end
+                -- -- swallow long strings
+                -- bpos, epos = line:find("[[][^[]*[[]")
+                -- if bpos then
+                --     state = 'longstring'
+                --     pattern = '[]]' .. line:sub(bpos + 1, epos - 1) .. '[]]'
+                -- end
 
                 comment = nil
             end

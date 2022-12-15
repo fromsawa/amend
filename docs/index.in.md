@@ -17,18 +17,11 @@
 
 ### Utilities
 
-<<[amend.api.edit]
-<<[amend.api.filesystem]
-<<[amend.api.csv]
-<<[amend.api.yaml]
+<<[amend.api.util]
 
 ### Lua extensions
 
-<<[amend.api.lua.package]
-<<[amend.api.lua.string]
-<<[amend.api.lua.table]
-<<[amend.api.lua.io]
-<<[amend.api.lua.os]
+<<[amend.api.lua]
 
 ## License
 

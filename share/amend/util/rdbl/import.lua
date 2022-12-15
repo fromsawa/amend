@@ -1,11 +1,13 @@
 --[[
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]]
+]] 
+
 --[[>>[amend.api.util.rdbl.import] Data import.
 
     FIXME
-]]
+]] 
+
 local M = require "amend.util.rdbl.version"
 local modimport = M.modimport
 
@@ -38,7 +40,7 @@ local tokey = M.tokey
 local tovalue = M.tovalue
 
 --- Check if start of document.
--- ::returns <boolean>, <name>
+-- ::returns boolean, name
 local function isdocument(line)
     local tag, name = line:match("^([^ ]+)[ ]*(.*)$")
     if tag == "---" or tag == "🗎" then
@@ -52,6 +54,7 @@ local function isdocument(line)
 end
 
 --- Split of indentation
+--
 local function splitindent(line)
     assert(not line:find("\t"), "invalid tab character in stream")
     local indent, content = line:match("([ ]*)(.*)$")
@@ -90,9 +93,9 @@ local function checkindent(iter)
     return indentation
 end
 
---[[
-    Import class.
-]]
+--- Import class.
+--
+--{
 local import_mt = {
     --- Setup importer.
     --
@@ -174,8 +177,8 @@ local import_mt = {
     --      content     Current line content.
     --
     parse = function(self, context, level, content)
-        local next  -- next level
-        local sequence  -- parsing a sequence or map
+        local next -- next level
+        local sequence -- parsing a sequence or map
         repeat
             local isseq, key, value
 
@@ -186,7 +189,9 @@ local import_mt = {
                     context = {}
 
                     if docname then
-                        tinsert(self._documents, {[docname] = context})
+                        tinsert(self._documents, {
+                            [docname] = context
+                        })
                     else
                         tinsert(self._documents, {context})
                     end
@@ -248,7 +253,9 @@ local import_mt = {
                         local ch = value:sub(1, 1)
                         if ch == "{" then
                             if value == "{}" then
-                                tinsert(context, {[key] = tovalue(value, self._literal)})
+                                tinsert(context, {
+                                    [key] = tovalue(value, self._literal)
+                                })
                             else
                                 self:error("arrays not allowed here")
                             end
@@ -256,7 +263,9 @@ local import_mt = {
                             self:error("literals not allowed here")
                         else
                             -- tinsert(context, {[key] = tovalue(value, self._literal)})
-                            local tbl = {[key] = tovalue(value, self._literal)}
+                            local tbl = {
+                                [key] = tovalue(value, self._literal)
+                            }
                             tinsert(context, tbl)
 
                             next, content = self:next()
@@ -281,10 +290,14 @@ local import_mt = {
                             end
 
                             local map = {}
-                            tinsert(context, {[key] = map})
+                            tinsert(context, {
+                                [key] = map
+                            })
                             next, content = self:parse(map, next, content)
                         else
-                            tinsert(context, {[key] = NULL})
+                            tinsert(context, {
+                                [key] = NULL
+                            })
                         end
 
                         goto continue
@@ -400,6 +413,7 @@ local import_mt = {
     end
 }
 import_mt.__index = import_mt
+--}
 
 -- [[ MODULE ]]
 --- Import data.

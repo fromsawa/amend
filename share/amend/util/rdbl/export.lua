@@ -40,6 +40,7 @@ local _DOCUMENT = M._DOCUMENT
 
 --- Export class.
 --
+--{
 local export_mt = {
     --- Setup exporter.
     --
@@ -265,6 +266,7 @@ local export_mt = {
     end
 }
 export_mt.__index = export_mt
+--}
 
 -- [[ MODULE ]]
 --- Export a table.
