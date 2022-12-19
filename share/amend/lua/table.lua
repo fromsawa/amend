@@ -115,6 +115,17 @@ local function tmerge(t, other)
 end
 table.merge = tmerge
 
+--- Create a new table from many.
+--
+local function tmake(...)
+    local res = {}
+    for _, t in ipairs({...}) do
+        tmerge(res, t)
+    end
+    return res
+end
+table.make = tmake
+
 --- `table.unique(t)`
 -- Make array elements unique.
 function table.unique(t)

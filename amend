@@ -90,7 +90,6 @@ local package_meta = {
     -- 
     -- `package:addpath(path)`
     addpath = function(_, dir)
-        local newpath = make_search_path(dir, modulemark)
         local newpath = table.concat({dir, modulemark}, dirsep) .. dotlua .. pathsep ..
                             table.concat({dir, modulemark, "init"}, dirsep) .. dotlua .. pathsep ..
                             table.concat({dir, modulemark, "__init"}, dirsep) .. dotlua
@@ -223,14 +222,14 @@ while i <= #arg do
 end
 
 -- load modules (all go into global)
-local initstatus, errmsg = pcall(require, "amend.init")
+local initstatus, errmsg = pcall(require, "amend.__init")
 if not initstatus then
     -- try to find from our own location
     local ownpath = lfs.symlinkattributes(arg[0]).target or arg[0]
     ownpath = ownpath:match("^(.*)[\\/][^\\/]+$") or lfs.currentdir()
 
     package:addpath(table.concat({ownpath, "share"}, dirsep))
-    initstatus, errmsg = pcall(require, "amend.init")
+    initstatus, errmsg = pcall(require, "amend.__init")
 
     if not initstatus then
         print(errmsg) -- FOR DEVELOPMENT ONLY

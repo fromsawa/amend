@@ -198,14 +198,20 @@ end
 --
 -- This function executes the `callback` for each element in the alpha-numerically
 -- sorted directory list. Arguments passed to the callback are:
---      [1]     Table with entries as returned by `fs.parts` and the absolute path at index 0.
---              The table also contains the key 'attr' with file attributes as returned by `symlinkattributes`,
---              and 'options', with the `options` table.
--- If recursion is enabled, FIXME
+--
+--      [0]     Full path to file.
+--      [1]     The directory part.
+--      [2]     The file name part.
+--      [3]     The file extension.
+--      attr    The attribute table as returned by `symlinkattributes`.
+--      options The options table (from the arguments).
+--
+-- The callback may return a boolean value overriding option ''recurse''.
 --
 -- Options:
 --      exclude             List of regex-patterns of files or directories to ignore (default: {'[.]', '[.][.]'}).
 --      include             List of regex-patterns of files or directories to include (overrides 'exclude').
+--      directories         Additional directories to search.
 --      extension           Only report files or directories matching list of given extensions.
 --      mode                File type (`mode` field of `attributes()` function).
 --      follow              Follow symbolic links (default: false)
@@ -290,6 +296,7 @@ local function dodir(path, callback, options)
     options = options or {}
     options.exclude = options.exclude or {"[.]", "[.][.]"}
     options.include = options.include or {}
+    options.directories = options.directories or {}
     options.follow = options.follow or false
     options.recurse = options.recurse or false
     options.depth = options.depth or 0
@@ -301,6 +308,13 @@ local function dodir(path, callback, options)
 
     -- run it
     __dodir(path, callback, options, true)
+
+    for _, d in ipairs(options.directories) do
+        local apath = concat(path, d)
+        if exists(apath) then
+            __dodir(apath, callback, options, true)
+        end
+    end
 end
 
 -- pushd/popd

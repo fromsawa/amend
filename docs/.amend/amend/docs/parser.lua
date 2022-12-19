@@ -1,10 +1,11 @@
 --[[
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]] local M = require 'amend.docs.module'
+]] local M = require 'amend.docs.__module'
 
 local tinsert = table.insert
 local tremove = table.remove
+local tmake = table.make
 local strsplit = string.split
 local strtrim = string.trim
 local strlen = string.len
@@ -26,98 +27,107 @@ end
 
 --- Parse files into document structure.
 --
-local function parse(db, file)
-    local raise = M.raise
+local function parse(db, data)
+    message(TRACE[9], "parse(%q)", data.file)
 
-    if file.type == 'document' then
-        -- documents are left alone...
-        return
-    elseif file.type == 'source' then
-        -- local top = db.structure
-        -- local node = {}
+    local notice = M.notice
+    local tokenize = M.tokenize
 
-        -- for _, piece in ipairs(file) do
-        --     if piece.tag == 'comment' then
-        --         -- a comment block must start with a recognizable first line
-        --         local heading
-        --         local first = piece[1][1]
-        --         local last = piece[#piece][1]
-        --         local context = {
-        --             source = file.file,
-        --             line = piece[1][2],
-        --             column = piece[1][3]
-        --         }
-        --         if first:match("^>>") then
-        --             -- [ document ]
-        --             local ref, rest = first:match("^>>[[]([^]]*)[]][ \t]*(.*)[ \t]*$")
-        --             if not ref then
-        --                 raise(context, "Invalid document declaration, expected '>>[<ref>]'.")
-        --             end
+    -- parse fragments
+    -- 1: rank fragment, toss unusable
+    local i = 1
+    while i <= #data do
+        local fragment = data[i]
 
-        --             node = find_or_create(db, ref)
+        local function group_begin()
+            if #fragment > 1 then
+                tinsert(data, i + 1, tmake(fragment[#fragment], {
+                    tag = "group:begin"
+                }))
 
-        --             heading = rest
-        --             tremove(piece, 1)
-        --         elseif first:match("^-") then
-        --             -- [ paragraph ]
-        --             if #node == 0 then
-        --                 raise(context, "No document declared (missing '>>[<ref>]' at start of file).")
-        --             end
+                fragment[#fragment - 1] = nil
+                i = i + 1
+            else
+                fragment.tag = "group:begin"
+            end
+        end
 
-        --             heading = first:match("^-[ \t]*(.*)[ \t]*")
-        --             tremove(piece, 1)
-        --         elseif first:match("^[}]") then
-        --             -- [ sub-paragraph end ]
-        --             if #node == 0 then
-        --                 raise(context, "Unbalanced sub-paragraph ('--}').")
-        --             end
+        local function remove_empty_leading()
+            while (#fragment > 0) and fragment[1].text:match("^[%s]*$") do
+                tremove(fragment, 1)
+            end
+        end
 
-        --             -- done with sub-group
-        --             tremove(node)
-        --         else
-        --             -- no documentation
-        --         end
+        local function remove_empty_trailing()
+            while (#fragment > 0) and fragment[#fragment].text:match("^[%s]*$") do
+                tremove(fragment, #fragment)
+            end
+        end
 
-        --         if last:match("^[{]") then
-        --             -- [ sub-paragraph begin ]
-        --             if #node == 0 then
-        --                 raise(context, "A sub-paragraph cannot start here (maybe missing document).")
-        --             end
+        -- remove leading/trailing empty lines
+        remove_empty_leading()
+        remove_empty_trailing()
 
-        --             -- add sub group
-        --             local current = node[#node]
-        --             current[#current + 1] = {}
+        -- handle fragment by tag
+        if fragment.tag == 'fragment' then
+            -- check first line
+            local first = fragment[1].text
+            local last = fragment[#fragment].text
 
-        --             tinsert(node, current[#current])
-        --             tremove(piece)
-        --         end
+            if first then
+                if first:match("^%-") then
+                    fragment.tag = "paragraph"
 
-        --         -- tokenize rest
-        --         if heading then
-        --             if #node == 0 then
-        --                 raise(context, "Cannot add text here (maybe missing document).")
-        --             end
+                    if last:match("^[%s]*{[%s]*$") then
+                        group_begin()
+                        remove_empty_trailing()
+                    end
+                elseif first:match("^>>[[]") then
+                    fragment.tag = "document"
 
-        --             local toks = M.tokenize(piece, context)
-        --             tinsert(node[#node], toks)
+                    if last:match("^[%s]*{[%s]*$") then
+                        group_begin()
+                        remove_empty_trailing()
+                    end
+                elseif first:match("^[%s]*{[%s]*$") then
+                    fragment.tag = "group:begin"
+                elseif first:match("^[%s]*}[%s]*$") then
+                    fragment.tag = "group:end"
+                else
+                    first = nil
+                end
+            end
 
-        --             heading = strtrim(heading)
-        --             if strlen(heading) > 0 then
-        --                 if toks then
-        --                     toks.heading = heading
-        --                 else
-        --                     node[#node].heading = heading
-        --                 end
-        --             end
-        --         end
-        --     end
-        -- end
+            if not first then
+                tremove(data, i)
+                i = i - 1
+            end
+        elseif fragment.tag == 'file' then
+            -- untouched
+        end
 
-        -- -- cleanup source, not needed anymore
-        -- while #file > 0 do
-        --     tremove(file)
-        -- end
+        i = i + 1
     end
+
+    -- check
+    if data[1] then
+        if data[1].tag == 'file' then
+            -- untouched
+        elseif not (data[1].tag == 'document') then
+            notice(WARNING, data[1][1], "file is missing a document reference")
+            message(NOTICE, "ignoring %q", data.file)
+            return
+        end
+    end
+
+    if #data == 0 then
+        return
+    end
+
+    message(STATUS, "parsing %q", data.file)
+
+    -- 2. tokenize
+    tokenize(db, data)
 end
 
 -- [[ MODULE ]]

@@ -1,4 +1,5 @@
 #!build-docs -- generate source documentation
+
 message "Generating source documentation..."
 
 local docs = require "amend.docs"
@@ -6,25 +7,24 @@ local docs = require "amend.docs"
 local config = {
     input = {
         directory = ROOTDIR,
+        strip = { "share/", "docs/.amend/" },
+        tabsize = 4
     },
     output = {
-        directory = "amend",
-        template = ".amend/index.in.md",
-        root = "amend"
+        directory = "docs/amend",
+        template = ".amend/index.in.md"
     },
     include = {
         patterns = {},
+        directories = {"docs/.amend", "docs/.amend/amend", "docs/.amend/amend/docs"},
         files = {
             ["amend"] = {
-                syntax = "lua"
+                extension = ".lua"
             }
         }
     },
     exclude = {
-        patterns = {
-            "[.]amend",
-            table.unpack(IGNORE)
-        }
+        patterns = {".vscode", "[.]amend", "share", table.unpack(IGNORE)}
     }
 }
 
