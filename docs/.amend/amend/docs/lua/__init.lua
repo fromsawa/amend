@@ -101,6 +101,8 @@ local function parse(data)
 
         line = line + 1
     end
+
+    data.tag = 'source'
 end
 
 -- [[ MODULE ]]

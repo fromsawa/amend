@@ -20,7 +20,7 @@ local function parse(data)
 
     -- build (single) fragment
     local fragment = {
-        tag = "file"
+        tag = "text"
     }
 
     local source = data.file
@@ -46,6 +46,7 @@ local function parse(data)
     end
 
     tinsert(data, fragment)
+    data.tag = 'file'
 end
 
 -- [[ MODULE ]]

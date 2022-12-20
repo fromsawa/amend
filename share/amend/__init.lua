@@ -15,6 +15,7 @@ require "amend.lua.io"
 require "amend.lua.os"
 require "amend.lua.string"
 require "amend.lua.table"
+require "amend.lua.class"
 
 -- get current file name
 function filename()

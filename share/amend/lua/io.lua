@@ -96,6 +96,10 @@ local function io_dump(value, options)
                     table.insert(res, k)
                     return true
                 elseif type(v) == 'table' then
+                    if v == _G then
+                        return false
+                    end
+                    
                     table.insert(res, k)
                     
                     if findobj(obj, v, res) then

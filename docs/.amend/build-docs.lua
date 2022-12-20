@@ -5,6 +5,7 @@ message "Generating source documentation..."
 local docs = require "amend.docs"
 
 local config = {
+    version = {1,0},
     input = {
         directory = ROOTDIR,
         strip = { "share/", "docs/.amend/" },
@@ -28,4 +29,4 @@ local config = {
     }
 }
 
-docs.generate(config)
+-- docs.generate(config)

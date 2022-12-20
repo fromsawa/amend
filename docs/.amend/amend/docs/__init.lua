@@ -7,7 +7,6 @@ local M = require 'amend.docs.__module'
 
 require 'amend.docs.generator'
 require 'amend.docs.parser'
-require 'amend.docs.tokenizer'
 
 --- Output a notice with context.
 local function notice(level, context, fmt, ...)

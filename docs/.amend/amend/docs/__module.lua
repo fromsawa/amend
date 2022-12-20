@@ -2,8 +2,9 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
--- >>[amend.docs] Amend's documentation generator.
---[[-
+--[[ >>[amend.api.docs] Amend's simple documentation generator.
+
+**Module**: `amend.docs` (global ''docs'')
 
 This documentation generator uses a form of annotated markdown to generate
 source documentation. 
@@ -14,10 +15,6 @@ which are, depending on annotation, transformed into markdown sections
 or documents.
 
 The output is optimized for further processing using [pandoc](https://pandoc.org/).
-
-## Configuration
-
-FIXME
 
 ## Syntax
 
@@ -42,20 +39,18 @@ List:
 
 ### Annotations
 
-#### Documents
+FIXME
 
-For a source-code file to be considered, the first annotation must be
+## Configuration
 
-    -- >>[reference] title          Generate a document with a title.
+FIXME
 
-where the ''title'', if not provided, will be supplemented from the next part.
-
-
-
+## API
 ]] --
--- >>[amend.docs.api] 
 return {
-    --- Document generator version.
+    --- `VERSION`
     -- 
-    VERSION = {0, 0}
+    -- Document generator version.
+    -- 
+    VERSION = {1, 0}
 }

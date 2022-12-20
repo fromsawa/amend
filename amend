@@ -18,32 +18,35 @@ Options:
     <component> [arguments]      execute a component or command
 ]]}
 
---[[>>[amend.license] UNLICENSE
+--[[>>[amend.license] License
 
-    This is free and unencumbered software released into the public domain.
-    
-    Anyone is free to copy, modify, publish, use, compile, sell, or
-    distribute this software, either in source code form or as a compiled
-    binary, for any purpose, commercial or non-commercial, and by any
-    means.
+## UNLICENSE
 
-    In jurisdictions that recognize copyright laws, the author or authors
-    of this software dedicate any and all copyright interest in the
-    software to the public domain. We make this dedication for the benefit
-    of the public at large and to the detriment of our heirs and
-    successors. We intend this dedication to be an overt act of
-    relinquishment in perpetuity of all present and future rights to this
-    software under copyright law.
+This is free and unencumbered software released into the public domain.
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-    OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-    ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-    OTHER DEALINGS IN THE SOFTWARE.
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
 
-    For more information, please refer to <http://unlicense.org/>
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>
+
 ]]
 
 setmetatable(usage, {
@@ -86,9 +89,10 @@ local dotlua = ".lua"
 
 local package_path_stack = {}
 local package_meta = {
-    --- Add search directory to script search path.
-    -- 
-    -- `package:addpath(path)`
+    --- `package:addpath(path)`
+    --
+    -- Add search directory to script search path.
+    --
     addpath = function(_, dir)
         local newpath = table.concat({dir, modulemark}, dirsep) .. dotlua .. pathsep ..
                             table.concat({dir, modulemark, "init"}, dirsep) .. dotlua .. pathsep ..
@@ -100,9 +104,10 @@ local package_meta = {
             package_path_stack[i] = newpath .. pathsep .. package_path_stack[i]
         end
     end,
-    --- Temporarily add a script search path. 
+    --- `package:pushpath(path)`
     --
-    --`package:pushpath(path)`
+    -- Temporarily add a script search path. 
+    --
     pushpath = function(_, dir)
         table.insert(package_path_stack, package.path)
         local newpath = table.concat({dir, modulemark}, dirsep) .. dotlua .. pathsep ..
@@ -110,9 +115,10 @@ local package_meta = {
                             table.concat({dir, modulemark, "__init"}, dirsep) .. dotlua
         package.path = newpath .. pathsep .. package.path
     end,
+    --- `package:poppath()`
+    -- 
     --- Remove previously added script search path.
     -- 
-    -- `package:poppath()`
     poppath = function(_)
         local n = #package_path_stack
         if n > 0 then

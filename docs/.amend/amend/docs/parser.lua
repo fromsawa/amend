@@ -10,6 +10,18 @@ local strsplit = string.split
 local strtrim = string.trim
 local strlen = string.len
 
+local function check_ref(ref)
+    local keys = strsplit(ref, ".")
+
+    for _, k in ipairs(keys) do
+        if not k:match("[_%l][_%l%d]*") then
+            return false
+        end
+    end
+
+    return true
+end
+
 local function find_or_create(db, ref)
     local keys = strsplit(ref, ".")
     local top = db.structure
@@ -31,7 +43,6 @@ local function parse(db, data)
     message(TRACE[9], "parse(%q)", data.file)
 
     local notice = M.notice
-    local tokenize = M.tokenize
 
     -- parse fragments
     -- 1: rank fragment, toss unusable
@@ -102,7 +113,7 @@ local function parse(db, data)
                 tremove(data, i)
                 i = i - 1
             end
-        elseif fragment.tag == 'file' then
+        elseif fragment.tag == 'text' then
             -- untouched
         end
 
@@ -110,24 +121,54 @@ local function parse(db, data)
     end
 
     -- check
-    if data[1] then
-        if data[1].tag == 'file' then
-            -- untouched
-        elseif not (data[1].tag == 'document') then
-            notice(WARNING, data[1][1], "file is missing a document reference")
-            message(NOTICE, "ignoring %q", data.file)
-            return
-        end
+    if #data == 0 then
+        return
     end
 
-    if #data == 0 then
+    if data.tag == 'source' and not (data[1].tag == 'document') then
+        notice(WARNING, data[1][1], "file is missing a document reference")
+        message(NOTICE, "ignoring %q", data.file)
         return
     end
 
     message(STATUS, "parsing %q", data.file)
 
     -- 2. tokenize
-    tokenize(db, data)
+    if data.tag == 'file' then
+        -- FIXME
+    elseif data.tag == 'source' then
+        local doc
+
+        for _, fragment in ipairs(data) do
+            if fragment.tag == 'document' then
+                local line = fragment[1].text
+
+                local ref, title = line:match(">>[[]([^]]*)[%s]*(.*)[%s]*$")
+                if not check_ref(ref) then
+                    notice(ERROR, tmake(fragment[1], {
+                        column = fragment[1].column + 4
+                    }), "invalid reference (dot separated list of lower-case identifiers)")
+                end
+
+                doc = find_or_create(db, ref)
+                if strlen(title) > 0 then
+                    -- FIXME
+                end
+            else
+                -- FIXME
+            end
+
+            -- io.dump(fragment, {
+            --     key = 'fragment'
+            -- })
+            -- os.exit()
+        end
+
+        -- io.dump(data, {
+        --     key = 'data'
+        -- })
+        -- os.exit()
+    end
 end
 
 -- [[ MODULE ]]
