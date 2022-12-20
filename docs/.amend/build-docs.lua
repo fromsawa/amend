@@ -28,3 +28,4 @@ local config = {
         patterns = {".vscode", "[.]amend", "share", table.unpack(IGNORE)}
     }
 }
+

@@ -406,12 +406,14 @@ local function which(executable)
     end
 end
 
---- Touch all files, ensuring same access and modification time.
--- ::args
+--- `fs.touch(...)`
+-- @args
 --      files...    File names to touch.
 --      [options]   Options (last argument).
 --
---  FIXME
+-- Touch all files, ensuring same access and modification time.
+-- 
+-- FIXME options
 --
 local function touchall(...)
     local args = {...}
@@ -426,6 +428,22 @@ local function touchall(...)
     for _, f in ipairs(args) do
         touch(f, atime, mtime)
     end
+end
+
+local function fulldir(path)
+    local cwd = currentdir()
+    chdir(path)
+    local fulldir = currentdir()
+    chdir(cwd)
+    return fulldir
+end
+
+--- `fs.fullpath(path)`
+--
+-- Retrieve full path of a possibly relative `path`.
+local function fullpath(path)
+    local dir, file = parts(path)
+    return concat(fulldir(dir), file)
 end
 
 -- [[ MODULE ]]
@@ -447,6 +465,7 @@ mod.grep = grep
 mod.filetype = filetype
 mod.which = which
 mod.touchall = touchall
+mod.fullpath = fullpath
 
 message(TRACE[10], "loaded util.filesystem module")
 return mod

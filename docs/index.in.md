@@ -1,6 +1,3 @@
-<<"README.md"
-
-<!-- 
 ## API
 
 ### Globals
@@ -27,4 +24,5 @@
 
 <<[amend.copyright]
 
-<<[amend.license] -->
+<<[amend.license] 
+

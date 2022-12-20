@@ -20,6 +20,22 @@ local tremove = table.remove
 local tconcat = table.concat
 local tmake = table.make
 
+-- Simple deep table copy.
+local function tcopy(t)
+    local res = {}
+
+    for k, v in pairs(t) do
+        if type(v) == 'table' then
+            res[k] = tcopy(v)
+        else
+            res[k] = v
+        end
+    end
+
+    setmetatable(res, getmetatable(t))
+    return res
+end
+
 --- `class.tag`
 --
 -- This class tag serves two purposes, first to mark a table as 'class'
@@ -33,7 +49,11 @@ local tag = {
         -- initialize member variables
         for k, v in pairs(self.__public) do
             if type(v) == 'table' then
-                error("FIXME")
+                if v == void then
+                    obj[k] = nil
+                else
+                    obj[k] = tcopy(v)
+                end
             else
                 obj[k] = v
             end
@@ -52,7 +72,7 @@ local tag = {
 void = {}
 setmetatable(void, {
     __name = 'void',
-    __dump = function(self, options) 
+    __dump = function(self, options)
         options.stream:write("void")
     end
 })
@@ -61,7 +81,7 @@ setmetatable(void, {
 --
 -- Check if ''t'' is `void`.
 --
-function isvoid(t) 
+function isvoid(t)
     return t == void
 end
 
@@ -144,14 +164,14 @@ function isa(obj, T)
             if type(T) == 'string' then
                 T = resolve(T)
             end
-        
+
             local mt = getmetatable(obj)
             if mt == T then
                 return true
             end
 
             local __inherit = mt.__inherit
-            for i = #__inherit,-1,1 do
+            for i = #__inherit, -1, 1 do
                 if mt == __inherit[i] then
                     return true
                 end
@@ -229,7 +249,7 @@ local function declare_class(t, name, decl, _level)
             tinsert(__inherit, k)
 
             -- add variables
-            for k,v in pairs(k.__public) do
+            for k, v in pairs(k.__public) do
                 __public[k] = v
             end
         end
@@ -256,7 +276,9 @@ local function declare_class(t, name, decl, _level)
 
     -- __dump
     local function dumper(self, options)
-        io.dump(self, tmake(options, {prefix = self.__name .. ":table", __dump = true }))
+        io.dump(self, tmake(options, {
+            prefix = self.__name .. ":table"
+        }))
     end
     decl.__dump = decl.__dump or dumper
 
@@ -313,6 +335,15 @@ setmetatable(class, {
     end
 })
 
+--- `index(t,k)`
+--
+-- Retrieve index `k` from table `t` in the same way, standard ''__index'' does it,
+-- however, using 'rawget' internally.
+-- 
+local function index(t, k)
+    return rawget(t, k) or rawget(getmetatable(t), k)
+end
+
 --[[ MODULE ]]
 class.tag = tag
 class.isclass = isclass
@@ -320,4 +351,5 @@ class.isobject = isobject
 class.isa = isa
 class.void = void
 class.isvoid = isvoid
+class.index = index
 return class

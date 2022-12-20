@@ -136,7 +136,9 @@ local function io_dump(value, options)
     end
 
     -- indent
-    stream:write(string.rep(indent, level))
+    if not options.nodump then
+        stream:write(string.rep(indent, level))
+    end
 
     -- output key
     if key then
@@ -162,7 +164,7 @@ local function io_dump(value, options)
         end
 
         local mt = getmetatable(value)
-        if mt and mt.__dump and not options.__dump then
+        if mt and mt.__dump and not options.nodump then
             mt.__dump(value, { 
                 indent = indent,
                 level = level,
@@ -170,7 +172,8 @@ local function io_dump(value, options)
                 format = format,
                 quoted = quoted,
                 always_index = always_index,
-                nocomma = false
+                nocomma = false,
+                nodump = true
             })
         elseif isempty then
             stream:write("{}")
@@ -242,8 +245,10 @@ local function io_dump(value, options)
 
     -- comman and newline
     if not nocomma then
-        stream:write(",\n")
-    else
+        stream:write(",")
+    end
+
+    if not options.nodump then
         stream:write("\n")
     end
 end
@@ -276,7 +281,9 @@ function io.dump(value, options)
 
     -- prefix (if applicable)
     if options.prefix then
-        options.stream:write(string.rep(options.indent, options.level))
+        if not options.nodump then
+            options.stream:write(string.rep(options.indent, options.level))
+        end
         options.stream:write(options.prefix .. " ")
     end
 

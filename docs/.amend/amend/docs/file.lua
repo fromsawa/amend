@@ -3,6 +3,9 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] local M = require 'amend.docs.__module'
 
+local tinsert = table.insert
+local cindex = class.index
+
 --- `context`
 --
 -- {
@@ -11,7 +14,7 @@ local context = class(M) "context" {
         source = "<chunk>",
         line = 1,
         column = 1
-    },
+    }
 }
 
 --- `context(...)`
@@ -41,6 +44,10 @@ function context:__init(source, line, column)
                 end
             end
             done = true
+        elseif isa(source, M.file) then
+            self.source = source
+            self.line = line or 1
+            self.column = column or 1
         elseif type(source) == 'string' then
             self.source = source
         else
@@ -84,20 +91,55 @@ end
 -- {
 local file = class(M) "file" {
     __public = {
-        source = void
+        path = void, --@var `path` Full file path.
+        file = void, --@var `file` Relative file path.
+        data = {}    --@var `data` Lines.
     }
 }
 
-function file:__init(...)
-    -- FIXME
+function file:__init(path, workdir)
+    if path then
+        self:load(path, workdir)
+    end
 end
 
-function file:load(...)
-    -- FIXME
+function file:__index(n)
+    if math.type(n) == 'integer' then
+        return self.data[n]
+    else
+        return cindex(self, n)
+    end
+end
+
+function file:load(path, workdir)
+    local iter, errmsg = io.lines(path)
+    if not iter then
+        error(errmsg, 2)
+    end
+
+    path = fs.fullpath(path)
+    workdir = workdir or ROOTDIR
+
+    self.path = path
+    self.file = fs.relpath(path, workdir)
+
+    local lines = self.data
+    for line in iter do 
+        tinsert(lines, line)
+    end
+end
+
+function file:lines()
+    return #(self.data)
+end
+
+function file:context(line, column)
+    return context(self, line, column)
 end
 
 -- }
 
 -- [[ MODULE ]]
 M.context = context
+M.file = file
 return M
