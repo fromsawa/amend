@@ -18,28 +18,76 @@ local strformat = string.format
 local tinsert = table.insert
 local tremove = table.remove
 local tconcat = table.concat
+local tmake = table.make
 
 --- `class.tag`
+--
+-- This class tag serves two purposes, first to mark a table as 'class'
+-- and second, provides the meta-method ''__call'' for class instatiation.
+--
 local tag = {
     __call = function(self, ...)
         local obj = {}
         setmetatable(obj, self)
 
+        -- initialize member variables
+        for k, v in pairs(self.__public) do
+            if type(v) == 'table' then
+                error("FIXME")
+            else
+                obj[k] = v
+            end
+        end
+
+        -- construct and return object
+        -- (note: this allows singletons!)
         return self.__init(obj, ...) or obj
     end
 }
 
---- `isclass`
+--- `void`
+--
+-- A place-holder (for ''__public'' fields).
+--
+void = {}
+setmetatable(void, {
+    __name = 'void',
+    __dump = function(self, options) 
+        options.stream:write("void")
+    end
+})
+
+--- `isvoid(t)`
+--
+-- Check if ''t'' is `void`.
+--
+function isvoid(t) 
+    return t == void
+end
+
+--- `isclass(t)`
+--
+-- Check if ''t'' is a `class`.
+--
 function isclass(t)
     return getmetatable(t) == tag
 end
 
---- `isobject`
+---[.object] `isobject(t)`
+--
+-- Check if ''t'' is an object.
+--
 function isobject(t)
     return isclass(getmetatable(t))
 end
 
---- `resolve(name)`
+--- `resolve(...)`
+-- @call
+--      `resolve(name)`
+--      `resolve(name, root)`
+-- @param 
+--      name            The class name.
+--      root            The root namespace (default: _G)
 --
 -- Find a class by name.
 --
@@ -56,6 +104,66 @@ local function resolve(name, root)
     end
 
     return cls
+end
+
+--- `isa(obj, ...)`
+-- @call
+--      `isa(obj, T)`
+-- 
+-- Check if ''obj'' is of type ''T''. Here, ''T'' may also be
+-- a string as it would be returned by `type()` or `math.type()`.
+--
+-- @call
+--      `isa(obj, {T})`
+--
+-- Check if ''obj'' is or is derived from type ''T''. This requires
+-- ''obj'' to be an object (see [amend.api.lua.class.isobject]).
+-- 
+function isa(obj, T)
+    local mtype = math.type
+
+    if isobject(obj) then
+        if isclass(T) then
+            return getmetatable(obj) == T
+        elseif type(T) == 'string' then
+            if (mtype(obj) or type(obj)) == T then
+                return true
+            end
+
+            local R = resolve(T)
+            if not R then
+                error(strformat("unknown class or type %q", T), 2)
+            end
+
+            return isa(obj, R)
+        else
+            if (type(T) ~= 'table') or (#T ~= 1) then
+                error("expected a table with a single element", 2)
+            end
+            T = T[1]
+            if type(T) == 'string' then
+                T = resolve(T)
+            end
+        
+            local mt = getmetatable(obj)
+            if mt == T then
+                return true
+            end
+
+            local __inherit = mt.__inherit
+            for i = #__inherit,-1,1 do
+                if mt == __inherit[i] then
+                    return true
+                end
+            end
+
+            return false
+        end
+    else
+        if type(T) == 'string' then
+            return (mtype(obj) or type(obj)) == T
+        end
+    end
 end
 
 --- `class "name" { <declaration> }`
@@ -102,6 +210,7 @@ local function declare_class(t, name, decl, _level)
     end
 
     -- inheritance
+    local __public = decl.__public or {}
     local __inherit = {}
     local function build_inherit(tree)
         for _, k in ipairs(tree) do
@@ -118,14 +227,45 @@ local function declare_class(t, name, decl, _level)
 
             -- add element
             tinsert(__inherit, k)
+
+            -- add variables
+            for k,v in pairs(k.__public) do
+                __public[k] = v
+            end
         end
     end
     build_inherit(decl.__inherit or {})
     decl.__inherit = __inherit
+    decl.__public = __public
 
     -- constructor
     decl.__init = decl.__init or function(self, ...)
     end
+
+    -- member access
+    local function newindex(self, k, v)
+        if not getmetatable(self).__public[k] then
+            error(strformat("variable %q is not a public member variable", tostring(k)), 2)
+        end
+
+        rawset(self, k, v)
+    end
+
+    decl.__index = decl.__index or decl
+    decl.__newindex = decl.__newindex or newindex
+
+    -- __dump
+    local function dumper(self, options)
+        io.dump(self, tmake(options, {prefix = self.__name .. ":table", __dump = true }))
+    end
+    decl.__dump = decl.__dump or dumper
+
+    -- :table
+    local function table(self, v)
+        setmetatable(v, self)
+        return v
+    end
+    decl.table = decl.table or table
 
     -- return class
     t[clsname] = decl
@@ -177,4 +317,7 @@ setmetatable(class, {
 class.tag = tag
 class.isclass = isclass
 class.isobject = isobject
+class.isa = isa
+class.void = void
+class.isvoid = isvoid
 return class

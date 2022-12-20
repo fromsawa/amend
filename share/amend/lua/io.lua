@@ -162,8 +162,8 @@ local function io_dump(value, options)
         end
 
         local mt = getmetatable(value)
-        if mt and mt.__dump then
-            mt.__dump(t, { 
+        if mt and mt.__dump and not options.__dump then
+            mt.__dump(value, { 
                 indent = indent,
                 level = level,
                 stream = stream,
