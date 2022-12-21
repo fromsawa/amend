@@ -28,7 +28,14 @@ local config = {
     }
 }
 
-local g = docs.core(config)
+-- local g = docs.core(config)
 -- g:parse("README.md")
-g:parse("amend/docs/__module.lua")
-io.dump(g)
+-- g:parse("amend/docs/__module.lua")
+-- io.dump(g)
+
+local f = docs.file("../README.md")
+-- for line,context in f:lines() do
+--     io.dump(line)
+--     io.dump(context)
+-- end
+print("#f", #f)

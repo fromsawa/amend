@@ -232,7 +232,11 @@ function document:write(path)
     local f = assert(io.open(path, "w"))
 
     local function emit(part, level)
-        if part.tag == 'section' then
+        if part.tag == 'document' then
+            for _, v in ipairs(part) do
+                emit(v, level + 1)
+            end
+        elseif part.tag == 'section' then
             f:write("\n", strrep('#', level), ' ', part.title)
 
             if part.reference then
