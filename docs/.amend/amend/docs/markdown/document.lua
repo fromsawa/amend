@@ -3,6 +3,8 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] local M = require "amend.docs.markdown.__module"
 
+require 'amend.docs.markdown.types'
+
 local docs = require "amend.docs.__module"
 
 local mtype = math.type
