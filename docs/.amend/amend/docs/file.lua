@@ -83,7 +83,6 @@ function context:__call(offset, column)
         return context(self, 0, offset)
     end
 end
-
 -- }
 
 --- `file`
@@ -91,9 +90,10 @@ end
 -- {
 local file = class(M) "file" {
     __public = {
-        path = void, --@var `path` Full file path.
-        file = void, --@var `file` Relative file path.
-        data = {}    --@var `data` Lines.
+        path = void, -- @var `path` Full file path.
+        file = void, -- @var `file` Relative file path.
+        extension = {}, -- @var `extension` File extension.
+        data = {} -- @var `data` Lines.
     }
 }
 
@@ -122,9 +122,15 @@ function file:load(path, workdir)
 
     self.path = path
     self.file = fs.relpath(path, workdir)
+    local _, _, extension = fs.parts(path)
+    self.extension = extension
 
     local lines = self.data
-    for line in iter do 
+    for line in iter do
+        if line:match("[\t]") then
+            error("TAB characters are not supported.")
+        end
+
         tinsert(lines, line)
     end
 end
@@ -134,12 +140,13 @@ function file:lines()
 end
 
 function file:context(line, column)
-    return context(self, line, column)
+    return context(self, line, column or 1)
 end
 
+function file:message(level, line, column, fmt, ...)
+    M.notice(level, context(self, line, column), fmt, ...)
+end
 -- }
 
 -- [[ MODULE ]]
-M.context = context
-M.file = file
 return M

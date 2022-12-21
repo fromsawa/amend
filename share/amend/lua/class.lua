@@ -171,8 +171,8 @@ function isa(obj, T)
             end
 
             local __inherit = mt.__inherit
-            for i = #__inherit, -1, 1 do
-                if mt == __inherit[i] then
+            for i = #__inherit, 1, -1 do
+                if T == __inherit[i] then
                     return true
                 end
             end
@@ -184,6 +184,18 @@ function isa(obj, T)
             return (mtype(obj) or type(obj)) == T
         end
     end
+end
+
+--- `newindex`
+--
+-- Standard ''__newindex'' meta-method for classes.
+--
+local function newindex(self, k, v)
+    if not getmetatable(self).__public[k] then
+        error(strformat("variable %q is not a public member variable", tostring(k)), 2)
+    end
+
+    rawset(self, k, v)
 end
 
 --- `class "name" { <declaration> }`
@@ -230,7 +242,6 @@ local function declare_class(t, name, decl, _level)
     end
 
     -- inheritance
-    local __public = decl.__public or {}
     local __inherit = {}
     local function build_inherit(tree)
         for _, k in ipairs(tree) do
@@ -247,30 +258,42 @@ local function declare_class(t, name, decl, _level)
 
             -- add element
             tinsert(__inherit, k)
-
-            -- add variables
-            for k, v in pairs(k.__public) do
-                __public[k] = v
-            end
         end
     end
     build_inherit(decl.__inherit or {})
     decl.__inherit = __inherit
+
+    local __public = {}
+    for _, parent in ipairs(__inherit) do
+        for k,v in pairs(parent.__public) do
+            __public[k] = v
+        end
+    end
+    for k,v in pairs(decl.__public or {}) do
+        __public[k] = v
+    end
     decl.__public = __public
+
+    local methods = {}
+    for _, parent in ipairs(__inherit) do
+        for k,v in pairs(parent) do
+            if (k == "__public") or (k == "__inherit") or (k == "__init") then
+                -- skip
+            elseif type(v) == 'function' then
+                methods[k] = v                
+            end
+        end
+    end
+
+    for k,v in pairs(methods) do
+        decl[k] = decl[k] or v
+    end
 
     -- constructor
     decl.__init = decl.__init or function(self, ...)
     end
 
     -- member access
-    local function newindex(self, k, v)
-        if not getmetatable(self).__public[k] then
-            error(strformat("variable %q is not a public member variable", tostring(k)), 2)
-        end
-
-        rawset(self, k, v)
-    end
-
     decl.__index = decl.__index or decl
     decl.__newindex = decl.__newindex or newindex
 
@@ -352,4 +375,5 @@ class.isa = isa
 class.void = void
 class.isvoid = isvoid
 class.index = index
+class.newindex = newindex
 return class

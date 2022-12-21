@@ -4,5 +4,5 @@
 ]] local M = require 'amend.docs.lua.__module'
 
 
-
+-- [[ MODULE ]]
 return M

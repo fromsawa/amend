@@ -1,4 +1,4 @@
-# Amend
+# Amend [a.b.c]
 
 Source code revision tool.
 
@@ -18,5 +18,5 @@ The author(s) of ''amend'' have also repeatedly reinvented wheels (read utilitie
 to prepare software releases for each new software they were working on. The ''amend''
 package is a possibly [futile](https://xkcd.com/927/)) attempt to create a generic
 tool for such purposes: yet, the author(s) are using it succesfully in several projects
-and, therefore, disclose it to the public.
+and, therefore, disclose it to the public (see [amend.api]).
 

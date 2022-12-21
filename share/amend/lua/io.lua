@@ -1,10 +1,8 @@
 --[[
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]]
---[[>>[amend.api.lua.io] #+ IO
-]]
-local stdout = io.stdout
+]] --[[>>[amend.api.lua.io] #+ IO
+]] local stdout = io.stdout
 local sformat = string.format
 
 --- `io.printf(...)`
@@ -51,20 +49,17 @@ local function getkeys(t)
         table.insert(keys, k)
     end
 
-    table.sort(
-        keys,
-        function(a, b)
-            local ta, tb = math.type(a) or type(a), math.type(b) or type(b)
-            if ta == tb then
-                return a < b
-            else
-                ta = prec[ta] or prec.any
-                tb = prec[tb] or prec.any
+    table.sort(keys, function(a, b)
+        local ta, tb = math.type(a) or type(a), math.type(b) or type(b)
+        if ta == tb then
+            return a < b
+        else
+            ta = prec[ta] or prec.any
+            tb = prec[tb] or prec.any
 
-                return ta < tb
-            end
+            return ta < tb
         end
-    )
+    end)
 
     return keys
 end
@@ -83,6 +78,7 @@ local function io_dump(value, options)
     local key = options.key
     local quoted = options.quoted
     local always_index = options.index
+    local visited = options.visited
     local nocomma = options.nocomma
 
     local format = options.format or {}
@@ -90,7 +86,7 @@ local function io_dump(value, options)
     local fmt_number = format.number or "%g"
 
     local function findobj(obj, tbl, res)
-        for k,v in pairs(tbl) do
+        for k, v in pairs(tbl) do
             if v ~= _G.package then
                 if v == obj then
                     table.insert(res, k)
@@ -99,9 +95,9 @@ local function io_dump(value, options)
                     if v == _G then
                         return false
                     end
-                    
+
                     table.insert(res, k)
-                    
+
                     if findobj(obj, v, res) then
                         return true
                     end
@@ -157,48 +153,53 @@ local function io_dump(value, options)
     -- output value
     local t = type(value)
     if t == "table" then
-        local isempty = true
-        for _, _ in pairs(value) do
-            isempty = false
-            break
-        end
-
-        local mt = getmetatable(value)
-        if mt and mt.__dump and not options.nodump then
-            mt.__dump(value, { 
-                indent = indent,
-                level = level,
-                stream = stream,
-                format = format,
-                quoted = quoted,
-                always_index = always_index,
-                nocomma = false,
-                nodump = true
-            })
-        elseif isempty then
-            stream:write("{}")
+        if visited[value] then
+            -- FIXME
+            stream:write("@") 
         else
-            stream:write("{\n")
+            visited[value] = true
 
-            local ks = getkeys(value)
-            for i, k in ipairs(ks) do
-                if math.type(k) == "integer" and k >= 1 and k <= #value and not always_index then
-                    io_dump(
-                        value[k],
-                        {
+            local isempty = true
+            for _, _ in pairs(value) do
+                isempty = false
+                break
+            end
+
+            local mt = getmetatable(value)
+            if mt and mt.__dump and not options.nodump then
+                visited[value] = false
+
+                mt.__dump(value, {
+                    indent = indent,
+                    level = level,
+                    stream = stream,
+                    format = format,
+                    quoted = quoted,
+                    always_index = always_index,
+                    visited = visited,
+                    nocomma = false,
+                    nodump = true
+                })
+            elseif isempty then
+                stream:write("{}")
+            else
+                stream:write("{\n")
+
+                local ks = getkeys(value)
+                for i, k in ipairs(ks) do
+                    if math.type(k) == "integer" and k >= 1 and k <= #value and not always_index then
+                        io_dump(value[k], {
                             indent = indent,
                             level = level + 1,
                             stream = stream,
                             format = format,
                             quoted = quoted,
                             always_index = always_index,
+                            visited = visited,
                             nocomma = (i == #ks)
-                        }
-                    )
-                else
-                    io_dump(
-                        value[k],
-                        {
+                        })
+                    else
+                        io_dump(value[k], {
                             key = k,
                             indent = indent,
                             level = level + 1,
@@ -206,14 +207,15 @@ local function io_dump(value, options)
                             format = format,
                             quoted = quoted,
                             always_index = always_index,
+                            visited = visited,
                             nocomma = (i == #ks)
-                        }
-                    )
+                        })
+                    end
                 end
-            end
 
-            stream:write(string.rep(indent, level))
-            stream:write("}")
+                stream:write(string.rep(indent, level))
+                stream:write("}")
+            end
         end
     elseif t == "string" then
         -- quotes
@@ -243,12 +245,12 @@ local function io_dump(value, options)
         stream:write(_tostr(value))
     end
 
-    -- comman and newline
-    if not nocomma then
-        stream:write(",")
-    end
-
+    -- comma and newline
     if not options.nodump then
+        if not nocomma then
+            stream:write(",")
+        end
+
         stream:write("\n")
     end
 end
@@ -278,6 +280,7 @@ function io.dump(value, options)
     options.level = options.level or 0
     options.format = options.format or {}
     options.nocomma = (options.level == 0)
+    options.visited = options.visited or {}
 
     -- prefix (if applicable)
     if options.prefix then

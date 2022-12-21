@@ -3,7 +3,11 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] local M = require 'amend.docs.__module'
 
+local strrep = string.rep
+
 require 'amend.docs.file'
+require 'amend.docs.structure'
+require 'amend.docs.generator'
 
 --- `docs.extension`
 --
@@ -18,7 +22,7 @@ fs.dodir(moduledir, function(item)
     local lang = item[2]
 
     if path ~= moduledir then
-        local mod = require("amend.docs."..lang)
+        local mod = require("amend.docs." .. lang)
         message(TRACE[1], "loaded 'amend.docs." .. lang .. "'")
 
         local ext = mod.extension or {}
@@ -37,7 +41,18 @@ end, {
 -- Output a notice with context.
 --
 local function notice(level, context, fmt, ...)
-    message(level, "In source %q [%d:%d]:", context.source, context.line, context.column)
+    local source, line, column = context.source, context.line, context.column
+
+    if isa(source, M.file) then
+        message(level, "In source %q [%d:%d]:", source.file, line, column)
+        message(level, "")
+        message(level, "    %s", source[line])
+        message(level, "%s---^", strrep(" ", column))
+        message(level, "")
+    else
+        message(level, "In source %q [%d:%d]:", tostring(context.source), line, column)
+    end
+
     message(level, fmt, ...)
 
     while type(level) == 'table' do

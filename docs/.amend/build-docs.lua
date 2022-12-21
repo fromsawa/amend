@@ -5,15 +5,14 @@ message "Generating source documentation..."
 local docs = require "amend.docs"
 
 local config = {
-    version = {1,0},
     input = {
         directory = ROOTDIR,
-        strip = { "share/", "docs/.amend/" },
+        strip = {"share/", "docs/.amend/"},
         tabsize = 4
     },
     output = {
         directory = "docs/amend",
-        template = ".amend/index.in.md"
+        template = "docs/index.in.md"
     },
     include = {
         patterns = {},
@@ -29,3 +28,7 @@ local config = {
     }
 }
 
+local g = docs.core(config)
+g:parse("README.md")
+-- g:parse("amend/docs/__module.lua")
+io.dump(g)
