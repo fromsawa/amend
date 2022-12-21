@@ -13,6 +13,8 @@ local tmake = table.make
 local strlen = string.len
 local strformat = string.format
 local strtrim = string.trim
+local strrep = string.rep
+
 local fmterror = function(fmt, ...)
     local args = {...}
     local level = 0
@@ -27,34 +29,9 @@ local fmterror = function(fmt, ...)
     error(msg, level + 1)
 end
 
-local text = class(M) "text" {
-    __inherit = {docs.node},
-    __public = {
-        tag = 'text',
-        content = {},
-        context = void
-    }
-}
-
-local paragraph = class(M) "paragraph" {
-    __inherit = {docs.node},
-    __public = {
-        tag = 'paragraph',
-        substitutions = {},
-        context = void
-    }
-}
-
-local section = class(M) "section" {
-    __inherit = {docs.node},
-    __public = {
-        tag = 'section',
-        title = void,
-        level = void,
-        attributes = void,
-        reference = void
-    }
-}
+local section = M.section
+local paragraph = M.paragraph
+local text = M.text
 
 --- `document`
 -- 
@@ -108,8 +85,7 @@ end
 function document:parse(stream)
     local stack = self.stack
 
-    for i = 1, stream:lines() do
-        local line = stream[i]
+    for line, ctxt in stream:lines() do
         local top = stack[#stack]
 
         -- HEADING
@@ -146,14 +122,14 @@ function document:parse(stream)
             end
             if strlen(rest) > 0 then
                 local column = strlen(heading) + strlen(spaces) + strlen(link) + strlen(line) + strlen(point) + 1
-                docs.notice(ERROR, stream:context(i), "trailing garbage after fullstop")
+                docs.notice(ERROR, ctxt, "trailing garbage after fullstop")
             end
 
             self:addheading(heading, {
                 text = line,
                 attributes = attributes,
                 reference = link
-            }, stream:context(i))
+            }, ctxt)
 
             goto continue
         end
@@ -182,7 +158,8 @@ function document:parse(stream)
             if not before:match("^[%s]*$") then
                 docs.notice(ERROR, stream:context(i, 1), "garbage before include")
             elseif not before:match("^[%s]*$") or not after:match("^[%s]*$") then
-                docs.notice(ERROR, stream:context(i, strlen(before) + strlen(include) + 5), "trailing garbage after include")
+                docs.notice(ERROR, stream:context(i, strlen(before) + strlen(include) + 5),
+                            "trailing garbage after include")
             end
 
             local sub = docs.substitution("include", {
@@ -247,6 +224,49 @@ function document:parse(stream)
 
         ::continue::
     end
+end
+
+function document:write(path)
+    local f = assert(io.open(path, "w"))
+
+    local function emit(part, level)
+        if part.tag == 'section' then
+            f:write("\n", strrep('#', level), ' ', part.title)
+
+            if part.reference then
+                -- FIXME
+            end
+
+            if part.attributes then
+                f:write(" {", part.attributes, "}")
+            end
+
+            f:write("\n")
+
+            for _, v in ipairs(part) do
+                emit(v, level + 1)
+            end
+        elseif part.tag == 'paragraph' then
+            f:write("\n")
+
+            for _, v in ipairs(part) do
+                emit(v, level)
+            end
+        elseif part.tag == 'text' then
+            f:write(part.content, "\n")
+        else
+            io.dump(part)
+            os.exit()
+        end
+    end
+
+    f:write("% ", self[1].title, "\n")
+
+    for _, sec in ipairs(self) do
+        emit(sec, 1)
+    end
+
+    f:close()
 end
 -- }
 

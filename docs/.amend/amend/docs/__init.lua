@@ -5,6 +5,7 @@
 
 local strrep = string.rep
 
+require 'amend.docs.stream'
 require 'amend.docs.file'
 require 'amend.docs.structure'
 require 'amend.docs.generator'
