@@ -5,7 +5,6 @@
 
 local docs = require "amend.docs.__module"
 
-local dnotice = docs.notice
 local mtype = math.type
 local tinsert = table.insert
 local tremove = table.remove
@@ -79,7 +78,31 @@ function document:__init(options)
         self.options[k] = v
     end
 
-    stack = {self}
+    self.stack = {self}
+end
+
+function document:addheading(level, tbl, context)
+    local stack = self.stack
+    local top = stack[#stack]
+
+    while #stack > level do
+        tremove(stack)
+    end
+    top = stack[#stack]
+
+    if #stack < level then
+        docs.notice(ERROR, context, "invalid header (no superior)")
+    end
+
+    local sec = section()
+    sec.level = level
+    sec.title = tbl.text
+    sec.attributes = tbl.attributes
+    sec.reference = tbl.reference
+    sec.context = context
+
+    top:add(sec)
+    tinsert(stack, sec)
 end
 
 function document:parse(stream)
@@ -123,28 +146,14 @@ function document:parse(stream)
             end
             if strlen(rest) > 0 then
                 local column = strlen(heading) + strlen(spaces) + strlen(link) + strlen(line) + strlen(point) + 1
-                stream:message(ERROR, i, column, "trailing garbage after fullstop")
+                docs.notice(ERROR, stream:context(i), "trailing garbage after fullstop")
             end
 
-            -- create section
-            while #stack > heading do
-                tremove(stack)
-            end
-            top = stack[#stack]
-
-            if #stack < heading then
-                stream:message(ERROR, i, 1, "invalid header (no superior)")
-            end
-
-            local sec = section()
-            sec.title = line
-            sec.level = heading
-            sec.attributes = attributes
-            sec.reference = link
-            sec.context = stream:context(i)
-
-            top:add(sec)
-            tinsert(stack, sec)
+            self:addheading(heading, {
+                text = line,
+                attributes = attributes,
+                reference = link
+            }, stream:context(i))
 
             goto continue
         end
@@ -168,7 +177,23 @@ function document:parse(stream)
         end
 
         -- INCLUDE
-        -- FIXME
+        local before, include, after = line:match("(.*)<<[[]([^]]+)[]](.*)")
+        if include then
+            if not before:match("^[%s]*$") then
+                docs.notice(ERROR, stream:context(i, 1), "garbage before include")
+            elseif not before:match("^[%s]*$") or not after:match("^[%s]*$") then
+                docs.notice(ERROR, stream:context(i, strlen(before) + strlen(include) + 5), "trailing garbage after include")
+            end
+
+            local sub = docs.substitution("include", {
+                indent = before,
+                reference = include
+            }, stream:context(i))
+            tinsert(para.substitutions, sub)
+            tremove(stack)
+
+            goto continue
+        end
 
         -- TEXT
         local t = text()
