@@ -32,7 +32,7 @@ function core:__init(config)
     self:readall()
 end
 
-function core:read(path, extension)
+function core:read(path, language)
     local workdir = self.config.input.directory
     local strip = self.config.input.strip
 
@@ -47,14 +47,15 @@ function core:read(path, extension)
     end
 
     -- check
-    if self.files[name] and (self.files[name].file ~= path) then
+    if self.files[name] and (self.files[name].origin ~= path) then
         error(
-            strformat("Files\n    %q and\n    %q\nyield the same stripped name: %q", self.files[name].file, path, name))
+            strformat("Files\n    %q and\n    %q\nyield the same stripped name: %q", self.files[name].origin, path, name))
     end
 
     -- read file
-    local f = M.file(fs.concat(workdir, path), workdir)
-    f.extension = extension or f.extension
+    local f = M.stream.file()
+    f:load(fs.concat(workdir, path), workdir)
+    f.language = language or f.language
 
     self.files[name] = f
 end
@@ -75,7 +76,7 @@ function core:readall()
         end
 
         local alt = config.include.files[item[2]]
-        local extension = (alt and alt.extension) or item[3]
+        local extension = (alt and alt.language) or item[3]
 
         if M.extension[extension] then
             self:read(path, extension)
@@ -92,7 +93,7 @@ end
 function core:parse(id, thefile)
     thefile = thefile or self.files[id]
 
-    local lang = M.extension[thefile.extension]
+    local lang = M.extension[thefile.language]
     local doc = lang.document({
         tabsize = self.config.input.tabsize
     })
@@ -111,8 +112,10 @@ end
 
 function core:__dump(options)
     options.key = options.key or "docs"
+    options.visited = options.visited or {}
+    options.visited[self.config] = true
+    options.visited[self.files] = true
     io.dump(self, options)
-    -- FIXME omit "config"
 end
 -- }
 

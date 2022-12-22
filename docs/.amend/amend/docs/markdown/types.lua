@@ -10,15 +10,17 @@ local text = class(M) "text" {
     __public = {
         tag = 'text',
         content = {},
-        context = void
-    }
+    },
+
+    __init = function(self, content) 
+        self.content = content
+    end
 }
 
 local paragraph = class(M) "paragraph" {
     __inherit = {docs.node},
     __public = {
         tag = 'paragraph',
-        substitutions = {},
         context = void
     }
 }
@@ -28,8 +30,6 @@ local section = class(M) "section" {
     __public = {
         tag = 'section',
         title = void,
-        level = void,
-        attributes = void,
         reference = void
     }
 }

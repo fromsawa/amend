@@ -46,7 +46,8 @@ local document = class(M) "document" {
         options = {
             tabsize = 4
         },
-        stack = void
+        stack = void,
+        id = void
     }
 }
 
@@ -74,9 +75,7 @@ function document:addheading(level, tbl, context)
     end
 
     local sec = section()
-    sec.level = level
     sec.title = tbl.text
-    sec.attributes = tbl.attributes
     sec.reference = tbl.reference
     sec.context = context
 
@@ -85,59 +84,50 @@ function document:addheading(level, tbl, context)
 end
 
 function document:parse(stream)
+    -- set id
+    if not self.id then
+        self.id = stream.origin
+    end
+
+    -- parse document (or fragment)
     local stack = self.stack
 
-    for line, ctxt in stream:lines() do
+    for aline in stream:lines() do
         local top = stack[#stack]
 
         -- HEADING
-        local heading, spaces, title = line:match("^(#+)([%s]+)(.*)")
+        local heading = aline:re("^(#+)(.*)")
         if heading then
+            local depth, rest = tunpack(heading)
+
+            -- amend annotation
+            local title
+            local reference = rest:re("%s*[[]")
+            if reference then
+                reference = rest:re("%s*[[]([^]]*)[]]%s*(.*)")
+                if not reference then
+                    docs.notice(ERROR, aline.origin(1), "invalid annotation: expected a closing bracket")
+                end
+
+                reference, title = tunpack(reference)
+            else
+                title = rest
+            end
+
             -- disect heading
-            heading = strlen(heading)
+            depth = #depth
+            title:trim()
 
-            local line = title
-            local attributes = {title:find("{[^}]*}")}
-            local link = {title:find("[[][^]]+[]]")}
-
-            if attributes[1] then
-                local tmp = line:sub(attributes[1] + 1, attributes[2] - 1)
-                line = line:sub(1, attributes[1] - 1) .. line:sub(attributes[2] + 1)
-                attributes = tmp
-            else
-                attributes = nil
-            end
-
-            if link[1] then
-                local tmp = line:sub(link[1] + 1, link[2] - 1)
-                -- FIXME check link format
-                line = line:sub(1, link[1] - 1) .. line:sub(link[2] + 1)
-                link = tmp
-            else
-                link = nil
-            end
-
-            line = strtrim(line)
-            local line, point, rest = line:match("^([^.]+)([.]?)(.*)")
-            if not line then
-                fmterror("Internal error: could not parse %q", title)
-            end
-            if strlen(rest) > 0 then
-                local column = strlen(heading) + strlen(spaces) + strlen(link) + strlen(line) + strlen(point) + 1
-                docs.notice(ERROR, ctxt, "trailing garbage after fullstop")
-            end
-
-            self:addheading(heading, {
-                text = line,
-                attributes = attributes,
-                reference = link
-            }, ctxt)
+            self:addheading(depth, {
+                text = title,
+                reference = reference
+            }, aline.origin)
 
             goto continue
         end
 
         -- PARAGRAPHS
-        if strlen(line) == 0 then
+        if #aline == 0 then
             if isa(top, paragraph) then
                 tremove(stack)
             end
@@ -154,74 +144,94 @@ function document:parse(stream)
             top = para
         end
 
-        -- INCLUDE
-        local before, include, after = line:match("(.*)<<[[]([^]]+)[]](.*)")
+        -- TEXT
+        local textnode = text(aline)
+        para:add(textnode)
+
+        -- ANNOTATION
+        local thedocument = stack[1]
+
+        -- include
+        local include = aline:re("(.*)<<[[]([^]]+)[]](.*)")
         if include then
-            if not before:match("^[%s]*$") then
-                docs.notice(ERROR, stream:context(i, 1), "garbage before include")
-            elseif not before:match("^[%s]*$") or not after:match("^[%s]*$") then
-                docs.notice(ERROR, stream:context(i, strlen(before) + strlen(include) + 5),
-                            "trailing garbage after include")
+            local indentation, reference, trailing = tunpack(include)
+
+            if not indentation:re("^[%s>]*$") then
+                docs.notice(ERROR, indentation.origin, "invalid indentation before include")
+            elseif not trailing:re("^%s*$") then
+                docs.notice(ERROR, trailing.origin, "trailing garbage after include")
             end
 
-            local sub = docs.substitution("include", {
-                indent = before,
-                reference = include
-            }, stream:context(i))
-            tinsert(para.substitutions, sub)
-            tremove(stack)
+            local ann = docs.annotation("include", {
+                indent = indentation,
+                reference = reference
+            }, textnode)
+            textnode:add(ann)
 
             goto continue
         end
 
-        -- TEXT
-        local t = text()
-        t.content = line
-        t.context = stream:context(i)
-
-        para:add(t)
-
-        -- SUBSTITUTIONS
-        while true do
-            local bpos, epos, tag, content
-
-            -- [text](link)
-            bpos, epos = line:find("[[][^]]+[]][(][^)]+[)]")
-            if bpos then
-                content = line:sub(bpos, epos)
-                tag = 'link'
-
-                line = line:sub(epos + 1)
+        local function annotate(left,right)
+            -- left fragment
+            if not left or (#left == 0) then
+                return
             end
 
-            -- [link]
-            if not bpos then
-                bpos, epos = line:find("[[][^]]+[]]")
-                if bpos then
-                    content = line:sub(bpos, epos)
-                    tag = 'link'
+            local fragment
 
-                    line = line:sub(epos + 1)
+            -- MACRO
+            fragment = left:re("([@][%l]+)")
+            if fragment then
+                local head, tail = left:sub(1, mafragmentcro[0][1]-1), left:sub(fragment[0][2]+1)
+                local name = tunpack(fragment)
+                annotate(head)
+                
+                local ann = docs.annotation("include", {
+                    sub = fragment[0],
+                    name = tostring(name)
+                }, textnode)
+                textnode:add(ann)
+
+                annotate(tail)
+                return
+            end
+
+            -- LINKS
+            fragment = left:re("[[]([^]]+)[]][(]([^)]+)[)]")
+            if not fragment then
+                fragment = left:re("[[]([^]]+)[]]")
+            end
+
+            if fragment then
+                local head, tail = left:sub(1, fragment[0][1]-1), left:sub(fragment[0][2]+1)
+                local text, ref = tunpack(fragment)
+                if #fragment == 1 then
+                    ref = text
+                    text = nil
                 end
+
+                annotate(head)
+                              
+                local ann = docs.annotation("include", {
+                    sub = fragment[0],
+                    reference = ref,
+                    text = text
+                }, textnode)
+                textnode:add(ann)
+
+                annotate(tail)
+                return
             end
 
-            -- @macro
-            if not bpos then
-                bpos, epos = line:find("@[%l]+")
-                if bpos then
-                    content = line:sub(bpos, epos)
-                    tag = 'macro'
-
-                    line = line:sub(epos + 1)
-                end
+            -- right fragment
+            if right and #right > 0 then
+                annotate(right)
             end
+        end
 
-            if tag then
-                local sub = docs.substitution(tag, content, t)
-                tinsert(para.substitutions, sub)
-            else
-                break
-            end
+        -- FIXME is this correct
+        if not aline:re("^[%s>]+") then
+            annotate(aline)
         end
 
         ::continue::
@@ -237,7 +247,7 @@ function document:write(path)
                 emit(v, level + 1)
             end
         elseif part.tag == 'section' then
-            f:write("\n", strrep('#', level), ' ', part.title)
+            f:write("\n", strrep('#', level), ' ', tostring(part.title))
 
             if part.reference then
                 -- FIXME
@@ -259,20 +269,26 @@ function document:write(path)
                 emit(v, level)
             end
         elseif part.tag == 'text' then
-            f:write(part.content, "\n")
+            f:write(tostring(part.content), "\n")
         else
             io.dump(part)
             os.exit()
         end
     end
 
-    f:write("% ", self[1].title, "\n")
+    f:write("% ", tostring(self[1].title), "\n")
 
     for _, sec in ipairs(self) do
         emit(sec, 1)
     end
 
     f:close()
+end
+
+function document:__dump(options)
+    options.visited = options.visited or {}
+    options.visited[self.stack] = true
+    io.dump(self, options)
 end
 -- }
 

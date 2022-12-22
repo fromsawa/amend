@@ -4,6 +4,7 @@
 ]] local M = require 'amend.docs.__module'
 
 local mtype = math.type
+local tinsert = table.insert
 local cnewindex = class.newindex
 
 --- `node`
@@ -15,7 +16,8 @@ local node = class(M) "node" {
     __public = {
         tag = void,
         parent = void,
-        context = void
+        context = void,
+        annotation = void
     }
 }
 
@@ -45,8 +47,8 @@ end
 function node:remove(k)
     if k then
         assert(mtype(k) == 'integer')
-        for i = k,#self-1 do
-            rawset(self, i, rawget(self, i+1))
+        for i = k, #self - 1 do
+            rawset(self, i, rawget(self, i + 1))
         end
         rawset(self, #self, nil)
     else
@@ -57,26 +59,41 @@ function node:remove(k)
                     parent:remove(i)
                     break
                 end
-            end 
+            end
         end
     end
 end
 
 function node:add(v)
-    if not isa(v, {node}) then
+    if isa(v, M.annotation) then
+        self.annotation = self.annotation or {
+            offset = 0
+        }
+        tinsert(self.annotation, v)
+    elseif isa(v, {node}) then
+        rawset(self, #self + 1, v)
+        v.parent = self
+    else
+        print("FIXME node:add")
         io.dump(v)
+        os.exit(1)
     end
-    assert(isa(v, {node}))
-    rawset(self, #self+1, v)
-    v.parent = self
+end
+
+function node:__dump(options)
+    options.visited = options.visited or {}
+    options.visited[self.parent] = true
+    io.dump(self, options)
 end
 -- }
 
---- `substitution`
+--- `annotation`
 --
 -- FIXME
---
-local substitution = class(M) "substitution" {
+-- 
+-- @see [amend.api.docs.syntax.annotation]
+-- {
+local annotation = class(M) "annotation" {
     __public = {
         tag = void,
         content = void,
@@ -84,11 +101,18 @@ local substitution = class(M) "substitution" {
     }
 }
 
-function substitution:__init(tag, content, context)
+function annotation:__init(tag, content, context)
     self.tag = tag
     self.content = content
     self.context = context
 end
+
+function annotation:__dump(options)
+    options.visited = options.visited or {}
+    options.visited[self.context] = true
+    io.dump(self, options)
+end
+-- }
 
 -- [[ MODULE ]]
 return M

@@ -16,7 +16,7 @@ or documents.
 
 The output is optimized for further processing using [pandoc](https://pandoc.org/).
 
-## Syntax
+## [.syntax] Syntax
 
 ### Source code
 
@@ -34,14 +34,14 @@ Example:
 
 List:
     --- <heading>.                  Starts a paragraph or section.
-    -- >>[reference]                Generate a document (title follows in next part).
+    -- >>[reference]                Generate a document (title follows in next fragment).
     -- >>[reference] <title>        Generate a document with a title.
 
-### Annotations
+### [.annotation] Annotations
 
-FIXME
+    # [reference] Title.
 
-## Configuration
+## [.configuration] Configuration
 
 FIXME
 

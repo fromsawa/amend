@@ -37,13 +37,23 @@ local keywords = {
 }
 
 -- Get sorted list of keys.
-local prec = {
+local prec_array = {
     integer = 0,
     float = 1,
     string = 2,
     any = 99
 }
-local function getkeys(t)
+local prec_key = {
+    string = 0,
+    any = 1,
+    integer = 99
+}
+local function getkeys(t, index_last)
+    local prec = prec_array
+    if index_last then
+        prec = prec_key
+    end
+
     local keys = {}
     for k, _ in pairs(t) do
         table.insert(keys, k)
@@ -154,8 +164,8 @@ local function io_dump(value, options)
     local t = type(value)
     if t == "table" then
         if visited[value] then
-            -- FIXME
-            stream:write("@") 
+            -- FIXME 
+            stream:write("@")
         else
             visited[value] = true
 
@@ -185,7 +195,7 @@ local function io_dump(value, options)
             else
                 stream:write("{\n")
 
-                local ks = getkeys(value)
+                local ks = getkeys(value, isobject(value))
                 for i, k in ipairs(ks) do
                     if math.type(k) == "integer" and k >= 1 and k <= #value and not always_index then
                         io_dump(value[k], {

@@ -6,7 +6,6 @@
 local strrep = string.rep
 
 require 'amend.docs.stream'
-require 'amend.docs.file'
 require 'amend.docs.structure'
 require 'amend.docs.generator'
 
@@ -44,8 +43,8 @@ end, {
 local function notice(level, context, fmt, ...)
     local source, line, column = context.source, context.line, context.column
 
-    if isa(source, M.file) then
-        message(level, "In source %q [%d:%d]:", source.file, line, column)
+    if isa(source, M.stream.file) then
+        message(level, "In source %q [%d:%d]:", source.origin, line, column)
         message(level, "")
         message(level, "    %s", source[line])
         message(level, "%s---^", strrep(" ", column))
