@@ -183,7 +183,8 @@ end
 local file = class(M) "stream.file" {
     __public = {
         origin = void,
-        language = void
+        language = void,
+        id = void
     }
 }
 

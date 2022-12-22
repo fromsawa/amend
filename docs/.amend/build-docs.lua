@@ -29,8 +29,7 @@ local config = {
 }
 
 local g = docs.core(config)
--- g:parse("README.md")
-g:parse("amend/docs/__module.lua")
-io.dump(g)
+-- g:parseall()
+-- io.dump(g)
 
-g.parsed["amend/docs/__module.lua"]:write("/tmp/doc.md")
+io.dump(g.files)

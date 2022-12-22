@@ -58,6 +58,7 @@ function core:read(path, language)
     f.language = language or f.language
 
     self.files[name] = f
+    return f
 end
 
 function core:readall()
@@ -67,6 +68,7 @@ function core:readall()
 
     -- read index template
     local tmpl = self:read(template)
+    tmpl.id = 'index'
 
     -- scan tree
     fs.dodir(workdir, function(item)
@@ -104,8 +106,7 @@ function core:parse(id, thefile)
 end
 
 function core:parseall()
-    local files = self.files
-    for id, thefile in ipairs(self.files) do
+    for id, thefile in pairs(self.files) do
         self:parse(id, thefile)
     end
 end

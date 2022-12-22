@@ -65,6 +65,8 @@ function document:addheading(level, tbl, context)
     local stack = self.stack
     local top = stack[#stack]
 
+    assert(level > 0)
+
     while #stack > level do
         tremove(stack)
     end
@@ -86,7 +88,7 @@ end
 function document:parse(stream)
     -- set id
     if not self.id then
-        self.id = stream.origin
+        self.id = stream.id or stream.origin
     end
 
     -- parse document (or fragment)

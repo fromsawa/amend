@@ -2,6 +2,12 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
+
+--[[
+    Please note, the complexity of this implementation is an academic exercise 
+    used as a test-bed for something else...
+]]
+
 --[[ >>[amend.api.docs] Amend's simple documentation generator.
 
 **Module**: `amend.docs` (global ''docs'')
