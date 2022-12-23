@@ -5,6 +5,9 @@
 
 local M = require "amend.docs.__module"
 
+--[[>>[amend.api.docs.api] Document generator.
+]] --
+
 local strrep = string.rep
 
 require "amend.docs.stream"

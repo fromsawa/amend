@@ -28,8 +28,11 @@ local config = {
     }
 }
 
-local g = docs.core(config)
-g:parse("amend")
--- g:parse("README.md")
--- g:parseall()
-io.dump(g)
+docgen = docs.core(config) -- FIXME needs to be global (see markdown/document.lua)
+docgen:parseall() 
+docgen:gentree()
+-- io.dump(docgen)
+
+for k,_ in pairs(docgen.files) do
+    print(k)
+end

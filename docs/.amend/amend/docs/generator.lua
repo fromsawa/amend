@@ -3,9 +3,10 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
 
-local M = require "amend.docs.__module"
+local M = require "amend.docs.__module" --
 
-local strsplit = string.split
+--[[>>[amend.api.docs.api.core] Generator core.
+]] local strsplit = string.split
 local strformat = string.format
 local tinsert = table.insert
 local tremove = table.remove
@@ -24,7 +25,8 @@ local core =
     __public = {
         config = void,
         files = {},
-        parsed = {}
+        parsed = {},
+        tree = {}
     }
 }
 
@@ -75,10 +77,6 @@ function core:readall()
     local workdir = config.input.directory
     local template = self.config.output.template
 
-    -- read index template
-    local tmpl = self:read(template)
-    tmpl.id = "index"
-
     -- scan tree
     fs.dodir(
         workdir,
@@ -103,6 +101,10 @@ function core:readall()
             recurse = true
         }
     )
+
+    -- read index template
+    local tmpl = self:read(template)
+    tmpl.id = "index"
 end
 
 function core:parse(id, thefile)
@@ -124,7 +126,37 @@ function core:__dump(options)
     options.visited = options.visited or {}
     options.visited[self.config] = true
     options.visited[self.files] = true
+    -- options.visited[self.parsed] = true
     io.dump(self, options)
+end
+
+function core:gentree()
+    -- make an "id" list
+    local idlist = {}
+
+    local visited = {}
+    local function findid(t)
+        for _, v in pairs(t) do
+            if type(v) == "table" then
+                if v.id then
+                    if not idlist[v.id] then
+                        tinsert(idlist, v.id)
+                        idlist[v.id] = true
+                    end
+                end
+
+                if not visited[v] then
+                    visited[v] = true
+                    findid(v)
+                end
+            end
+        end
+    end
+
+    findid(self.parsed)
+
+    -- io.dump(idlist)
+    -- os.exit()
 end
 --}
 

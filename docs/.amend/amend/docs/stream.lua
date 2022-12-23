@@ -4,6 +4,9 @@
 ]] --
 local M = require "amend.docs.__module"
 
+--[[>>[amend.api.docs.api.stream] Streams and context.
+]] --
+
 local mtype = math.type
 local tinsert = table.insert
 local tremove = table.remove
@@ -135,7 +138,8 @@ function line:re(pattern)
         local ctxt = self.origin(offset)
 
         local res = {
-            [0] = {offset, final}
+            [0] = {offset, final},
+            origin = self.origin
         }
 
         for i = 3, n do

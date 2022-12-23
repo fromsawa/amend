@@ -3,9 +3,10 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
 
-local M = require "amend.docs.markdown.__module"
+local M = require "amend.docs.markdown.__module" --
 
-require 'amend.docs.markdown.types'
+--[[>>[amend.api.docs.api.markdown.document] Markdown documents.
+]] require "amend.docs.markdown.types"
 
 local docs = require "amend.docs.__module"
 
@@ -23,7 +24,7 @@ local fmterror = function(fmt, ...)
     local args = {...}
     local level = 0
 
-    if mtype == 'integer' then
+    if mtype == "integer" then
         level = fmt
         fmt = args[1]
         tremove(args, 1)
@@ -38,11 +39,12 @@ local paragraph = M.paragraph
 local text = M.text
 
 --- `document`
--- 
+--
 -- FIXME
 --
 --{
-local document = class(M) "document" {
+local document =
+    class(M) "document" {
     __inherit = {docs.node},
     __public = {
         options = {
@@ -90,7 +92,7 @@ end
 function document:parse(stream)
     -- set id
     if not self.id then
-        self.id = stream.id or stream.origin
+        self.id = stream.id
     end
 
     -- parse document (or fragment)
@@ -122,10 +124,14 @@ function document:parse(stream)
             depth = #depth
             title:trim()
 
-            self:addheading(depth, {
-                text = title,
-                reference = reference
-            }, aline.origin)
+            self:addheading(
+                depth,
+                {
+                    text = title,
+                    reference = reference
+                },
+                aline.origin
+            )
 
             goto continue
         end
@@ -166,16 +172,33 @@ function document:parse(stream)
                 docs.notice(ERROR, trailing.origin, "trailing garbage after include")
             end
 
-            local ann = docs.annotation("include", {
-                indent = indentation,
-                reference = reference
-            }, textnode)
-            textnode:add(ann)
+            if reference[1] == '"' then
+                local fname = tostring(reference:sub(2, -2))
+                local include = docgen.files[fname]
+                if not include then
+                    docs.notice(ERROR, reference.origin, "file does not exist")
+                end
+
+                -- FIXME this is wrong - and indentation is not handled...
+                para:remove()
+                self:parse(include)
+            else
+                local ann =
+                    docs.annotation(
+                    "include",
+                    {
+                        indent = indentation,
+                        reference = reference
+                    },
+                    textnode
+                )
+                textnode:add(ann)
+            end
 
             goto continue
         end
 
-        local function annotate(left,right)
+        local function annotate(left, right)
             -- left fragment
             if not left or (#left == 0) then
                 return
@@ -186,14 +209,19 @@ function document:parse(stream)
             -- MACRO
             fragment = left:re("([@][%l]+)")
             if fragment then
-                local head, tail = left:sub(1, mafragmentcro[0][1]-1), left:sub(fragment[0][2]+1)
+                local head, tail = left:sub(1, mafragmentcro[0][1] - 1), left:sub(fragment[0][2] + 1)
                 local name = tunpack(fragment)
                 annotate(head)
-                
-                local ann = docs.annotation("include", {
-                    sub = fragment[0],
-                    name = tostring(name)
-                }, textnode)
+
+                local ann =
+                    docs.annotation(
+                    "include",
+                    {
+                        sub = fragment[0],
+                        name = tostring(name)
+                    },
+                    textnode
+                )
                 textnode:add(ann)
 
                 annotate(tail)
@@ -207,7 +235,7 @@ function document:parse(stream)
             end
 
             if fragment then
-                local head, tail = left:sub(1, fragment[0][1]-1), left:sub(fragment[0][2]+1)
+                local head, tail = left:sub(1, fragment[0][1] - 1), left:sub(fragment[0][2] + 1)
                 local text, ref = tunpack(fragment)
                 if #fragment == 1 then
                     ref = text
@@ -215,12 +243,17 @@ function document:parse(stream)
                 end
 
                 annotate(head)
-                              
-                local ann = docs.annotation("include", {
-                    sub = fragment[0],
-                    reference = ref,
-                    text = text
-                }, textnode)
+
+                local ann =
+                    docs.annotation(
+                    "include",
+                    {
+                        sub = fragment[0],
+                        reference = ref,
+                        text = text
+                    },
+                    textnode
+                )
                 textnode:add(ann)
 
                 annotate(tail)
@@ -246,15 +279,15 @@ function document:write(path)
     local f = assert(io.open(path, "w"))
 
     local function emit(part, level)
-        if part.tag == 'document' then
+        if part.tag == "document" then
             for _, v in ipairs(part) do
                 emit(v, level + 1)
             end
-        elseif part.tag == 'section' then
-            f:write("\n", strrep('#', level), ' ', tostring(part.title))
+        elseif part.tag == "section" then
+            f:write("\n", strrep("#", level), " ", tostring(part.title))
 
             if part.reference then
-                -- FIXME
+            -- FIXME
             end
 
             if part.attributes then
@@ -266,13 +299,13 @@ function document:write(path)
             for _, v in ipairs(part) do
                 emit(v, level + 1)
             end
-        elseif part.tag == 'paragraph' then
+        elseif part.tag == "paragraph" then
             f:write("\n")
 
             for _, v in ipairs(part) do
                 emit(v, level)
             end
-        elseif part.tag == 'text' then
+        elseif part.tag == "text" then
             f:write(tostring(part.content), "\n")
         else
             io.dump(part)

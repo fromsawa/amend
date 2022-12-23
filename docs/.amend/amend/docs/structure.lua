@@ -4,6 +4,9 @@
 ]] --
 local M = require "amend.docs.__module"
 
+--[[>>[amend.api.docs.api.structure] Structure utilities. 
+]] --
+
 local mtype = math.type
 local tinsert = table.insert
 local cnewindex = class.newindex
