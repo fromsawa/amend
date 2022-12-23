@@ -1,13 +1,15 @@
 --[[
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]] local M = require 'amend.docs.__module'
+]] --
+
+local M = require "amend.docs.__module"
 
 local strrep = string.rep
 
-require 'amend.docs.stream'
-require 'amend.docs.structure'
-require 'amend.docs.generator'
+require "amend.docs.stream"
+require "amend.docs.structure"
+require "amend.docs.generator"
 
 --- `docs.extension`
 --
@@ -17,24 +19,28 @@ local extension = {}
 
 -- load languages
 local moduledir = fs.parts(filename())
-fs.dodir(moduledir, function(item)
-    local path = item[0]
-    local lang = item[2]
+fs.dodir(
+    moduledir,
+    function(item)
+        local path = item[0]
+        local lang = item[2]
 
-    if path ~= moduledir then
-        local mod = require("amend.docs." .. lang)
-        message(TRACE[1], "loaded 'amend.docs." .. lang .. "'")
+        if path ~= moduledir then
+            local mod = require("amend.docs." .. lang)
+            message(TRACE[1], "loaded 'amend.docs." .. lang .. "'")
 
-        local ext = mod.extension or {}
-        for _, x in ipairs(ext) do
-            extension[x] = mod
+            local ext = mod.extension or {}
+            for _, x in ipairs(ext) do
+                extension[x] = mod
+            end
+
+            M[lang] = mod
         end
-
-        M[lang] = mod
-    end
-end, {
-    mode = 'directory'
-})
+    end,
+    {
+        mode = "directory"
+    }
+)
 
 --- `docs.notice(level, context, fmt, ...)`
 --
@@ -55,8 +61,8 @@ local function notice(level, context, fmt, ...)
 
     message(level, fmt, ...)
 
-    while type(level) == 'table' do
-        level = table.unpack(level);
+    while type(level) == "table" do
+        level = table.unpack(level)
     end
 
     if level <= ERROR[1] then

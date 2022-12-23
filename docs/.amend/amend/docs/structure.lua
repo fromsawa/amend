@@ -1,7 +1,8 @@
 --[[
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]] local M = require 'amend.docs.__module'
+]] --
+local M = require "amend.docs.__module"
 
 local mtype = math.type
 local tinsert = table.insert
@@ -11,8 +12,9 @@ local cnewindex = class.newindex
 --
 -- FIXME
 --
--- {
-local node = class(M) "node" {
+--{
+local node =
+    class(M) "node" {
     __public = {
         tag = void,
         parent = void,
@@ -27,7 +29,7 @@ function node:__init(tag, parent)
 end
 
 function node:__newindex(k, v)
-    if mtype(k) == 'integer' then
+    if mtype(k) == "integer" then
         rawset(self, k, v)
 
         if isa(v, {node}) then
@@ -46,7 +48,7 @@ end
 
 function node:remove(k)
     if k then
-        assert(mtype(k) == 'integer')
+        assert(mtype(k) == "integer")
         for i = k, #self - 1 do
             rawset(self, i, rawget(self, i + 1))
         end
@@ -66,9 +68,11 @@ end
 
 function node:add(v)
     if isa(v, M.annotation) then
-        self.annotation = self.annotation or {
-            offset = 0
-        }
+        self.annotation =
+            self.annotation or
+            {
+                offset = 0
+            }
         tinsert(self.annotation, v)
     elseif isa(v, {node}) then
         rawset(self, #self + 1, v)
@@ -85,15 +89,16 @@ function node:__dump(options)
     options.visited[self.parent] = true
     io.dump(self, options)
 end
--- }
+--}
 
 --- `annotation`
 --
 -- FIXME
--- 
+--
 -- @see [amend.api.docs.syntax.annotation]
--- {
-local annotation = class(M) "annotation" {
+--{
+local annotation =
+    class(M) "annotation" {
     __public = {
         tag = void,
         content = void,
@@ -112,7 +117,7 @@ function annotation:__dump(options)
     options.visited[self.context] = true
     io.dump(self, options)
 end
--- }
+--}
 
 -- [[ MODULE ]]
 return M

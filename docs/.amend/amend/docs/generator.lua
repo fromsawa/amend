@@ -1,7 +1,9 @@
 --[[
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]] local M = require 'amend.docs.__module'
+]] --
+
+local M = require "amend.docs.__module"
 
 local strsplit = string.split
 local strformat = string.format
@@ -13,11 +15,12 @@ local tunpack = table.unpack
 local cindex = class.index
 
 --- `core`
--- 
+--
 -- The document generator "core".
 --
--- {
-local core = class(M) "core" {
+--{
+local core =
+    class(M) "core" {
     __public = {
         config = void,
         files = {},
@@ -26,7 +29,7 @@ local core = class(M) "core" {
 }
 
 function core:__init(config)
-    assert(type(config) == 'table', "expected a configuration table")
+    assert(type(config) == "table", "expected a configuration table")
 
     self.config = config
     self:readall()
@@ -49,7 +52,13 @@ function core:read(path, language)
     -- check
     if self.files[name] and (self.files[name].origin ~= path) then
         error(
-            strformat("Files\n    %q and\n    %q\nyield the same stripped name: %q", self.files[name].origin, path, name))
+            strformat(
+                "Files\n    %q and\n    %q\nyield the same stripped name: %q",
+                self.files[name].origin,
+                path,
+                name
+            )
+        )
     end
 
     -- read file
@@ -68,41 +77,40 @@ function core:readall()
 
     -- read index template
     local tmpl = self:read(template)
-    tmpl.id = 'index'
+    tmpl.id = "index"
 
     -- scan tree
-    fs.dodir(workdir, function(item)
-        local path = fs.relpath(item[0], workdir)
-        if path == template then
-            return
-        end
+    fs.dodir(
+        workdir,
+        function(item)
+            local path = fs.relpath(item[0], workdir)
+            if path == template then
+                return
+            end
 
-        local alt = config.include.files[item[2]]
-        local extension = (alt and alt.language) or item[3]
+            local alt = config.include.files[item[2]]
+            local extension = (alt and alt.language) or item[3]
 
-        if M.extension[extension] then
-            self:read(path, extension)
-        end
-    end, {
-        mode = 'file',
-        exclude = {table.unpack(config.exclude.patterns)},
-        include = config.include.patterns,
-        directories = config.include.directories,
-        recurse = true
-    })
+            if M.extension[extension] then
+                self:read(path, extension)
+            end
+        end,
+        {
+            mode = "file",
+            exclude = {table.unpack(config.exclude.patterns)},
+            include = config.include.patterns,
+            directories = config.include.directories,
+            recurse = true
+        }
+    )
 end
 
 function core:parse(id, thefile)
     thefile = thefile or self.files[id]
 
     local lang = M.extension[thefile.language]
-    local doc = lang.document({
-        tabsize = self.config.input.tabsize
-    })
 
-    doc:parse(thefile)
-
-    self.parsed[id] = doc
+    self.parsed[id] = lang.parse(thefile)
 end
 
 function core:parseall()
@@ -118,7 +126,7 @@ function core:__dump(options)
     options.visited[self.files] = true
     io.dump(self, options)
 end
--- }
+--}
 
 -- [[ MODULE ]]
 return M

@@ -1,7 +1,9 @@
 --[[
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]] local M = require "amend.docs.markdown.__module"
+]] --
+
+local M = require "amend.docs.markdown.__module"
 
 require 'amend.docs.markdown.types'
 
@@ -39,7 +41,7 @@ local text = M.text
 -- 
 -- FIXME
 --
--- {
+--{
 local document = class(M) "document" {
     __inherit = {docs.node},
     __public = {
@@ -54,7 +56,7 @@ local document = class(M) "document" {
 function document:__init(options)
     docs.node.__init(self)
 
-    for k, v in pairs(options) do
+    for k, v in pairs(options or {}) do
         self.options[k] = v
     end
 
@@ -292,7 +294,7 @@ function document:__dump(options)
     options.visited[self.stack] = true
     io.dump(self, options)
 end
--- }
+--}
 
 -- [[ MODULE ]]
 return M

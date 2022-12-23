@@ -1,7 +1,8 @@
 --[[
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]] local M = require 'amend.docs.__module'
+]] --
+local M = require "amend.docs.__module"
 
 local mtype = math.type
 local tinsert = table.insert
@@ -17,8 +18,9 @@ local cnewindex = class.newindex
 --
 -- FIXME
 --
--- {
-local context = class(M) "stream.context" {
+--{
+local context =
+    class(M) "stream.context" {
     __public = {
         source = "<chunk>",
         line = 1,
@@ -57,7 +59,7 @@ function context:__init(source, line, column)
             self.source = source
             self.line = line or 1
             self.column = column or 1
-        elseif type(source) == 'string' then
+        elseif type(source) == "string" then
             self.source = source
         else
             error("expected a source name or a context object")
@@ -80,9 +82,9 @@ end
 -- @param
 --      line        Line offset (default: 0).
 --      column      Column offset.
--- 
+--
 -- Derive a new context.
--- 
+--
 -- FIXME
 --
 function context:__call(offset, column)
@@ -96,14 +98,15 @@ end
 function context:__dump(options)
     options.stream:write(strformat("<%s [%d:%d]>", self.source, self.line, self.column))
 end
--- }
+--}
 
 --- `stream.line`
 --
 -- FIXME
 --
 -- {
-local line = class(M) "stream.line" {
+local line =
+    class(M) "stream.line" {
     __public = {
         text = void,
         origin = void
@@ -111,7 +114,7 @@ local line = class(M) "stream.line" {
 }
 
 function line:__init(text, origin, offset)
-    assert(isa(text, 'string') == true)
+    assert(isa(text, "string") == true)
     assert(isa(origin, context) == true)
 
     self.text = text
@@ -155,7 +158,7 @@ function line:sub(bpos, epos)
 end
 
 function line:__index(k)
-    if mtype(k) == 'integer' then
+    if mtype(k) == "integer" then
         return self.text:sub(k, k)
     else
         return cindex(self, k)
@@ -173,14 +176,15 @@ end
 function line:__dump(options)
     options.stream:write("[[", self.text, "]]")
 end
--- }
+--}
 
 --- `stream.file`
 --
 -- FIXME
 --
--- {
-local file = class(M) "stream.file" {
+--{
+local file =
+    class(M) "stream.file" {
     __public = {
         origin = void,
         language = void,
@@ -192,7 +196,7 @@ function file:__init()
 end
 
 function file:__index(k)
-    if mtype(k) == 'integer' then
+    if mtype(k) == "integer" then
         return self.data[k]
     else
         return cindex(self, k)
@@ -200,7 +204,7 @@ function file:__index(k)
 end
 
 function file:__newindex(k, v)
-    if mtype(k) == 'integer' then
+    if mtype(k) == "integer" then
         assert(isa(v, line) == true)
         rawset(self, k, v)
     else
@@ -249,7 +253,7 @@ function file:load(path, workdir)
         i = i + 1
     end
 end
--- }
+--}
 
 -- [[ MODULE ]]
 return M

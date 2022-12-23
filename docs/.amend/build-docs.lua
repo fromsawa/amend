@@ -29,8 +29,7 @@ local config = {
 }
 
 local g = docs.core(config)
-g:parse("README.md")
+g:parse("amend")
+-- g:parse("README.md")
 -- g:parseall()
 io.dump(g)
-
-io.dump(g.files)
