@@ -5,7 +5,8 @@ local license = "UNLICENSE (see <http://unlicense.org/>)" -- see below
 local invocation = "amend [<options>...]"
 local version = "0.90"
 local description = "Utility for revising source code."
-local usage = {[[
+local usage = {
+    [[
     This tool must be executed inside the source code tree where it 
     expects to find '.amend/project.lua' in the top source folder.
     For details, see possibly accompanied 'amend/README.md' and 
@@ -16,7 +17,8 @@ Options:
     --version                    show amend version
     --verbose=value              set verbosity (use help for a list)
     <component> [arguments]      execute a component or command
-]]}
+]]
+}
 
 --[[>>[amend.license] License
 
@@ -48,14 +50,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 For more information, please refer to <http://unlicense.org/>
 
 ]]
+setmetatable(
+    usage,
+    {
+        __call = function(self, full)
+            local printf = function(fmt, ...)
+                io.write(string.format(fmt, ...))
+            end
 
-setmetatable(usage, {
-    __call = function(self, full)
-        local printf = function(fmt, ...)
-            io.write(string.format(fmt, ...))
-        end
-
-        printf([[
+            printf(
+                [[
 Amend v%s
 %s
 License: %s
@@ -67,20 +71,28 @@ Invocation:
 
 Usage:
 %s
-]], version, copyright, license, description, invocation, self[1])
+]],
+                version,
+                copyright,
+                license,
+                description,
+                invocation,
+                self[1]
+            )
 
-        if full then
-            component.help()
+            if full then
+                component.help()
+            end
         end
-    end
-})
+    }
+)
 
 -- >>[amend.api.lua.package] Lua ''package'' extensions.
--- 
+--
 -- **Note**:<br/>
 -- In addition to standard [Lua](https://github.com/lua/lua/blob/master/luaconf.h) conventions,
--- here, also the ''?/__init.lua'' file is searched. 
--- 
+-- here, also the ''?/__init.lua'' file is searched.
+--
 -- {
 local dirsep = package.config:sub(1, 1)
 local pathsep = package.config:sub(3, 3)
@@ -94,9 +106,12 @@ local package_meta = {
     -- Add search directory to script search path.
     --
     addpath = function(_, dir)
-        local newpath = table.concat({dir, modulemark}, dirsep) .. dotlua .. pathsep ..
-                            table.concat({dir, modulemark, "init"}, dirsep) .. dotlua .. pathsep ..
-                            table.concat({dir, modulemark, "__init"}, dirsep) .. dotlua
+        local newpath =
+            table.concat({dir, modulemark}, dirsep) ..
+            dotlua ..
+                pathsep ..
+                    table.concat({dir, modulemark, "init"}, dirsep) ..
+                        dotlua .. pathsep .. table.concat({dir, modulemark, "__init"}, dirsep) .. dotlua
         package.path = newpath .. pathsep .. package.path
 
         -- also update push/pop stack
@@ -106,19 +121,22 @@ local package_meta = {
     end,
     --- `package:pushpath(path)`
     --
-    -- Temporarily add a script search path. 
+    -- Temporarily add a script search path.
     --
     pushpath = function(_, dir)
         table.insert(package_path_stack, package.path)
-        local newpath = table.concat({dir, modulemark}, dirsep) .. dotlua .. pathsep ..
-                            table.concat({dir, modulemark, "init"}, dirsep) .. dotlua .. pathsep ..
-                            table.concat({dir, modulemark, "__init"}, dirsep) .. dotlua
+        local newpath =
+            table.concat({dir, modulemark}, dirsep) ..
+            dotlua ..
+                pathsep ..
+                    table.concat({dir, modulemark, "init"}, dirsep) ..
+                        dotlua .. pathsep .. table.concat({dir, modulemark, "__init"}, dirsep) .. dotlua
         package.path = newpath .. pathsep .. package.path
     end,
     --- `package:poppath()`
-    -- 
+    --
     --- Remove previously added script search path.
-    -- 
+    --
     poppath = function(_)
         local n = #package_path_stack
         if n > 0 then
@@ -142,7 +160,7 @@ setmetatable(package, package_meta)
 -- To separate source from other files, the variable
 --
 --      IGNORE              Files or directories generally to ignore.
--- 
+--
 -- is populated (regular expressions) at startup. This list is automatically
 -- extended if ''amend'' finds the following files, containing wild-card patterns,
 -- in the ''ROOTDIR'':
@@ -151,7 +169,7 @@ setmetatable(package, package_meta)
 --      .gitignore
 --
 -- The project file contains the general configuration variables:
--- 
+--
 --      PROJECT             Project settings.
 --      CONFIG              Amend settings.
 --      TOOLS               System tools (see 'amend/tools.lua')

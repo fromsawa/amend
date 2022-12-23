@@ -27,10 +27,14 @@ end
 
 -- FIXME
 auto = {}
-setmetatable(auto, {
-    __dump = function(self, options)
-        options.stream:write("auto")
-    end})
+setmetatable(
+    auto,
+    {
+        __dump = function(self, options)
+            options.stream:write("auto")
+        end
+    }
+)
 
 -- amend functionality
 fs = require "amend.util.filesystem"
@@ -39,4 +43,3 @@ rdbl = require "amend.util.rdbl"
 edit = require "amend.util.edit"
 component = require "amend.component"
 tool = require "amend.tool"
-

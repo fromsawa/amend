@@ -6,9 +6,9 @@
 --[[
     Please note, the complexity of this implementation is an academic exercise 
     used as a test-bed for something else...
-]]
+]] --
 
---[[ >>[amend.api.docs] Amend's simple documentation generator.
+--[[>>[amend.api.docs] Amend's simple documentation generator.
 
 **Module**: `amend.docs` (global ''docs'')
 
@@ -55,8 +55,8 @@ FIXME
 ]] --
 return {
     --- `VERSION`
-    -- 
+    --
     -- Document generator version.
-    -- 
-    VERSION = {1, 0}
+    --
+    VERSION = {0, 90}
 }

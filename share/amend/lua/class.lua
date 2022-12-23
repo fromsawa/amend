@@ -25,7 +25,7 @@ local function tcopy(t)
     local res = {}
 
     for k, v in pairs(t) do
-        if type(v) == 'table' then
+        if type(v) == "table" then
             res[k] = tcopy(v)
         else
             res[k] = v
@@ -48,7 +48,7 @@ local tag = {
 
         -- initialize member variables
         for k, v in pairs(self.__public) do
-            if type(v) == 'table' then
+            if type(v) == "table" then
                 if v == void then
                     obj[k] = nil
                 else
@@ -70,12 +70,15 @@ local tag = {
 -- A place-holder (for ''__public'' fields).
 --
 void = {}
-setmetatable(void, {
-    __name = 'void',
-    __dump = function(self, options)
-        options.stream:write("void")
-    end
-})
+setmetatable(
+    void,
+    {
+        __name = "void",
+        __dump = function(self, options)
+            options.stream:write("void")
+        end
+    }
+)
 
 --- `isvoid(t)`
 --
@@ -105,7 +108,7 @@ end
 -- @call
 --      `resolve(name)`
 --      `resolve(name, root)`
--- @param 
+-- @param
 --      name            The class name.
 --      root            The root namespace (default: _G)
 --
@@ -129,7 +132,7 @@ end
 --- `isa(obj, ...)`
 -- @call
 --      `isa(obj, T)`
--- 
+--
 -- Check if ''obj'' is of type ''T''. Here, ''T'' may also be
 -- a string as it would be returned by `type()` or `math.type()`.
 --
@@ -138,14 +141,14 @@ end
 --
 -- Check if ''obj'' is or is derived from type ''T''. This requires
 -- ''obj'' to be an object (see [amend.api.lua.class.isobject]).
--- 
+--
 function isa(obj, T)
     local mtype = math.type
 
     if isobject(obj) then
         if isclass(T) then
             return getmetatable(obj) == T
-        elseif type(T) == 'string' then
+        elseif type(T) == "string" then
             if (mtype(obj) or type(obj)) == T then
                 return true
             end
@@ -157,11 +160,11 @@ function isa(obj, T)
 
             return isa(obj, R)
         else
-            if (type(T) ~= 'table') or (#T ~= 1) then
+            if (type(T) ~= "table") or (#T ~= 1) then
                 error("expected a table with a single element", 2)
             end
             T = T[1]
-            if type(T) == 'string' then
+            if type(T) == "string" then
                 T = resolve(T)
             end
 
@@ -180,7 +183,7 @@ function isa(obj, T)
             return false
         end
     else
-        if type(T) == 'string' then
+        if type(T) == "string" then
             return (mtype(obj) or type(obj)) == T
         end
     end
@@ -199,7 +202,7 @@ local function newindex(self, k, v)
 end
 
 --- `class "name" { <declaration> }`
--- 
+--
 -- FIXME
 --
 local function declare_class(t, name, decl, _level)
@@ -210,7 +213,7 @@ local function declare_class(t, name, decl, _level)
     local depth = #namespace
 
     local function check_namespace(tbl, idx)
-        if (type(tbl) ~= 'table') or (getmetatable(tbl) ~= nil) then
+        if (type(tbl) ~= "table") or (getmetatable(tbl) ~= nil) then
             local where = {}
             for j = 1, idx do
                 tinsert(where, namespace[j])
@@ -245,7 +248,7 @@ local function declare_class(t, name, decl, _level)
     local __inherit = {}
     local function build_inherit(tree)
         for _, k in ipairs(tree) do
-            if type(k) == 'string' then
+            if type(k) == "string" then
                 k = resolve(k, root) or resolve(k, _G)
             end
 
@@ -265,33 +268,33 @@ local function declare_class(t, name, decl, _level)
 
     local __public = {}
     for _, parent in ipairs(__inherit) do
-        for k,v in pairs(parent.__public) do
+        for k, v in pairs(parent.__public) do
             __public[k] = v
         end
     end
-    for k,v in pairs(decl.__public or {}) do
+    for k, v in pairs(decl.__public or {}) do
         __public[k] = v
     end
     decl.__public = __public
 
     local methods = {}
     for _, parent in ipairs(__inherit) do
-        for k,v in pairs(parent) do
+        for k, v in pairs(parent) do
             if (k == "__public") or (k == "__inherit") or (k == "__init") then
                 -- skip
-            elseif type(v) == 'function' then
-                methods[k] = v                
+            elseif type(v) == "function" then
+                methods[k] = v
             end
         end
     end
 
-    for k,v in pairs(methods) do
+    for k, v in pairs(methods) do
         decl[k] = decl[k] or v
     end
 
     -- constructor
     decl.__init = decl.__init or function(self, ...)
-    end
+        end
 
     -- member access
     decl.__index = decl.__index or decl
@@ -299,9 +302,15 @@ local function declare_class(t, name, decl, _level)
 
     -- __dump
     local function dumper(self, options)
-        io.dump(self, tmake(options, {
-            prefix = self.__name .. ":table"
-        }))
+        io.dump(
+            self,
+            tmake(
+                options,
+                {
+                    prefix = self.__name .. ":table"
+                }
+            )
+        )
     end
     decl.__dump = decl.__dump or dumper
 
@@ -324,25 +333,25 @@ end
 local function declare(arg)
     local targ = type(arg)
 
-    if targ == 'table' then
+    if targ == "table" then
         local t = arg
         return function(arg)
-            if type(arg) ~= 'string' then
+            if type(arg) ~= "string" then
                 error("expected a class name (second argument)", 2)
             end
 
             local name = arg
             return function(decl)
-                if type(decl) ~= 'table' then
+                if type(decl) ~= "table" then
                     error("expected a class declaration (table, third argument)", 2)
                 end
                 return declare_class(t, name, decl, 2)
             end
         end
-    elseif targ == 'string' then
+    elseif targ == "string" then
         local name = arg
         return function(decl)
-            if type(decl) ~= 'table' then
+            if type(decl) ~= "table" then
                 error("expected a class declaration (table, second argument)", 2)
             end
             return declare_class(_G, name, decl, 2)
@@ -352,17 +361,20 @@ local function declare(arg)
     end
 end
 
-setmetatable(class, {
-    __call = function(self, arg)
-        return declare(arg)
-    end
-})
+setmetatable(
+    class,
+    {
+        __call = function(self, arg)
+            return declare(arg)
+        end
+    }
+)
 
 --- `index(t,k)`
 --
 -- Retrieve index `k` from table `t` in the same way, standard ''__index'' does it,
 -- however, using 'rawget' internally.
--- 
+--
 local function index(t, k)
     return rawget(t, k) or rawget(getmetatable(t), k)
 end

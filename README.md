@@ -19,5 +19,3 @@ to prepare software releases for each new software they were working on. The ''a
 package is (a possibly [futile](https://xkcd.com/927/)) attempt to create a generic
 tool for such purposes: yet, the author(s) are using it succesfully in several projects
 and, therefore, disclose it to the public.
-
-<<[amend.license]
