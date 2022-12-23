@@ -3,7 +3,7 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
 
---[===[>>[amend.api.components]
+--[===[>>[amend.api.components] Components
 
 "Amend components" can be created anywhere in the source code tree in a sub-folder ".amend".
 The first line of such a component starts with a shebang of the format
@@ -43,7 +43,8 @@ local tconcat = table.concat
 local tunpack = table.unpack
 local sformat = string.format
 
---- Print components help.
+--- `help()`
+-- Print components help.
 local function help()
     printf("Builtins:\n")
     for _, v in ipairs(COMPONENTS) do
@@ -71,7 +72,8 @@ local function help()
     end
 end
 
---- Get parsed "shebang" from file.
+--- `shebang()`
+-- Get parsed "shebang" from file.
 local function shebang(fname)
     for line in io.lines(fname) do
         if line:match("^#!") then
@@ -87,7 +89,8 @@ local function shebang(fname)
     end
 end
 
---- Scan users '.amend' dir.
+--- `scandir()`
+-- Scan users '.amend' dir.
 local function scandir(dname)
     fs.dodir(
         dname,
@@ -151,7 +154,8 @@ local function scandir(dname)
     )
 end
 
---- Find all components in the project tree.
+--- `find()`
+-- Find all components in the project tree.
 --
 local function find()
     message(TRACE, "COMPONENT FIND")
@@ -168,7 +172,8 @@ local function find()
     )
 end
 
---- Run the component (if not yet done)
+--- `_run()`
+-- Run the component (if not yet done)
 local function _run(t)
     if not t.done then
         t.done = true
@@ -209,7 +214,8 @@ local function _run(t)
     end
 end
 
---- Run a "component".
+--- `run()`
+-- Run a "component".
 local function run(name)
     message(TRACE, "COMPONENT run(%s)", name)
 

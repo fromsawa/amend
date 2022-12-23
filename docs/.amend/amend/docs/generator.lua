@@ -3,11 +3,12 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
 
-local M = require "amend.docs.__module" --
+local M = require "amend.docs.__module" -- --
 
 --[[>>[amend.api.docs.api.core] Generator core.
 ]] local strsplit = string.split
 local strformat = string.format
+local strlen = string.len
 local tinsert = table.insert
 local tremove = table.remove
 local tmake = table.make
@@ -97,7 +98,7 @@ function core:readall()
             mode = "file",
             exclude = {table.unpack(config.exclude.patterns)},
             include = config.include.patterns,
-            directories = config.include.directories,
+            directories = table.unpack(config.include.directories),
             recurse = true
         }
     )
@@ -132,6 +133,7 @@ end
 
 function core:gentree()
     -- make an "id" list
+    local index
     local idlist = {}
 
     local visited = {}
@@ -139,9 +141,11 @@ function core:gentree()
         for _, v in pairs(t) do
             if type(v) == "table" then
                 if v.id then
-                    if not idlist[v.id] then
+                    if v.id == "index" then
+                        index = v
+                    elseif not idlist[v.id] then
                         tinsert(idlist, v.id)
-                        idlist[v.id] = true
+                        idlist[v.id] = v
                     end
                 end
 
@@ -155,8 +159,87 @@ function core:gentree()
 
     findid(self.parsed)
 
-    -- io.dump(idlist)
-    -- os.exit()
+    -- span tree
+    local function span(name)
+        local ns = strsplit(name, ".")
+        assert(strlen(ns[1]) > 0, "internal error: a sequential reference appeared")
+
+        local res = self.tree
+        for _, k in ipairs(ns) do
+            res[k] = res[k] or {}
+            res = res[k]
+        end
+
+        return res
+    end
+
+    for _, ns in ipairs(idlist) do
+        local t = span(ns)
+        t.__id = ns
+    end
+
+    local root
+    for k, v in pairs(self.tree) do
+        -- note: we only expect a single root node!
+        v.__id = "index"
+        root = v
+        break
+    end
+
+    -- resolve "imports"
+    local visited = {}
+
+    local function find(name)
+        local ns = strsplit(name, ".")
+        local res, key, parent = self.tree, nil, nil
+        for _, k in ipairs(ns) do
+            key = k
+            parent = res
+            res = res[k]
+            if not res then 
+                break
+            end
+        end
+
+        return res, key, parent
+    end
+
+    local function handleinc(t, ns, src, dst)
+        if type(t) == "table" then
+            visited[t] = true
+
+            for _, v in pairs(t) do
+                if isa(v, M.annotation) then
+                    if v.tag == "include" then
+                        local content = v.content
+                        local reference = content.reference
+                        local import, key, parent = find(tostring(reference))
+                        if not import then
+                            M.notice(ERROR, reference.origin, "reference does not exist")
+                        end
+
+                        dst.__import = dst.__import or {}
+                        tinsert(dst.__import, {[key] = import})
+                    end
+                elseif (type(v) == "table") and not visited[v] then
+                    handleinc(v, ns, src, dst)
+                end
+            end
+        end
+    end
+
+    handleinc(index, root.__id, index, root)
+    for _, ns in ipairs(idlist) do
+        print(ns)
+        local src = idlist[ns]
+        local dst = find(ns)
+
+        assert(isa(src, M.markdown.document))
+        handleinc(src, ns, src, dst)
+    end
+
+    io.dump(self.tree)
+    os.exit()
 end
 --}
 

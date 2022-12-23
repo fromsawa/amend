@@ -14,32 +14,35 @@ local printf = function(fmt, ...)
     iowrite(sformat(fmt, ...))
 end
 
---- #+ `VERBOSE`
+---  `VERBOSE`
 -- Default verbosity level.
 -- 
 VERBOSE = VERBOSE or 2
 
---- #+ Verbosity levels.
---- ##+ ERROR
+---  Verbosity levels.
+---  ERROR
 ERROR = {-2}
---- ##+ WARNING
+---  WARNING
 WARNING = {-1}
---- ##+ NOTICE
+---  NOTICE
 NOTICE = {0}
---- ##+ STATUS
+---  STATUS
 STATUS = {1}
---- ##+ INFO
+---  INFO
 INFO = {2}
---- ##+ DEBUG
+---  DEBUG
 DEBUG = {3}
---- ##+ ERROR
+---  ERROR
 TRACE = {4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
 
--- >> #+ `message [{<level>}] "<text>"`
--- >> #+ `message(<level>|<level-name>, "<text>", ...)`
+--- `message()`
+-- @call
+--      `message [{<level>}] "<text>"`
+--      `message(<level>|<level-name>, "<text>", ...)`
+--
 -- Emit an informational message.
 --
--- ::args
+-- @param
 -- FIXME
 --
 function message(...)
@@ -93,8 +96,7 @@ function message(...)
     end
 end
 
--- >> #+ `verbosity [{<level>}]`
--- >> #+ `verbosity(<level>)`
+--- `verbosity [{<level>}]`
 --
 -- Set verbose level.
 --

@@ -3,12 +3,12 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
 
---[[>>[amend.api.lua.table] #+ Table
+--[[>>[amend.api.lua.table] Table library extensions.
 ]]
 
 --- `table.has(tbl, item)`
 -- Check if array-part of a table has an element.
--- ::args
+-- @param
 --      tbl         The table to check.
 --      item        The item.
 --

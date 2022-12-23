@@ -2,7 +2,7 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[>>[amend.api.lua.os] #+ OS
+--[[>>[amend.api.lua.os] OS-library extensions.
 ]]
 
 local stringformat = string.format

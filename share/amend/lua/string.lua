@@ -2,17 +2,17 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[>>[amend.api.lua.string] #+ String
+--[[>>[amend.api.lua.string] String library extensions.
 ]]
 --- `string.any(s, tbl, exact)`
 -- Match elements from a table.
 --
--- ::args
+-- @param
 --      s                   The string.
 --      tbl                 Table with regex-patterns.
 --      exact [optional]    Boolean value indicating if matching must be exact. ??? FIXME what does this mean ???
 --
--- ::returns
+-- @returns
 --      Matched string, otherwise ''nil''.
 --
 function string.any(s, tbl, exact)

@@ -2,7 +2,7 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[>>[amend.api.util.csv] #+ CSV-file tools.
+--[[>>[amend.api.util.csv] CSV-file tools.
 ]]
 local mod = {}
 
@@ -12,7 +12,7 @@ local tinsert = table.insert
 
 --- `csv.load(fname, [opts])`
 --  Read a CSV file.
--- ::args 
+-- @param 
 --      fname       File name.
 --      opts        Options.
 --

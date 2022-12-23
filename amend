@@ -20,6 +20,9 @@ Options:
 ]]
 }
 
+--[[>>[amend.copyright] Copyright
+Copyright (C) 2021-2022 Yogev Sawa
+]]--
 --[[>>[amend.license] License
 
 ## UNLICENSE

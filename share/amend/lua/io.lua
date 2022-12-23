@@ -1,8 +1,12 @@
 --[[
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]] --[[>>[amend.api.lua.io] #+ IO
-]] local stdout = io.stdout
+]] --
+
+--[[>>[amend.api.lua.io] IO-library extensions.
+]] --
+
+local stdout = io.stdout
 local sformat = string.format
 
 --- `io.printf(...)`
@@ -267,7 +271,7 @@ end
 
 --- `io.dump(value, options)`
 -- Dump value.
--- ::args
+-- @param
 --      value                   Value to stream to output.
 --      options [optional]      Display options.
 --
@@ -306,9 +310,9 @@ end
 
 --- `io.readall(fname)`
 -- Read file.
--- ::args
+-- @param
 --      fname           The file name.
--- ::returns text, error
+-- @returns text, error
 function io.readall(fname)
     local f = io.open(fname)
     return f:read("a")
@@ -316,10 +320,10 @@ end
 
 --- `io.command(program, ...)`
 -- Execute command and read output.
--- ::args
+-- @param
 --          program                 The command to execute (as format string).
 --          ...                     Format options.
--- ::returns output,error
+-- @returns output,error
 --      FIXME
 function io.command(program, ...)
     local cmd = string.format(program, ...)

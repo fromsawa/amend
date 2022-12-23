@@ -2,6 +2,8 @@
 
 ## API
 
+@index
+
 ### Globals
 
 <<[amend.api.globals]

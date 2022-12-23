@@ -38,11 +38,8 @@ local toliteral = M.toliteral
 
 local _DOCUMENT = M._DOCUMENT
 
---- Export class.
---
---{
 local export_mt = {
-    --- Setup exporter.
+    -- Setup exporter.
     --
     setup = function(self, opts)
         self._file = opts.file -- output stream
@@ -52,7 +49,7 @@ local export_mt = {
         self._convert = nil -- user-supplied literal conversion function
         self._compat = opts.compat -- YAML compatibility
     end,
-    --- Export a document.
+    -- Export a document.
     --
     document = function(self, content, name)
         local f = self._file
@@ -66,27 +63,27 @@ local export_mt = {
             self:dump(content)
         end
     end,
-    --- Make indentation string.
+    -- Make indentation string.
     --
     indent = function(self)
         return srep(self._indent, self._level)
     end,
-    --- Terminate line.
+    -- Terminate line.
     --
     terminate = function(self)
         fprintf(self._file, "\n")
         self._last = "EOL"
     end,
-    --- In-/decrement level.
+    -- In-/decrement level.
     --
     enter = function(self, x)
         self._level = self._level + x
     end,
-    ---+
+    --
     leave = function(self, x)
         self._level = self._level - x
     end,
-    --- Dump an array (sequence).
+    -- Dump an array (sequence).
     --
     dump_array = function(self, t, subt)
         local f = self._file
@@ -162,7 +159,7 @@ local export_mt = {
             self._last = "EOL"
         end
     end,
-    --- Dump a map.
+    -- Dump a map.
     --
     dump_map = function(self, t)
         -- assemble key order
@@ -201,7 +198,7 @@ local export_mt = {
         end
         self:leave(offset)
     end,
-    --- Dump content.
+    -- Dump content.
     --
     dump = function(self, t)
         if t == ORDER then
@@ -239,7 +236,7 @@ local export_mt = {
             self._last = "EOL"
         end
     end,
-    --- Run the exporter.
+    -- Run the exporter.
     --
     run = function(self, t)
         local tn, cat, subt = typeof(t)
@@ -266,11 +263,12 @@ local export_mt = {
     end
 }
 export_mt.__index = export_mt
---}
 
 -- [[ MODULE ]]
---- Export a table.
--- ::args
+
+--- `export()` 
+-- Export a table.
+-- @param
 --      t       The table.
 --      [opts]  Export options (FIXME).
 --

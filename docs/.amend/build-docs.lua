@@ -24,15 +24,12 @@ local config = {
         }
     },
     exclude = {
-        patterns = {".vscode", "[.]amend", "share", table.unpack(IGNORE)}
+        patterns = {".vscode", "[.]amend", table.unpack(IGNORE)}
     }
 }
 
 docgen = docs.core(config) -- FIXME needs to be global (see markdown/document.lua)
 docgen:parseall() 
 docgen:gentree()
--- io.dump(docgen)
+io.dump(docgen)
 
-for k,_ in pairs(docgen.files) do
-    print(k)
-end

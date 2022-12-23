@@ -2,8 +2,8 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
--- >>[amend.api.lua.class] Classes
---[[
+--[[>>[amend.api.lua.class] Classes.
+
     
 FIXME
 

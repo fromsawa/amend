@@ -209,13 +209,13 @@ function document:parse(stream)
             -- MACRO
             fragment = left:re("([@][%l]+)")
             if fragment then
-                local head, tail = left:sub(1, mafragmentcro[0][1] - 1), left:sub(fragment[0][2] + 1)
+                local head, tail = left:sub(1, fragment[0][1] - 1), left:sub(fragment[0][2] + 1)
                 local name = tunpack(fragment)
                 annotate(head)
 
                 local ann =
                     docs.annotation(
-                    "include",
+                    "macro",
                     {
                         sub = fragment[0],
                         name = tostring(name)
@@ -246,7 +246,7 @@ function document:parse(stream)
 
                 local ann =
                     docs.annotation(
-                    "include",
+                    "link",
                     {
                         sub = fragment[0],
                         reference = ref,

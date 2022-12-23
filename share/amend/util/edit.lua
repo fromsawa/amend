@@ -2,7 +2,7 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[>>[amend.api.util.edit] #+ Editing
+--[[>>[amend.api.util.edit] Editing
 
 Amend provides several utilities for editing files.
 
@@ -16,7 +16,7 @@ local sformat = string.format
 -- [[ section meta ]]
 local section = {}
 
---- **section**:`clear()`
+--- `clear()`
 -- Clear contents.
 function section:clear()
     while #self > 0 do
@@ -30,7 +30,7 @@ function section:clear()
     end
 end
 
---- **section**:`addln(code, ...)`
+--- `addln(code, ...)`
 -- Add a code line.
 function section:addln(code, ...)
     if ... then
@@ -44,7 +44,7 @@ function section:addln(code, ...)
     end
 end
 
---- **section**:`add(code, ...)`
+--- `add(code, ...)`
 -- Add code to current line.
 function section:add(code, ...)
     if #self == 0 then
@@ -58,7 +58,7 @@ function section:add(code, ...)
     end
 end
 
---- **section**:`sed(pattern, replace)`
+--- `sed(pattern, replace)`
 -- In-place sed.
 --
 function section:sed(pattern, replace)
@@ -73,7 +73,7 @@ function section:sed(pattern, replace)
     return found
 end
 
---- **section**:`write(stream)`
+--- `write(stream)`
 -- Write section to a stream.
 function section:write(stream)
     local indent = self[".indent"] or ""
@@ -114,7 +114,7 @@ setmetatable(
 -- [[ file meta ]]
 local file = {}
 
---- **file**:`parse(path)`
+--- `parse(path)`
 -- Parse file (into sections)
 --
 function file:parse(path)
@@ -187,7 +187,7 @@ local function run_other(t, path)
     end
 end
 
---- **file**:`update()`
+--- `update()`
 -- Update file.
 --
 function file:update()
@@ -216,7 +216,7 @@ function file:update()
     run_other(config and config.POST, path)
 end
 
---- **file**:`sed(pattern, replace)`
+--- `sed(pattern, replace)`
 -- In-place sed.
 --
 function file:sed(pattern, replace)

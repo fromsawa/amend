@@ -4,7 +4,7 @@
 ]]
 --[==========================================================================[>>[amend.api.util.rdbl] ReaDaBLe
 
-    ::foreword
+    @foreword
     Configuration files suck - yet they are invaluable. They are especially valuable if they are
     _indeed_ human readable and possibly even grep'able (oh yes, the good ol' days of text-only files).
     
@@ -25,10 +25,10 @@
 
     RDBL provides a simple sub-set of YAML, is easy to parse and consitent.
 
-    ::image<
-        ::type comic
-        ::titel "How standards proliferate"
-        ::subtitle FIXME ...
+    @image<
+        @type comic
+        @titel "How standards proliferate"
+        @subtitle FIXME ...
     >[Standards (xkcd)](https://xkcd.com/927/)
 
     ::[.version]

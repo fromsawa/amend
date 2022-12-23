@@ -123,7 +123,10 @@ local function update(configfile)
     end
 end
 
---- FIXME
+--- `check()`
+--
+-- FIXME
+--
 local function check()
     local file = fs.concat(ROOTDIR, "CMakeLists.txt")
     local res = fs.exists(file)

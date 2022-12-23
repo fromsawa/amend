@@ -1,13 +1,11 @@
 --[[
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]] 
-
+]]
 --[[>>[amend.api.util.rdbl.import] Data import.
 
     FIXME
-]] 
-
+]]
 local M = require "amend.util.rdbl.version"
 local modimport = M.modimport
 
@@ -39,8 +37,9 @@ local getkeys = M.getkeys
 local tokey = M.tokey
 local tovalue = M.tovalue
 
---- Check if start of document.
--- ::returns boolean, name
+--- `isdocument()`
+-- Check if start of document.
+-- @returns boolean, name
 local function isdocument(line)
     local tag, name = line:match("^([^ ]+)[ ]*(.*)$")
     if tag == "---" or tag == "🗎" then
@@ -53,7 +52,8 @@ local function isdocument(line)
     end
 end
 
---- Split of indentation
+--- `splitindent()`
+-- Split of indentation
 --
 local function splitindent(line)
     assert(not line:find("\t"), "invalid tab character in stream")
@@ -61,12 +61,14 @@ local function splitindent(line)
     return indent:len(), content:trim()
 end
 
---- Unindent.
+--- `unindent()`
+-- Unindent.
 local function unindent(line, n)
     return line:sub(n + 1)
 end
 
---- Check indentation
+--- `checkindent()`
+-- Check indentation
 --
 local function checkindent(iter)
     local indentation = 4
@@ -93,11 +95,12 @@ local function checkindent(iter)
     return indentation
 end
 
---- Import class.
+--- `import`
 --
 --{
 local import_mt = {
-    --- Setup importer.
+    --- `setup`
+    -- Setup importer.
     --
     setup = function(self, opts)
         self._file = opts.file -- input stream
@@ -109,14 +112,16 @@ local import_mt = {
         self._literal = opts.literal -- user-supplied literal conversion function
         self._compat = opts.compat -- YAML compatibility
     end,
-    --- Emit error message.
+    --- `error`
+    -- Emit error message.
     --
     error = function(self, fmt, ...)
         local txt = sformat(fmt, ...)
         local where = sformat("[line %d]: ", self._line)
         error(where .. txt, 2)
     end,
-    --- Formatted assertion.
+    --- `assert`
+    -- Formatted assertion.
     --
     assert = function(self, expr, fmt, ...)
         if expr then
@@ -129,8 +134,9 @@ local import_mt = {
             end
         end
     end,
-    --- Get next line.
-    -- ::returns <level>, "<content>"
+    --- `next`
+    -- Get next line.
+    -- @returns <level>, "<content>"
     next = function(self)
         local line = self._iter()
         if line then
@@ -141,10 +147,11 @@ local import_mt = {
             return -1
         end
     end,
-    --- Get next "literal" line.
-    -- ::args
+    --- `literal`
+    -- Get next "literal" line.
+    -- @param
     --      n       Spaces count.
-    -- ::returns <content>
+    -- @returns <content>
     --      literal content, or ''nil'' when end is reached
     --
     literal = function(self, n)
@@ -171,14 +178,15 @@ local import_mt = {
 
         return tconcat(value, "\n") .. "\n", next, content
     end,
-    --- Parse elements in current context (ie. indentation level).
-    -- ::args
+    --- `parse`
+    -- Parse elements in current context (ie. indentation level).
+    -- @param
     --      level       Current indentation level.
     --      content     Current line content.
     --
     parse = function(self, context, level, content)
-        local next -- next level
-        local sequence -- parsing a sequence or map
+        local next  -- next level
+        local sequence  -- parsing a sequence or map
         repeat
             local isseq, key, value
 
@@ -189,9 +197,12 @@ local import_mt = {
                     context = {}
 
                     if docname then
-                        tinsert(self._documents, {
-                            [docname] = context
-                        })
+                        tinsert(
+                            self._documents,
+                            {
+                                [docname] = context
+                            }
+                        )
                     else
                         tinsert(self._documents, {context})
                     end
@@ -253,9 +264,12 @@ local import_mt = {
                         local ch = value:sub(1, 1)
                         if ch == "{" then
                             if value == "{}" then
-                                tinsert(context, {
-                                    [key] = tovalue(value, self._literal)
-                                })
+                                tinsert(
+                                    context,
+                                    {
+                                        [key] = tovalue(value, self._literal)
+                                    }
+                                )
                             else
                                 self:error("arrays not allowed here")
                             end
@@ -290,14 +304,20 @@ local import_mt = {
                             end
 
                             local map = {}
-                            tinsert(context, {
-                                [key] = map
-                            })
+                            tinsert(
+                                context,
+                                {
+                                    [key] = map
+                                }
+                            )
                             next, content = self:parse(map, next, content)
                         else
-                            tinsert(context, {
-                                [key] = NULL
-                            })
+                            tinsert(
+                                context,
+                                {
+                                    [key] = NULL
+                                }
+                            )
                         end
 
                         goto continue
@@ -374,7 +394,8 @@ local import_mt = {
         -- done
         return next, content
     end,
-    --- Run the importer.
+    --- `run`
+    -- Run the importer.
     --
     run = function(self)
         -- check if file starts with a document
@@ -417,7 +438,7 @@ import_mt.__index = import_mt
 
 -- [[ MODULE ]]
 --- Import data.
--- ::args
+-- @param
 --      [opts]  Import options (FIXME).
 --
 local function import(opts)

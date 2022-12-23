@@ -3,7 +3,7 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
 --[[
-    Amend's tools.
+    FIXME
 ]]
 
 local function amend_tools()

@@ -3,7 +3,9 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] 
 
--->>[amend]
+--[[>>[amend.api.version] Version info.
+]]
 
---- Current ''amend'' version.
+--- `VERSION`
+-- Current ''amend'' version.
 VERSION = {0, 10}

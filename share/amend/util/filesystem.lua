@@ -2,7 +2,7 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[>>[amend.api.util.filesystem] #+ Extensions to LuaFileSystem.
+--[[>>[amend.api.util.filesystem] Extensions to LuaFileSystem.
 ]]
 local mod = {}
 
@@ -32,9 +32,9 @@ local touch = fs.touch
 
 --- `fs.exists(filename)`
 -- Check if file exists.
--- ::args
+-- @param
 --      filename        Path or file-name to check.
--- ::returns
+-- @returns
 --      ''true'' if file or path exists, ''false'' otherwise.
 --
 local function exists(filename)
@@ -43,7 +43,7 @@ end
 
 --- `fs.isnewer(file, another)`
 -- Check if a ''file'' is newer than ''another''.
--- ::returns
+-- @returns
 --      ''nil'' if `file` does not exist,
 --      ''true'' if `file` is newer or `another` does not exist,
 --      ''false'' otherwise.
@@ -87,9 +87,9 @@ end
 
 --- `fs.concat(...)`
 -- Concatenate path elements.
--- ::args
+-- @param
 --      ...             List of path elements.
--- ::returns
+-- @returns
 --      Concatenated path elements using builtin directory seperator.
 --
 local function concat(...)
@@ -98,9 +98,9 @@ end
 
 --- `fs.parts(fname)`
 -- Get parts of a file name (path, file and extension).
--- ::args
+-- @param
 --      fname           The file- or path-name.
--- ::returns <path>,<file-name>,<extension>
+-- @returns <path>,<file-name>,<extension>
 --
 local function parts(fname)
     -- see https://stackoverflow.com/questions/5243179/what-is-the-neatest-way-to-split-out-a-path-name-into-its-components-in-lua/12191225
@@ -126,10 +126,10 @@ end
 
 --- `fs.relpath(path, root)`
 -- Get relative path with respect to a "root".
--- ::args
+-- @param
 --      path            The 'path' to split.
 --      root [optional] The root path.
--- ::returns <relative-path>
+-- @returns <relative-path>
 --
 local function relpath(path, root)
     -- prepare "root"
@@ -165,7 +165,7 @@ end
 
 --- `fs.readwild(file, tbl)`
 -- Read a wildcard pattern file.
--- ::args
+-- @param
 --      file                The file name (containing wildcard patterns and comments).
 --      tbl [optional]      Existing table (with regex patterns).
 --
@@ -191,7 +191,7 @@ end
 
 --- `fs.dodir(path, callback, options)`
 -- Execute a function for each directory element possibly recursively.
--- ::args
+-- @param
 --      path                    The path to iterate over.
 --      callback                Callback function for elements (must return true for recursion).
 --      options [optional]      Options.
@@ -352,9 +352,9 @@ end
 
 --- `fs.rmkdir(fpath)`
 -- Recursively create directory.
--- ::args
+-- @param
 --      fpath       The directory-path to create.
--- ::returns <status>[, <error-message>]
+-- @returns <status>[, <error-message>]
 --      The value of LuaFilesystem's [mkdir](https://keplerproject.github.io/luafilesystem/manual.html#mkdir) command.
 --
 local function rmkdir(fpath)

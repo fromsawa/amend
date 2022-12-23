@@ -1,11 +1,11 @@
 --[[
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]]
+]] --
 --[[>>[amend.api.util.rdbl.types] Types.
 
     FIXME
-]]
+]] --
 local M = require "amend.util.rdbl.version"
 
 local mnan = 0 / 0
@@ -20,14 +20,16 @@ local tsort = table.sort
 local utf8codes = utf8.codes
 local utf8char = utf8.char
 
---- Element order.
+--- `ORDER`
+-- Element order.
 --
 -- FIXME
 --
 local ORDER = {}
 M.ORDER = ORDER
 
---- Non-destructive ''nil''.
+--- `NULL`
+-- Non-destructive ''nil''.
 --
 -- Empty values, are represented as 'null', otherwise, in Lua,
 -- the table entry would be deleted.
@@ -35,25 +37,28 @@ M.ORDER = ORDER
 local NULL = {}
 M.NULL = NULL
 
---- Check if 'null'.
+--- `isnull`
+-- Check if 'null'.
 --
 local function isnull(t)
     return t == NULL
 end
 M.isnull = isnull
 
--- Check if value is an integer.
+--- `isinteger`
+--  Check if value is an integer.
 --
 local function isinteger(x)
     return mtype(x) == "integer"
 end
 M.isinteger = isinteger
 
+--- `typeof`
 -- Get type of a value.
--- ::args
+-- @param
 --      x       Value to get type of.
 --      fine    "Fine-grained" type (default: true).
--- ::returns typename [, category [, subtype]]
+-- @returns typename [, category [, subtype]]
 --
 -- This function returns the standard return values of Lua's ''type'', but additionally
 -- the strings
@@ -110,7 +115,8 @@ local function typeof(x, fine)
 end
 M.typeof = typeof
 
---- Escape a string.
+--- `escape()`
+-- Escape a string.
 --
 local escape_table = {
     [0] = "\\x00",
@@ -147,7 +153,8 @@ local function escape(s)
 end
 M.escape = escape
 
---- Unescape a string.
+--- `unescape`
+-- Unescape a string.
 --
 -- FIXME
 --
@@ -206,10 +213,11 @@ local function unescape(s)
 end
 M.unescape = unescape
 
---- Get sorted list of keys.
--- ::args
+--- `getkeys()`
+-- Get sorted list of keys.
+-- @param
 --      t           The table.
--- ::returns
+-- @returns
 --      Array of keys in `t`.
 --
 local precedence = {
@@ -243,8 +251,9 @@ local function getkeys(t)
 end
 M.getkeys = getkeys
 
---- Convert literal to a value.
--- ::args
+--- `tovalue()`
+-- Convert literal to a value.
+-- @param
 --      s       Character string.
 --      [fn]    User-supplied conversion function (optional).
 local function tovalue(s, fn)
@@ -333,8 +342,9 @@ local function tovalue(s, fn)
 end
 M.tovalue = tovalue
 
---- Convert value to a literal.
--- ::args
+--- `toliteral()`
+-- Convert value to a literal.
+-- @param
 --      x       Lua value.
 --      [fn]    User-supplied conversion function (optional).
 local function toliteral(x, fn)
@@ -410,10 +420,11 @@ local function toliteral(x, fn)
 end
 M.toliteral = toliteral
 
---- Transform into a key.
--- ::args
+--- `tokey()`
+-- Transform into a key.
+-- @param
 --      x           The value to convert.
--- ::returns
+-- @returns
 --      FIXME
 --
 local function tokey(x)
@@ -433,7 +444,7 @@ local function tokey(x)
 end
 M.tokey = tokey
 
--- ::debug Start of document.
+-- Start of document.
 if M.YAML_COMPAT then
     M._DOCUMENT = "---"
 else

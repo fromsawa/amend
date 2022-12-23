@@ -1,11 +1,15 @@
 --[[
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]] --[===[>>[amend.api.tools] External tools.
+]] --
+
+--[===[>>[amend.api.tools] External tools.
 
 FIXME
 
---]===] local M = {}
+--]===] --
+
+local M = {}
 
 -- local mt = {
 --     __index = function(t, k)
