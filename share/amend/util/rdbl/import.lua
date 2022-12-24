@@ -2,9 +2,10 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[>>[amend.api.util.rdbl.import] Data import.
+--[[>>[amend.api.util.rdbl.import] Importing.
 
-    FIXME
+FIXME
+
 ]]
 local M = require "amend.util.rdbl.version"
 local modimport = M.modimport

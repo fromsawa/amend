@@ -6,6 +6,10 @@
 --[[>>[amend.api.lua.table] Table library extensions.
 ]]
 
+local mtointeger = math.tointeger
+local tinsert = table.insert
+local tremove = table.remove
+
 --- `table.has(tbl, item)`
 -- Check if array-part of a table has an element.
 -- @param
@@ -21,6 +25,7 @@ function table.has(tbl, item)
 
     return nil
 end
+local thas = table.has
 
 --- `table.kpairs(tbl)`
 -- Key-only table iterator.
@@ -30,7 +35,7 @@ function table.kpairs(tbl)
         local v
         while true do
             k, v = next(t, k)
-            if not math.tointeger(k) then
+            if not mtointeger(k) then
                 return k, v
             end
             if k == nil then
@@ -135,7 +140,7 @@ function table.unique(t)
     while i <= #t do
         local v = t[i]
         if seen[v] then
-            table.remove(t, i)
+            tremove(t, i)
         else
             seen[v] = true
             i = i + 1
@@ -148,8 +153,8 @@ end
 --- `table.insert_unique(t, v)`
 -- Add a unique value.
 function table.insert_unique(t, v)
-    if not table.has(t, v) then
-        table.insert(t, v)
+    if not thas(t, v) then
+        tinsert(t, v)
     end
 
     return t

@@ -307,9 +307,13 @@ function document:write(path)
             end
         elseif part.tag == "text" then
             f:write(tostring(part.content), "\n")
+        elseif (part.tag == "document") or (part.tag == "root") then
+            for _, v in ipairs(part) do
+                emit(v, level)
+            end
         else
             io.dump(part)
-            os.exit()
+            error("internal error: unrecognized part '" .. part.tag .. "'")
         end
     end
 

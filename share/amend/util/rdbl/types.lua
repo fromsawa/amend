@@ -4,7 +4,8 @@
 ]] --
 --[[>>[amend.api.util.rdbl.types] Types.
 
-    FIXME
+FIXME
+
 ]] --
 local M = require "amend.util.rdbl.version"
 

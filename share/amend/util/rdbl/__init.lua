@@ -2,40 +2,31 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[==========================================================================[>>[amend.api.util.rdbl] ReaDaBLe
+--[===[>>[amend.api.util.rdbl] ReaDaBLe
 
-    @foreword
-    Configuration files suck - yet they are invaluable. They are especially valuable if they are
-    _indeed_ human readable and possibly even grep'able (oh yes, the good ol' days of text-only files).
-    
-    There are a number of good syntaxes, that provide sensible approaches - note, under the
-    precondition of structured and hierarchical representation of data. Most of them, however,
-    do either not follow the [KISS principle](https://www.urbandictionary.com/define.php?term=KISS%20principle),
-    are hardly human readable (without an IDE), or, simply lack the possibility of annotations
-    (read: comments).
-    
-    FIXME
+Configuration files suck - yet they are invaluable. They are especially valuable if they are
+_indeed_ human readable and possibly even grep'able (oh yes, the good ol' days of text-only files).
 
-    [XML](FIXME)
-    [JSON](FIXME)
-    [YAML](https://yaml.org)
-    Well, you heard it, YAML to the rescue: yes, but [No thanks!](noyaml.com).::footnote
-        The author does recognize the ideas behind YAML. He also wants to express, that alternatives,
-        such as XML or JSON, have their merit. 
+There are a number of good syntaxes, that provide sensible approaches - note, under the
+precondition of structured and hierarchical representation of data. Most of them, however,
+do either not follow the [KISS principle](https://www.urbandictionary.com/define.php?term=KISS%20principle),
+are hardly human readable (without an IDE), or, simply lack the possibility of annotations
+(read: comments).
 
-    RDBL provides a simple sub-set of YAML, is easy to parse and consitent.
+Well, you heard it, YAML to the rescue: yes, but [No thanks!](noyaml.com).@footnote
+    The author does recognize the ideas behind YAML. He also wants to express, that alternatives,
+    such as XML or JSON, have their merit. 
 
-    @image<
-        @type comic
-        @titel "How standards proliferate"
-        @subtitle FIXME ...
-    >[Standards (xkcd)](https://xkcd.com/927/)
+RDBL provides a [simple sub-set](https://xkcd.com/927/) of YAML, is easy to parse and consitent.
 
-    ::[.version]
-    ::[.types]
-    ::[.import]
-    ::[.export]
---]==========================================================================]
+<<[.version]
+
+## API
+<<[.types]
+<<[.import]
+<<[.export]
+
+--]===]
 
 local M = require "amend.util.rdbl.version"
 local modimport = M.modimport

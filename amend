@@ -248,6 +248,12 @@ while i <= #arg do
     i = i + 1
 end
 
+-- check AMENDDIR
+local envpath = os.getenv("AMENDDIR")
+if envpath then
+    package:addpath(table.concat({envpath, "share"}, dirsep))
+end
+
 -- load modules (all go into global)
 local initstatus, errmsg = pcall(require, "amend.__init")
 if not initstatus then

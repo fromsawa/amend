@@ -30,6 +30,6 @@ local config = {
 
 docgen = docs.core(config) -- FIXME needs to be global (see markdown/document.lua)
 docgen:parseall() 
-docgen:gentree()
+docgen:includeall()
 io.dump(docgen)
 

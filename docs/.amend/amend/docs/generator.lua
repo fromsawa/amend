@@ -3,7 +3,7 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
 
-local M = require "amend.docs.__module" -- --
+local M = require "amend.docs.__module" -- -- --
 
 --[[>>[amend.api.docs.api.core] Generator core.
 ]] local strsplit = string.split
@@ -12,6 +12,8 @@ local strlen = string.len
 local tinsert = table.insert
 local tremove = table.remove
 local tmake = table.make
+local thas = table.has
+local kpairs = table.kpairs
 local tconcat = table.concat
 local tunpack = table.unpack
 local cindex = class.index
@@ -27,7 +29,7 @@ local core =
         config = void,
         files = {},
         parsed = {},
-        tree = {}
+        output = {}
     }
 }
 
@@ -36,6 +38,15 @@ function core:__init(config)
 
     self.config = config
     self:readall()
+end
+
+function core:__dump(options)
+    options.key = options.key or "docs"
+    options.visited = options.visited or {}
+    options.visited[self.config] = true
+    options.visited[self.files] = true
+    -- options.visited[self.parsed] = true
+    io.dump(self, options)
 end
 
 function core:read(path, language)
@@ -122,123 +133,162 @@ function core:parseall()
     end
 end
 
-function core:__dump(options)
-    options.key = options.key or "docs"
-    options.visited = options.visited or {}
-    options.visited[self.config] = true
-    options.visited[self.files] = true
-    -- options.visited[self.parsed] = true
-    io.dump(self, options)
-end
+function core:includeall()
+    -- find namespace or create it
+    local function namespace(t, name, create)
+        local ns = strsplit(name, ".")
+        local parent
+        for _, n in ipairs(ns) do
+            if create then
+                t[n] = t[n] or {}
+            end
 
-function core:gentree()
-    -- make an "id" list
-    local index
-    local idlist = {}
+            parent = t
+            t = t[n]
+
+            if not t then
+                break
+            end
+        end
+
+        return t, parent
+    end
+
+    -- build worklist
+    local documents = {}
+    local worklist = {}
 
     local visited = {}
     local function findid(t)
         for _, v in pairs(t) do
             if type(v) == "table" then
-                if v.id then
-                    if v.id == "index" then
-                        index = v
-                    elseif not idlist[v.id] then
-                        tinsert(idlist, v.id)
-                        idlist[v.id] = v
-                    end
-                end
-
+                -- avoid infinite recursion
                 if not visited[v] then
                     visited[v] = true
                     findid(v)
+                end
+
+                -- create worklist entry
+                local id = v.id
+                if id then
+                    if id ~= "index" then
+                        local ns, parent = namespace(worklist, id, true)
+                        if not thas(ns, id) then
+                            tinsert(ns, id)
+                            documents[id] = v
+                        end
+                    end
                 end
             end
         end
     end
 
     findid(self.parsed)
-
-    -- span tree
-    local function span(name)
-        local ns = strsplit(name, ".")
-        assert(strlen(ns[1]) > 0, "internal error: a sequential reference appeared")
-
-        local res = self.tree
-        for _, k in ipairs(ns) do
-            res[k] = res[k] or {}
-            res = res[k]
-        end
-
-        return res
-    end
-
-    for _, ns in ipairs(idlist) do
-        local t = span(ns)
-        t.__id = ns
-    end
-
-    local root
-    for k, v in pairs(self.tree) do
-        -- note: we only expect a single root node!
-        v.__id = "index"
-        root = v
+    for _, v in kpairs(worklist) do
+        tinsert(v, "index")
+        documents["index"] = v
         break
     end
 
-    -- resolve "imports"
-    local visited = {}
-
-    local function find(name)
-        local ns = strsplit(name, ".")
-        local res, key, parent = self.tree, nil, nil
-        for _, k in ipairs(ns) do
-            key = k
-            parent = res
-            res = res[k]
-            if not res then 
-                break
-            end
+    -- do the including (top to bottom)
+    local function include(node)
+        if not node[1] then
+            return
         end
 
-        return res, key, parent
-    end
+        local id = node[1]
+        local doc = documents[id]
+        assert(doc ~= nil, id)
 
-    local function handleinc(t, ns, src, dst)
-        if type(t) == "table" then
-            visited[t] = true
-
-            for _, v in pairs(t) do
-                if isa(v, M.annotation) then
-                    if v.tag == "include" then
-                        local content = v.content
-                        local reference = content.reference
-                        local import, key, parent = find(tostring(reference))
-                        if not import then
-                            M.notice(ERROR, reference.origin, "reference does not exist")
-                        end
-
-                        dst.__import = dst.__import or {}
-                        tinsert(dst.__import, {[key] = import})
+        local function parse(t, theid)
+            -- section reference
+            if t.tag == "section" then
+                local reference = t.reference
+                if reference then
+                    if reference[1] == "." then
+                        assert(type(theid) == "string")
+                        theid = theid .. tostring(reference)
+                    else
+                        theid = tostring(reference)
                     end
-                elseif (type(v) == "table") and not visited[v] then
-                    handleinc(v, ns, src, dst)
                 end
             end
+
+            -- recurse over document nodes
+            for _, v in ipairs(t) do
+                if type(v) ~= "table" then
+                    goto continue
+                end
+
+                -- deepest elements first
+                parse(v, theid)
+
+                -- handle include annotation
+                local annotation = v.annotation
+                if annotation then
+                    assert(v.tag == "text")
+                    for i, ann in ipairs(annotation) do
+                        if ann.tag == "include" then
+                            local content = ann.content
+
+                            -- make reference absolute
+                            local reference = content.reference
+                            if reference[1] == '.' then
+                                reference.text = theid .. reference.text
+                            end
+
+                            -- check, document exists
+                            local refid = tostring(reference)
+                            local refdoc = documents[refid]
+
+                            if not refdoc then
+                                M.notice(ERROR, reference.origin, "document does not exist")
+                            end
+
+                            -- do the include
+                            local indent = content.indent
+                            if #indent > 0 then
+                                error("indented include not supported (yet)")
+                            else
+                                local parent = v.parent
+
+                                -- replace node
+                                for n, child in ipairs(parent) do
+                                    if v == child then
+                                        parent[n] = refdoc
+                                        documents[refid] = nil
+                                        goto done
+                                    end
+                                end
+
+                                error("internal error: should not be reached")
+
+                                ::done::
+                            end
+                        end
+                    end
+                end
+
+                ::continue::
+            end
         end
+
+        parse(doc)
     end
 
-    handleinc(index, root.__id, index, root)
-    for _, ns in ipairs(idlist) do
-        print(ns)
-        local src = idlist[ns]
-        local dst = find(ns)
+    local function workon(t)
+        for _, v in kpairs(t) do
+            workon(v)
+        end
 
-        assert(isa(src, M.markdown.document))
-        handleinc(src, ns, src, dst)
+        include(t)
     end
+    workon(worklist)
 
-    io.dump(self.tree)
+    for k,v in pairs(documents) do
+        print(k,v)
+    end
+    -- io.dump(worklist)
     os.exit()
 end
 --}
