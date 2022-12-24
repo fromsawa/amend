@@ -156,13 +156,13 @@ setmetatable(package, package_meta)
 --
 -- The following global variables are set or determined at startup:
 --
---      EXECDIR             Path, where ''amend.lua'' was started.
---      ROOTDIR             Project root (where ''.amend/project.lua'' was found).
---      PROJECTFILE         Full path to the ''.amend/project.lua'' file.
+-- >    EXECDIR             Path, where ''amend.lua'' was started.
+-- >    ROOTDIR             Project root (where ''.amend/project.lua'' was found).
+-- >    PROJECTFILE         Full path to the ''.amend/project.lua'' file.
 --
 -- To separate source from other files, the variable
 --
---      IGNORE              Files or directories generally to ignore.
+-- >    IGNORE              Files or directories generally to ignore.
 --
 -- is populated (regular expressions) at startup. This list is automatically
 -- extended if ''amend'' finds the following files, containing wild-card patterns,
