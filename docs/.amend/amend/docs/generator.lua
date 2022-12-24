@@ -3,7 +3,7 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
 
-local M = require "amend.docs.__module" -- -- -- --
+local M = require "amend.docs.__module"
 
 --[[>>[amend.api.docs.api.core] Generator core.
 ]] local strsplit = string.split
@@ -264,7 +264,7 @@ function core:includeall()
 
                             if not refdoc then
                                 refdoc = make(refid)
-                                -- M.notice(ERROR, reference.origin, "document does not exist")
+                            -- M.notice(ERROR, reference.origin, "document does not exist")
                             end
 
                             -- do the include
@@ -309,7 +309,7 @@ function core:includeall()
 
     -- build output
     local function make_output(t)
-        for k,v in kpairs(t) do
+        for k, v in kpairs(t) do
             make_output(v)
 
             local doc = documents[v[1]]
@@ -345,7 +345,7 @@ function core:write()
     fs.pushd(path)
 
     local function emit(node)
-        for k,v in kpairs(node) do
+        for k, v in kpairs(node) do
             fs.mkdir(k)
             fs.pushd(k)
 

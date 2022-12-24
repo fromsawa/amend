@@ -1,37 +1,39 @@
 #!copyright [<year>] -- update source copyright
 message "Updating copyrights..."
 
-local symbol = "©" -- copyright symbol
-local pattern = {"Yogev Sawa"} -- copyright name pattern(s)
-local year = tonumber(OPTIONS[1] or os.date("%Y")) -- year
+local symbol = "(C)" -- copyright symbol
+local pattern = {"Yogev Sawa"} -- author pattern(s)
+local year = tonumber(OPTIONS[1] or os.date("%Y")) -- current year
 
 function fix_copyright(fname)
     -- read file
-    local f = assert(io.open(fname))
-    local txt = f:read("*a")
-    f:close()
+    local txt = io.readall(fname)
+    if not txt then
+        return
+    end
 
     -- find and check copyright
-    local bpos, epos, copyright, sym, year_from, year_to, name =
-        txt:find("(Copyright)[ ]*([^0-9]*)[ ]*([0-9]+)[-]*([0-9]*)[ ]+([^\n]+)")
+    local bpos, epos, copyright, sym, year_from, year_to, author =
+        txt:find("(Copyright)[ ]+([^0-9]*)[ ]+([0-9]+)[ ]*[%-]-[ ]*([0-9]*)[ ]+([^\n]+)")
 
     -- edit files (if applicable)
-    if table.has(pattern, name) then
+    if table.has(pattern, author) then
         year_from = tonumber(year_from)
         year_to = tonumber(year_to)
 
-        if year_from ~= year then
-            if not year_to or year_to ~= year then
-                message(STATUS, "    updating %s\n", fname)
-
-                local before, after = txt:sub(1, bpos - 1), txt:sub(epos + 1, -1)
-
-                f = assert(io.open(fname, "w"))
-                f:write(before)
-                f:write(string.format("%s %s %d-%d %s", copyright, symbol, year_from, year, name))
-                f:write(after)
-                f:close()
+        if ((year_to or year_from) ~= year) or (sym ~= symbol) then
+            local years = string.format("%d", year)
+            if year_from ~= year then
+                years = string.format("%d-%d", year_from, year)
             end
+            message(STATUS, "    updating %s", fname)
+
+            local before, after = txt:sub(1, bpos - 1), txt:sub(epos + 1, -1)
+            local newcopyright = string.format("%s %s %s %s", copyright, symbol, years, author)
+
+            f = assert(io.open(fname, "w"))
+            f:write(before, newcopyright, after)
+            f:close()
         end
     end
 end

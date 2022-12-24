@@ -22,6 +22,70 @@ package is (a possibly [futile](https://xkcd.com/927/)) attempt to create a gene
 tool for such purposes: yet, the author(s) are using it succesfully in several projects
 and, therefore, disclose it to the public.
 
+## Example
+
+To update copyright information in a project this [script](https://github.com/fromsawa/amend/blob/main/.amend/copyright.lua)
+is used within `amend`:
+
+```.lua
+
+# -- update source copyright
+
+message "Updating copyrights..."
+
+local symbol = "(C)" -- copyright symbol
+local pattern = {"Yogev Sawa"} -- author pattern(s)
+local year = tonumber(OPTIONS[1] or os.date("%Y")) -- current year
+
+function fix_copyright(fname)
+    -- read file
+    local txt = io.readall(fname)
+    if not txt then
+        return
+    end
+
+    -- find and check copyright
+    local bpos, epos, copyright, sym, year_from, year_to, author =
+        txt:find("(Copyright)[ ]+([^0-9]*)[ ]+([0-9]+)[ ]*[%-]-[ ]*([0-9]*)[ ]+([^\n]+)")
+
+    -- edit files (if applicable)
+    if table.has(pattern, author) then
+        year_from = tonumber(year_from)
+        year_to = tonumber(year_to)
+
+        if ((year_to or year_from) ~= year) or (sym ~= symbol) then
+            local years = string.format("%d", year)
+            if year_from ~= year then
+                years = string.format("%d-%d", year_from, year)
+            end
+            message(STATUS, "    updating %s", fname)
+
+            local before, after = txt:sub(1, bpos - 1), txt:sub(epos + 1, -1)
+            local newcopyright = string.format("%s %s %s %s", copyright, symbol, years, author)
+
+            f = assert(io.open(fname, "w"))
+            f:write(before, newcopyright, after)
+            f:close()
+        end
+    end
+end
+
+fs.dodir(
+    ".",
+    function(item)
+        fix_copyright(item[0])
+    end,
+    {
+        exclude = IGNORE,
+        extension = {".lua", ".cmake", ".md"},
+        include = {},
+        recurse = true
+    }
+)
+```
+
+To update copyright information, one needs to run `amend copyright` (see `amend --help` for further information).
+
 ## API
 
 
@@ -32,31 +96,31 @@ and, therefore, disclose it to the public.
 ### Globals
 
 
-The following global variables are set or determined at startup:
+ The following global variables are set or determined at startup:
 
->    EXECDIR             Path, where ''amend.lua'' was started.
->    ROOTDIR             Project root (where ''.amend/project.lua'' was found).
->    PROJECTFILE         Full path to the ''.amend/project.lua'' file.
+      EXECDIR             Path, where ''amend.lua'' was started.
+      ROOTDIR             Project root (where ''.amend/project.lua'' was found).
+      PROJECTFILE         Full path to the ''.amend/project.lua'' file.
 
-To separate source from other files, the variable
+ To separate source from other files, the variable
 
->    IGNORE              Files or directories generally to ignore.
+      IGNORE              Files or directories generally to ignore.
 
-is populated (regular expressions) at startup. This list is automatically
-extended if ''amend'' finds the following files, containing wild-card patterns,
-in the ''ROOTDIR'':
+ is populated (regular expressions) at startup. This list is automatically
+ extended if ''amend'' finds the following files, containing wild-card patterns,
+ in the ''ROOTDIR'':
 
-.amend/ignore
-.gitignore
+      .amend/ignore
+      .gitignore
 
-The project file contains the general configuration variables:
+ The project file contains the general configuration variables:
 
-PROJECT             Project settings.
-CONFIG              Amend settings.
-TOOLS               System tools (see 'amend/tools.lua')
-PATHS               Additional module paths.
+      PROJECT             Project settings.
+      CONFIG              Amend settings.
+      TOOLS               System tools (see 'amend/tools.lua')
+      PATHS               Additional module paths.
 
-See [amend.api.project] for details.
+ See [amend.api.project] for details.
 
 ### Project configuration
 
@@ -180,9 +244,11 @@ FIXME
 
 ####### `check()`
 
-###### C support.
+###### Git support.
 
 --
+
+####### `check()`
 
 ###### C++ support.
 

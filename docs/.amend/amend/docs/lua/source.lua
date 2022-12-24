@@ -231,7 +231,7 @@ function source:parse(stream)
                         end
                     end
                 else
-                    comment = comment:re("%s*(.*)")[1]
+                    comment = comment:re("%s-(.*)")[1]
                     fragment:insert(comment)
                 end
             else

@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Debug",
             "program": "${workspaceFolder}/amend",
-            "arg": [ "--help" ]
+            "arg": [ "build-docs" ]
         }
     ]
 }
