@@ -3,7 +3,7 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] 
 
---[[>>[amend.api.version] Version info.
+--[[>>[amend.api.version] Version
 ]]
 
 --- `VERSION`

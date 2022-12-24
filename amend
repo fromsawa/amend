@@ -152,7 +152,7 @@ package_meta.__index = package_meta
 setmetatable(package, package_meta)
 --}
 
--- >>[amend.api.globals] Global variables.
+-- >>[amend.api.globals]
 --
 -- The following global variables are set or determined at startup:
 --

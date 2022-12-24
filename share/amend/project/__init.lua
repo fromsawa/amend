@@ -7,6 +7,10 @@
 
 FIXME
 
+## API
+<<[.config]
+<<[.settings]
+<<[.tools]
 ]]
 
 PROJECT = PROJECT or {}

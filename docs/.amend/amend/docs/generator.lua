@@ -3,7 +3,7 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
 
-local M = require "amend.docs.__module" -- -- --
+local M = require "amend.docs.__module" -- -- -- --
 
 --[[>>[amend.api.docs.api.core] Generator core.
 ]] local strsplit = string.split
@@ -13,6 +13,7 @@ local tinsert = table.insert
 local tremove = table.remove
 local tmake = table.make
 local thas = table.has
+local tcount = table.count
 local kpairs = table.kpairs
 local tconcat = table.concat
 local tunpack = table.unpack
@@ -186,11 +187,31 @@ function core:includeall()
     findid(self.parsed)
     for _, v in kpairs(worklist) do
         tinsert(v, "index")
-        documents["index"] = v
+        documents["index"] = self.parsed[self.config.output.template]
         break
     end
 
     -- do the including (top to bottom)
+    local function make(id)
+        local node = namespace(worklist, id)
+
+        message(INFO, "creating document %q", id)
+        local md = M.markdown.document()
+        md.id = id
+
+        -- FIXME sort!
+        for _, n in pairs(node) do
+            assert(#n == 1)
+            local refid = n[1]
+            local refdoc = documents[refid]
+            assert(refdoc ~= nil)
+            tinsert(md, refdoc)
+            documents[refid] = nil
+        end
+        node[1] = id
+        documents[id] = md
+    end
+
     local function include(node)
         if not node[1] then
             return
@@ -233,7 +254,7 @@ function core:includeall()
 
                             -- make reference absolute
                             local reference = content.reference
-                            if reference[1] == '.' then
+                            if reference[1] == "." then
                                 reference.text = theid .. reference.text
                             end
 
@@ -242,7 +263,8 @@ function core:includeall()
                             local refdoc = documents[refid]
 
                             if not refdoc then
-                                M.notice(ERROR, reference.origin, "document does not exist")
+                                refdoc = make(refid)
+                                -- M.notice(ERROR, reference.origin, "document does not exist")
                             end
 
                             -- do the include
@@ -285,11 +307,67 @@ function core:includeall()
     end
     workon(worklist)
 
-    for k,v in pairs(documents) do
-        print(k,v)
+    -- build output
+    local function make_output(t)
+        for k,v in kpairs(t) do
+            make_output(v)
+
+            local doc = documents[v[1]]
+            if doc then
+                v[1] = doc
+            else
+                v[1] = nil
+            end
+
+            if tcount(v) == 0 then
+                t[k] = nil
+            end
+        end
     end
-    -- io.dump(worklist)
-    os.exit()
+    make_output(worklist)
+    self.output = worklist
+end
+
+function core:runmacros()
+    -- FIXME
+end
+
+function core:resolveall()
+end
+
+function core:write()
+    local output = self.output
+    local directory = self.config.output.directory
+    local rootdir = self.config.input.directory
+
+    local path = fs.concat(rootdir, directory, "..")
+    fs.mkdir(path)
+    fs.pushd(path)
+
+    local function emit(node)
+        for k,v in kpairs(node) do
+            fs.mkdir(k)
+            fs.pushd(k)
+
+            local doc = v[1]
+            if doc then
+                local basename = doc.id
+                basename = basename:match(".*[.]([^.]+)$") or basename
+                basename = basename .. ".md"
+
+                doc:write(basename)
+            end
+
+            emit(v)
+            fs.popd(k)
+        end
+    end
+
+    emit(self.output)
+
+    fs.popd(path)
+    -- io.dump(output)
+    -- docgen.parsed["docs/index.in.md"]:write("/tmp/index.md")
 end
 --}
 

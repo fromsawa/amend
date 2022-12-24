@@ -3,10 +3,16 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
 
---[===[>>[amend.api.tools] External tools.
+--[===[>>[amend.api.use] External tools.
 
 FIXME
 
+
+## API
+
+<<[.cmake]
+<<[.git]
+<<[.cxx]
 --]===] --
 
 local M = {}

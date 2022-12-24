@@ -9,7 +9,7 @@ require "amend.docs.markdown.types"
 require "amend.docs.markdown.document"
 
 local function parse(thefile)
-    message(INFO, "Parsing markdown in %q...", thefile.origin)
+    message(INFO, "parsing markdown in %q...", thefile.origin)
     local doc = M.document()
     doc:parse(thefile)
     return doc

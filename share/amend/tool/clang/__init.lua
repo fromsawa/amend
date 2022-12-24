@@ -3,8 +3,6 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
 
---[===[>>[amend.api.tool.clang] Clang tools.
---]===]
 local M = {}
 
 local tools = {

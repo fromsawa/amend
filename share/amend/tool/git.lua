@@ -3,7 +3,7 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
 
---[===[>>[amend.api.tool.git] Git support.
+--[===[>>[amend.api.use.git] Git support.
 --]===]
 local M = {}
 

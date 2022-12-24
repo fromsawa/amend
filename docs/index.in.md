@@ -2,7 +2,7 @@
 
 ## API
 
-@index
+<<[amend.api.version]
 
 ### Globals
 
@@ -16,13 +16,22 @@
 
 <<[amend.api.components]
 
+### Tools
+
+<<[amend.tools]
+
 ### Utilities
 
+<<[amend.api.logging]
 <<[amend.api.util]
 
 ### Lua extensions
 
 <<[amend.api.lua]
+
+### Tools
+
+<<[amend.api.use]
 
 ## License
 
