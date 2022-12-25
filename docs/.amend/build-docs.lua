@@ -28,10 +28,15 @@ local config = {
     }
 }
 
-docgen = docs.core(config) -- FIXME needs to be global (see markdown/document.lua)
+docgen = docs.core(config)
 docgen:parseall() 
 docgen:includeall()
 docgen:runmacros()
 docgen:resolveall()
 docgen:write()
 
+print("CWD", fs.currentdir())
+if fs.exists("../../fromsawa.github.io/amend") then
+    message(NOTICE, "updating fromsawa.github.io/amend/index.html")
+    os.command("pandoc -f markdown -t html --standalone --metadata title=Amend amend/index.md -o ../../fromsawa.github.io/amend/index.html")
+end
