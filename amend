@@ -20,9 +20,6 @@ Options:
 ]]
 }
 
---[[>>[amend.copyright] Copyright
-Copyright (C) 2021-2022 Yogev Sawa
-]]--
 --[[>>[amend.license] License
 
 ## UNLICENSE
@@ -51,7 +48,6 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
 For more information, please refer to <http://unlicense.org/>
-
 ]]
 setmetatable(
     usage,
@@ -90,7 +86,7 @@ Usage:
     }
 )
 
--- >>[amend.api.lua.package] Lua ''package'' extensions.
+-- >>[amend.api.lua.package] ''package'' extensions.
 --
 -- **Note**:<br/>
 -- In addition to standard [Lua](https://github.com/lua/lua/blob/master/luaconf.h) conventions,

@@ -11,6 +11,9 @@ local function parse(thefile)
     message(INFO, "parsing Lua source in %q...", thefile.origin)
     local src = M.source()
     src:parse(thefile)
+    if thefile.origin == "examples/copyright/copyright.lua" then
+        io.dump(src)
+    end
     return src
 end
 

@@ -6,7 +6,7 @@ Source code revision tool.
 
 A lot of software is accompanied by additional developer tools to update or check
 certain features of the source code. This may, for example, include updating a date,
-such as in the copyright notice. In other examples the developer is required to "grep"
+such as in the copyright notice. In other cases the developer is required to "grep"
 through multiple source files to ensure correct order of elements (such as is the
 case in the [Lua](https://www.lua.org) [source code](https://github.com/lua), for example
 the ''OP'' [order](https://github.com/lua/lua/blob/master/lopcodes.h)) — a task fit for
@@ -20,12 +20,17 @@ and, therefore, disclose it to the public.
 
 ## Installation
 
-On systems where symbolic links can be used, a symbolic link to the 'amend' command
-is sufficient. Otherwise the environment variable ''AMENDDIR'' may be set accordingly.
+TODO
+
+## Overview
+
+TODO
+
+## Examples
+
+<<[amend.example]
 
 ## API
-
-<<[amend.api.version]
 
 ### Globals
 
@@ -48,17 +53,13 @@ is sufficient. Otherwise the environment variable ''AMENDDIR'' may be set accord
 <<[amend.api.logging]
 <<[amend.api.util]
 
-### Lua extensions
+### [amend.api.lua] Lua extensions
 
 <<[amend.api.lua]
 
-### Tools
+### [amend.api.use] Tools
 
 <<[amend.api.use]
-
-## License
-
-<<[amend.copyright]
 
 <<[amend.license] 
 

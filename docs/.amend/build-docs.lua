@@ -33,10 +33,10 @@ docgen:parseall()
 docgen:includeall()
 docgen:runmacros()
 docgen:resolveall()
+io.dump(docgen, { key = 'docgen', file = "/tmp/docgen.lua"})
 docgen:write()
 
-print("CWD", fs.currentdir())
 if fs.exists("../../fromsawa.github.io/amend") then
     message(NOTICE, "updating fromsawa.github.io/amend/index.html")
-    os.command("pandoc -f markdown -t html --standalone --metadata title=Amend amend/index.md -o ../../fromsawa.github.io/amend/index.html")
+    os.command("pandoc -f markdown -t html --standalone --template template.html amend/index.md -o ../../fromsawa.github.io/amend/index.html")
 end

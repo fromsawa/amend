@@ -6,7 +6,7 @@ Source code revision tool.
 
 A lot of software is accompanied by additional developer tools to update or check
 certain features of the source code. This may, for example, include updating a date,
-such as in the copyright notice. In other examples the developer is required to "grep"
+such as in the copyright notice. In other cases the developer is required to "grep"
 through multiple source files to ensure correct order of elements (such as is the
 case in the [Lua](https://www.lua.org) [source code](https://github.com/lua), for example
 the ''OP'' [order](https://github.com/lua/lua/blob/master/lopcodes.h)) — a task fit for

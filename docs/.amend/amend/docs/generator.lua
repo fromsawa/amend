@@ -43,14 +43,15 @@ end
 
 function core:__dump(options)
     options.key = options.key or "docs"
-    options.visited = options.visited or {}
-    options.visited[self.config] = true
-    options.visited[self.files] = true
+    -- options.visited = options.visited or {}
+    -- options.visited[self.config] = true
+    -- options.visited[self.files] = true
     -- options.visited[self.parsed] = true
     io.dump(self, options)
 end
 
 function core:read(path, language)
+    message(STATUS, 'reading %q', path)
     local workdir = self.config.input.directory
     local strip = self.config.input.strip
 
@@ -104,6 +105,8 @@ function core:readall()
 
             if M.extension[extension] then
                 self:read(path, extension)
+            else
+                message(STATUS, 'ignoring %q', path)
             end
         end,
         {
@@ -192,23 +195,27 @@ function core:includeall()
     end
 
     -- do the including (top to bottom)
-    local function make(id)
+    local function make(id, node)
         local node = namespace(worklist, id)
 
         message(INFO, "creating document %q", id)
         local md = M.markdown.document()
         md.id = id
 
-        -- FIXME sort!
-        for _, n in pairs(node) do
-            assert(#n == 1)
-            local refid = n[1]
-            local refdoc = documents[refid]
-            assert(refdoc ~= nil)
-            tinsert(md, refdoc)
-            documents[refid] = nil
+        if node then
+            -- FIXME sort!
+            for _, n in pairs(node) do
+                assert(#n == 1)
+                local refid = n[1]
+                local refdoc = documents[refid]
+                assert(refdoc ~= nil)
+                tinsert(md, refdoc)
+                documents[refid] = nil
+            end
+            node[1] = id
+        else
+            message(WARNING, "document %q is empty", id)
         end
-        node[1] = id
         documents[id] = md
     end
 
@@ -263,7 +270,7 @@ function core:includeall()
                             local refdoc = documents[refid]
 
                             if not refdoc then
-                                refdoc = make(refid)
+                                refdoc = make(refid, node)
                             -- M.notice(ERROR, reference.origin, "document does not exist")
                             end
 
@@ -366,8 +373,6 @@ function core:write()
     emit(self.output)
 
     fs.popd(path)
-    -- io.dump(output)
-    -- docgen.parsed["docs/index.in.md"]:write("/tmp/index.md")
 end
 --}
 

@@ -2,12 +2,10 @@
     Copyright (C) 2022 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
-local M = require "amend.docs.__module"
+local M = require "amend.docs.__module" --
 
 --[[>>[amend.api.docs.api.stream] Streams and context.
-]] --
-
-local mtype = math.type
+]] local mtype = math.type
 local tinsert = table.insert
 local tremove = table.remove
 local strformat = string.format
@@ -178,7 +176,12 @@ function line:__tostring(options)
 end
 
 function line:__dump(options)
-    options.stream:write("[[", self.text, "]]")
+    local text = self.text
+    local line = self.origin.line
+    local column = self.origin.column
+
+    local out = strformat("--[[%3d:%d]] [=[%s]=]", line, column, text)
+    options.stream:write(out)
 end
 --}
 

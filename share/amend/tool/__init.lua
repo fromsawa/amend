@@ -7,12 +7,9 @@
 
 FIXME
 
-
-## API
-
-<<[.cmake]
-<<[.git]
-<<[.cxx]
+<<[amend.api.use.cmake]
+<<[amend.api.use.git]
+<<[amend.api.use.cxx]
 --]===] --
 
 local M = {}
@@ -93,7 +90,7 @@ for _, p in ipairs(paths) do
                     M[name] = lib
                 end
             end, {
-                exclude = {".", "..", "init.lua"}
+                exclude = {".", "..", "init.lua", "__init.lua"}
             })
         end
     end

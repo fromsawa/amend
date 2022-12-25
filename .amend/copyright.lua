@@ -1,6 +1,12 @@
 #!copyright [<year>] -- update source copyright
 message "Updating copyrights..."
 
+--[[>>[amend.example.copyright] Updating the copyright.
+
+TODO
+
+]]
+
 local symbol = "(C)" -- copyright symbol
 local pattern = {"Yogev Sawa"} -- author pattern(s)
 local year = tonumber(OPTIONS[1] or os.date("%Y")) -- current year

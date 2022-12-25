@@ -8,6 +8,7 @@
 
 local stdout = io.stdout
 local sformat = string.format
+local tconcat = table.concat
 
 --- `io.printf(...)`
 -- Equivalent to C's ''printf''
@@ -63,17 +64,20 @@ local function getkeys(t, index_last)
         table.insert(keys, k)
     end
 
-    table.sort(keys, function(a, b)
-        local ta, tb = math.type(a) or type(a), math.type(b) or type(b)
-        if ta == tb then
-            return a < b
-        else
-            ta = prec[ta] or prec.any
-            tb = prec[tb] or prec.any
+    table.sort(
+        keys,
+        function(a, b)
+            local ta, tb = math.type(a) or type(a), math.type(b) or type(b)
+            if ta == tb then
+                return a < b
+            else
+                ta = prec[ta] or prec.any
+                tb = prec[tb] or prec.any
 
-            return ta < tb
+                return ta < tb
+            end
         end
-    end)
+    )
 
     return keys
 end
@@ -94,25 +98,29 @@ local function io_dump(value, options)
     local always_index = options.index
     local visited = options.visited
     local nocomma = options.nocomma
+    local root = options.root
 
     local format = options.format or {}
     local fmt_integer = format.integer or "%d"
     local fmt_number = format.number or "%g"
 
-    local function findobj(obj, tbl, res)
+    local function findobj(obj, tbl, res, visited)
+        visited =
+            visited or
+            {
+                [_G.package] = true
+            }
+
         for k, v in pairs(tbl) do
-            if v ~= _G.package then
+            if not visited[v] then
                 if v == obj then
                     table.insert(res, k)
                     return true
-                elseif type(v) == 'table' then
-                    if v == _G then
-                        return false
-                    end
-
+                elseif type(v) == "table" then
+                    visited[v] = true
                     table.insert(res, k)
 
-                    if findobj(obj, v, res) then
+                    if findobj(obj, v, res, visited) then
                         return true
                     end
 
@@ -168,8 +176,15 @@ local function io_dump(value, options)
     local t = type(value)
     if t == "table" then
         if visited[value] then
-            -- FIXME 
-            stream:write("@")
+            local name = {"@" .. options.root.key}
+            if not findobj(options.root.value, value, name) then
+                name = {"_G"}
+                if not findobj(_G, value, name) then
+                    name = {"@"}
+                end
+            end
+
+            stream:write(tconcat(name, "."))
         else
             visited[value] = true
 
@@ -183,17 +198,21 @@ local function io_dump(value, options)
             if mt and mt.__dump and not options.nodump then
                 visited[value] = false
 
-                mt.__dump(value, {
-                    indent = indent,
-                    level = level,
-                    stream = stream,
-                    format = format,
-                    quoted = quoted,
-                    always_index = always_index,
-                    visited = visited,
-                    nocomma = false,
-                    nodump = true
-                })
+                mt.__dump(
+                    value,
+                    {
+                        indent = indent,
+                        level = level,
+                        stream = stream,
+                        format = format,
+                        quoted = quoted,
+                        always_index = always_index,
+                        visited = visited,
+                        root = root,
+                        nocomma = false,
+                        nodump = true
+                    }
+                )
             elseif isempty then
                 stream:write("{}")
             else
@@ -202,28 +221,36 @@ local function io_dump(value, options)
                 local ks = getkeys(value, isobject(value))
                 for i, k in ipairs(ks) do
                     if math.type(k) == "integer" and k >= 1 and k <= #value and not always_index then
-                        io_dump(value[k], {
-                            indent = indent,
-                            level = level + 1,
-                            stream = stream,
-                            format = format,
-                            quoted = quoted,
-                            always_index = always_index,
-                            visited = visited,
-                            nocomma = (i == #ks)
-                        })
+                        io_dump(
+                            value[k],
+                            {
+                                indent = indent,
+                                level = level + 1,
+                                stream = stream,
+                                format = format,
+                                quoted = quoted,
+                                always_index = always_index,
+                                visited = visited,
+                                root = root,
+                                nocomma = (i == #ks)
+                            }
+                        )
                     else
-                        io_dump(value[k], {
-                            key = k,
-                            indent = indent,
-                            level = level + 1,
-                            stream = stream,
-                            format = format,
-                            quoted = quoted,
-                            always_index = always_index,
-                            visited = visited,
-                            nocomma = (i == #ks)
-                        })
+                        io_dump(
+                            value[k],
+                            {
+                                key = k,
+                                indent = indent,
+                                level = level + 1,
+                                stream = stream,
+                                format = format,
+                                quoted = quoted,
+                                always_index = always_index,
+                                visited = visited,
+                                root = root,
+                                nocomma = (i == #ks)
+                            }
+                        )
                     end
                 end
 
@@ -280,6 +307,7 @@ end
 -- The ''options'' is a table, that may contain the following fields:
 --
 --      stream          Output stream (default: io.stdout).
+--      file            Output file name.
 --      indent          Indentation string.
 --      level           Indentation level.
 --      key             Table key.
@@ -290,11 +318,20 @@ function io.dump(value, options)
     -- defaults
     options = options or {}
     options.stream = options.stream or io.stdout
+    if options.file then
+        options.stream = assert(io.open(options.file, "w"))
+    end
     options.indent = options.indent or "    "
     options.level = options.level or 0
     options.format = options.format or {}
     options.nocomma = (options.level == 0)
     options.visited = options.visited or {}
+
+    options.root = {
+        -- internal
+        value = value,
+        key = options.key or ""
+    }
 
     -- prefix (if applicable)
     if options.prefix then
@@ -305,7 +342,10 @@ function io.dump(value, options)
     end
 
     -- dump
-    return io_dump(value, options)
+    local retval = io_dump(value, options)
+    if options.file then
+        options.stream:close()
+    end
 end
 
 --- `io.readall(fname)`

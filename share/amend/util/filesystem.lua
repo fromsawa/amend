@@ -234,11 +234,16 @@ end
 local function __dodir(fname, callback, options, first)
     -- get file attributes
     local attr = symlinkattributes(fname)
-    if attr.target and not options.follow then
-        return
+    if attr.target then
+        attr.mode = attributes(fname).mode
     end
+
     local mode = attr.mode
     local isdir = mode == "directory"
+
+    if attr.target and isdir and not options.follow then
+        return
+    end
     local path, file, extension = parts(fname)
 
     -- check conditions (to execute callback)
@@ -391,7 +396,7 @@ end
 --- `fs.which(executable)`
 --
 -- Get full path to an executable.
--- 
+--
 local function which(executable)
     -- FIXME windows
     local sep = ":"
@@ -412,7 +417,7 @@ end
 --      [options]   Options (last argument).
 --
 -- Touch all files, ensuring same access and modification time.
--- 
+--
 -- FIXME options
 --
 local function touchall(...)
