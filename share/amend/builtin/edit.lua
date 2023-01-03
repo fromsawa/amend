@@ -1,5 +1,5 @@
 --[[
-    Copyright (C) 2022 Yogev Sawa
+    Copyright (C) 2022-2023 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
 --[[
@@ -10,53 +10,47 @@ local tinsert = table.insert
 local function sed(fname, pattern, replace, opts)
     message(TRACE, "sed(%q,%q,%q)", fname, pattern, replace)
 
-    local outname = fname .. ".amend-tmp"
-    local dryrun = opts.dryrun
+    local dryrun = opts.dryrun -- FIXME not supported
+
+    local output = {}
+    local modified
 
     local ins = assert(io.open(fname))
-    local outs
-    local modified 
     if dryrun then
         modified = {}
-    else
-        outs = assert(io.open(outname, "wb"))
-    end
-
-    for line in ins:lines() do
-        if line:match(pattern) then
-            local rep = line:gsub(pattern, replace)
-            if dryrun then
+        for line in ins:lines() do
+            if line:match(pattern) then
+                local rep = line:gsub(pattern, replace)
                 tinsert(modified, {[fname] = {line, rep}})
-            else
-                outs:write(rep, "\n")
+            end
+        end
+    else
+        local ins = assert(io.open(fname))
+        for line in ins:lines() do
+            if line:match(pattern) then
+                tinsert(output, line:gsub(pattern, replace))
                 modified = true
-            end
-        else
-            if not dryrun then
-                outs:write(line, "\n")
+            else
+                tinsert(output, line)
             end
         end
     end
-
     ins:close()
-    if outs then
-        outs:close()
-        if modified then
-            -- FIXME copy permissions
-            fs.rename(outname, fname)
-        else
-            fs.remove(outname)
-        end
-    end
 
     if dryrun then
-        for _,t in ipairs(modified) do
+        for _, t in ipairs(modified) do
             local fname, diff = next(t)
 
             message(INFO, "%s", fs.relpath(fname, ROODIR))
             message(INFO, "--- %s", diff[1])
             message(INFO, "+++ %s", diff[2])
         end
+    else
+        local outs = assert(io.open(fname, "w+b"))
+        for _, line in ipairs(output) do
+            outs:write(line, '\n')
+        end
+        outs:close()
     end
 end
 
