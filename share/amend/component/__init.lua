@@ -1,5 +1,5 @@
 --[[
-    Copyright (C) 2022 Yogev Sawa
+    Copyright (C) 2022-2023 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
 
@@ -230,7 +230,9 @@ local function run(name)
     -- run requested
     local wasrun = false
     for _, t in ipairs(COMPONENTS) do
-        if t.name == name then
+        if name == 'default' then
+            wasrun = true
+        elseif name == t.name then
             message(TRACE, '    REQUEST: %s', t.name)
             _run(t)
             wasrun = true

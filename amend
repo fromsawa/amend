@@ -16,6 +16,7 @@ Options:
     --help                       show this help
     --version                    show amend version
     --verbose=value              set verbosity (use help for a list)
+    --update,-u                  enforce project file update
     <component> [arguments]      execute a component or command
 ]]
 }
@@ -86,9 +87,9 @@ Usage:
     }
 )
 
--- >>[amend.api.lua.package] ''package'' extensions.
+-->>[amend.api.lua.package] ''package'' extensions.
 --
--- **Note**:<br/>
+-- @note
 -- In addition to standard [Lua](https://github.com/lua/lua/blob/master/luaconf.h) conventions,
 -- here, also the ''?/__init.lua'' file is searched.
 --
@@ -148,7 +149,7 @@ package_meta.__index = package_meta
 setmetatable(package, package_meta)
 --}
 
--- >>[amend.api.globals]
+-->>[amend.api.globals]
 --
 -- The following global variables are set or determined at startup:
 --
@@ -298,7 +299,7 @@ OPTIONS.interpreter = arg[-1]
 OPTIONS.invocation = arg[0]
 
 if #opts == 0 then
-    OPTIONS.component = "all"
+    OPTIONS.component = "default"
 else
     for i, k in ipairs(opts) do
         if i == 1 then
