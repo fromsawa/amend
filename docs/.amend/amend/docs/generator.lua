@@ -15,6 +15,7 @@ local tmake = table.make
 local thas = table.has
 local tcount = table.count
 local kpairs = table.kpairs
+local tsort = table.sort
 local tconcat = table.concat
 local tunpack = table.unpack
 local cindex = class.index
@@ -51,7 +52,7 @@ function core:__dump(options)
 end
 
 function core:read(path, language)
-    message(STATUS, 'reading %q', path)
+    message(STATUS, "reading %q", path)
     local workdir = self.config.input.directory
     local strip = self.config.input.strip
 
@@ -106,7 +107,7 @@ function core:readall()
             if M.extension[extension] then
                 self:read(path, extension)
             else
-                message(STATUS, 'ignoring %q', path)
+                message(STATUS, "ignoring %q", path)
             end
         end,
         {
@@ -128,7 +129,7 @@ function core:parse(id, thefile)
 
     local lang = M.extension[thefile.language]
 
-    self.parsed[id] = lang.parse(thefile)
+    self.parsed[id] = lang.parse(self, thefile)
 end
 
 function core:parseall()
@@ -196,27 +197,41 @@ function core:includeall()
 
     -- do the including (top to bottom)
     local function make(id, node)
-        local node = namespace(worklist, id)
+        local ns = namespace(worklist, id)
 
         message(INFO, "creating document %q", id)
         local md = M.markdown.document()
         md.id = id
 
-        if node then
-            -- FIXME sort!
-            for _, n in pairs(node) do
-                assert(#n == 1)
+        if ns then
+            -- sort keys
+            local keys = {}
+            for k, _ in pairs(ns) do
+                tinsert(keys, k)
+            end
+            -- FIXME should sort by heading...
+            tsort(keys)
+
+            -- loop over keys
+            for _, k in ipairs(keys) do
+                local n = ns[k]
                 local refid = n[1]
+                if not refid then
+                    refid = id .. "." .. k
+                    make(refid, ns)
+                end
                 local refdoc = documents[refid]
                 assert(refdoc ~= nil)
                 tinsert(md, refdoc)
                 documents[refid] = nil
             end
-            node[1] = id
+            ns[1] = id
         else
             message(WARNING, "document %q is empty", id)
         end
+
         documents[id] = md
+        return md
     end
 
     local function include(node)
@@ -271,7 +286,6 @@ function core:includeall()
 
                             if not refdoc then
                                 refdoc = make(refid, node)
-                            -- M.notice(ERROR, reference.origin, "document does not exist")
                             end
 
                             -- do the include

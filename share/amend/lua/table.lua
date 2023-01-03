@@ -120,7 +120,8 @@ local function tmerge(t, other)
 end
 table.merge = tmerge
 
---- Create a new table from many.
+--- `table.make(...)`
+-- Create a new table from many.
 --
 local function tmake(...)
     local res = {}

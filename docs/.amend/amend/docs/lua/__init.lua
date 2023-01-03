@@ -7,13 +7,10 @@ local M = require "amend.docs.lua.__module"
 
 require "amend.docs.lua.source"
 
-local function parse(thefile)
+local function parse(core, thefile)
     message(INFO, "parsing Lua source in %q...", thefile.origin)
-    local src = M.source()
+    local src = M.source(core)
     src:parse(thefile)
-    if thefile.origin == "examples/copyright/copyright.lua" then
-        io.dump(src)
-    end
     return src
 end
 

@@ -87,13 +87,12 @@ Usage:
     }
 )
 
--->>[amend.api.lua.package] ''package'' extensions.
+-->>[amend.api.lua.package] `package`
 --
 -- @note
 -- In addition to standard [Lua](https://github.com/lua/lua/blob/master/luaconf.h) conventions,
--- here, also the ''?/__init.lua'' file is searched.
+-- here, also the /?/__init.lua/ file is searched.
 --
---{
 local dirsep = package.config:sub(1, 1)
 local pathsep = package.config:sub(3, 3)
 local modulemark = package.config:sub(5, 5)
@@ -147,7 +146,6 @@ local package_meta = {
 }
 package_meta.__index = package_meta
 setmetatable(package, package_meta)
---}
 
 -->>[amend.api.globals]
 --

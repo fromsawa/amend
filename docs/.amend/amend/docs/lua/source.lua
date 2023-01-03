@@ -44,16 +44,13 @@ local source =
     class(M) "source" {
     __inherit = {},
     __public = {
-        options = {},
+        core = void,
         documents = {}
     }
 }
 
-function source:__init(options)
-    -- md.source.__init(self, options)
-    for k, v in pairs(options or {}) do
-        self.options[k] = v
-    end
+function source:__init(core)
+    self.core = core
 end
 
 function source:parse(stream)
@@ -64,6 +61,12 @@ function source:parse(stream)
     local function handle_fragment()
         if not thedoc then
             docs.notice(ERROR, fragment[1].origin, "comment is not associated with a document")
+        end
+
+        -- level up/down
+        local levelup = fragment[#fragment]:re("^%s-{%s*$")
+        if levelup then
+            tremove(fragment, #fragment)
         end
 
         -- parse the fragment
@@ -82,15 +85,12 @@ function source:parse(stream)
             end
         end
 
-        -- level up/down
-        local levelup = fragment[#fragment]:re("^%s-{%s*$")
         if levelup then
             if level == 0 then
                 docs.notice(ERROR, levelup.origin, "cannot open a section here")
             end
 
             level = level + 1
-            tremove(fragment, #fragment)
         end
 
         -- clear fragment
@@ -151,7 +151,7 @@ function source:parse(stream)
                     if document then
                         local reference, title = tunpack(document)
 
-                        thedoc = md.document()
+                        thedoc = md.document(self.core)
                         thedoc.id = tostring(reference)
 
                         level = 0
@@ -203,6 +203,8 @@ function source:parse(stream)
                                 docs.notice(ERROR, desc.origin, "no document declared")
                             end
 
+                            -- FIXME commands should not be headings? maybe?
+                            title.text = '⎔ ' .. title.text
                             thedoc:addheading(
                                 level,
                                 {

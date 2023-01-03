@@ -40,8 +40,8 @@ Example:
 
 List:
     --- <heading>.                  Starts a paragraph or section.
-    -- >>[reference]                Generate a document (title follows in next fragment).
-    -- >>[reference] <title>        Generate a document with a title.
+    -->>[reference]                 Generate a document (title follows in next fragment).
+    -->>[reference] <title>         Generate a document with a title.
 
 ### [.annotation] Annotations
 

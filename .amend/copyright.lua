@@ -1,7 +1,7 @@
 #!copyright [<year>] -- update source copyright
 message "Updating copyrights..."
 
---[[>>[amend.example.copyright] Updating the copyright.
+--[[>>[amend.example.copyright] Copyright
 
 TODO
 
@@ -58,6 +58,6 @@ fs.dodir(
 )
 
 --[[
-    Copyright (C) 2022 Yogev Sawa
+    Copyright (C) 2022-2023 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]

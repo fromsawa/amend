@@ -10,7 +10,9 @@ return {
         fs.dodir(
             ROOTDIR,
             function(d)
-                print(d[0])
+                if fs.exists(fs.concat(d[0], '.amend')) then
+                    print(d[0])
+                end
             end,
             {exclude = IGNORE, mode = 'directory', recurse = true}
         )

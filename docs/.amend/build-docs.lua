@@ -7,7 +7,7 @@ local docs = require "amend.docs"
 local config = {
     input = {
         directory = ROOTDIR,
-        strip = {"share/", "docs/.amend/"},
+        strip = {"share/"},
         tabsize = 4
     },
     output = {
@@ -16,7 +16,7 @@ local config = {
     },
     include = {
         patterns = {},
-        directories = {"docs/.amend", "docs/.amend/amend", "docs/.amend/amend/docs"},
+        directories = {},
         files = {
             ["amend"] = {
                 language = ".lua"
@@ -24,19 +24,20 @@ local config = {
         }
     },
     exclude = {
-        patterns = {".vscode", "[.]amend", table.unpack(IGNORE)}
+        patterns = {".vscode", "[.]amend", "docs", table.unpack(IGNORE)}
     }
 }
 
-docgen = docs.core(config)
-docgen:parseall() 
+local docgen = docs.core(config)
+docgen:parseall()
 docgen:includeall()
 docgen:runmacros()
 docgen:resolveall()
-io.dump(docgen, { key = 'docgen', file = "/tmp/docgen.lua"})
 docgen:write()
 
 if fs.exists("../../fromsawa.github.io/amend") then
     message(NOTICE, "updating fromsawa.github.io/amend/index.html")
-    os.command("pandoc -f markdown -t html --standalone --template template.html amend/index.md -o ../../fromsawa.github.io/amend/index.html")
+    os.command(
+        "pandoc -f markdown -t html --standalone --template template.html amend/index.md -o ../../fromsawa.github.io/amend/index.html"
+    )
 end

@@ -8,9 +8,9 @@ local M = require "amend.docs.markdown.__module"
 require "amend.docs.markdown.types"
 require "amend.docs.markdown.document"
 
-local function parse(thefile)
+local function parse(core, thefile)
     message(INFO, "parsing markdown in %q...", thefile.origin)
-    local doc = M.document()
+    local doc = M.document(core)
     doc:parse(thefile)
     return doc
 end

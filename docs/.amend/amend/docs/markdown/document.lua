@@ -47,21 +47,15 @@ local document =
     class(M) "document" {
     __inherit = {docs.node},
     __public = {
-        options = {
-            tabsize = 4
-        },
+        core = void,
         stack = void,
         id = void
     }
 }
 
-function document:__init(options)
+function document:__init(core)
     docs.node.__init(self)
-
-    for k, v in pairs(options or {}) do
-        self.options[k] = v
-    end
-
+    self.core = core
     self.stack = {self}
 end
 
@@ -71,6 +65,7 @@ function document:addheading(level, tbl, context)
 
     assert(level > 0)
 
+    -- go to heading level
     while #stack > level do
         tremove(stack)
     end
@@ -80,8 +75,18 @@ function document:addheading(level, tbl, context)
         docs.notice(ERROR, context, "invalid header (no superior)")
     end
 
+    -- check title text
+    local title = tbl.text
+    if title then
+        local tmp = strtrim(title.text)
+        if tmp:sub(-1, -1) == "." then
+            title.text = tmp:sub(1, -2)
+        end
+    end
+
+    -- create section
     local sec = section()
-    sec.title = tbl.text
+    sec.title = title
     sec.reference = tbl.reference
     sec.context = context
 
@@ -174,7 +179,7 @@ function document:parse(stream)
 
             if reference[1] == '"' then
                 local fname = tostring(reference:sub(2, -2))
-                local include = docgen.files[fname]
+                local include = self.core.files[fname]
                 if not include then
                     docs.notice(ERROR, reference.origin, "file does not exist")
                 end
