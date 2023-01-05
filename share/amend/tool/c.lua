@@ -3,8 +3,8 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] 
 
---[===[>>[amend.api.use.git] C support.
---]===]
+--[===[>>[amend.api.use.c] C support.
+]===]
 local M = {}
 
 -- CONFIG defaults

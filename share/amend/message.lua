@@ -3,7 +3,7 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] 
 
---[[>>[amend.api.logging] Message logging
+--[[>>[amend.api.logging] Logging
 ]] 
 
 local tremove = table.remove
@@ -15,35 +15,41 @@ local printf = function(fmt, ...)
 end
 
 ---  `VERBOSE`
--- Default verbosity level.
+--
+-- The global verbosity level (default: INFO).
 -- 
 VERBOSE = VERBOSE or 2
 
 ---  Verbosity levels.
----  ERROR
+--
+--      ERROR
+--      WARNING
+--      NOTICE
+--      STATUS
+--      INFO
+--      DEBUG
+-- 
 ERROR = {-2}
----  WARNING
 WARNING = {-1}
----  NOTICE
 NOTICE = {0}
----  STATUS
 STATUS = {1}
----  INFO
 INFO = {2}
----  DEBUG
 DEBUG = {3}
----  ERROR
+-- internally used:
 TRACE = {4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
 
---- `message()`
--- @call
---      `message [{<level>}] "<text>"`
---      `message(<level>|<level-name>, "<text>", ...)`
+--- `message(level, fmt, ...)`
 --
 -- Emit an informational message.
 --
+-- @call
+--      `message "<text>"`
+--      `message {<level>} "<text>"`
+--      `message(<level>|<level-name>, fmt, ...)`
+--
 -- @param
--- FIXME
+--      level           The verbosity level (see above).
+--      fmt,...         Format string and arguments.
 --
 function message(...)
     local args = {...}
@@ -91,14 +97,18 @@ function message(...)
             printf(prefix)
         end
 
-        -- FIXME add "[<level>]" to output
         print(sformat(tunpack(args)))
     end
 end
 
---- `verbosity [{<level>}]`
+--- `verbosity(level)`
 --
--- Set verbose level.
+-- Set verbosity level.
+--
+-- @call
+--      `verbosity "<level>"`
+--      `verbosity {<level>}`
+--      `verbosity(level)`
 --
 function verbosity(level)
     local known = {

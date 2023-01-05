@@ -30,10 +30,8 @@ local config = {
 
 local docgen = docs.core(config)
 docgen:parseall()
-docgen:includeall()
-docgen:runmacros()
-docgen:resolveall()
-docgen:write()
+docgen:processall()
+docgen:writeall()
 
 if fs.exists("../../fromsawa.github.io/amend") then
     message(NOTICE, "updating fromsawa.github.io/amend/index.html")

@@ -6,6 +6,8 @@
 
 Amend provides several utilities for editing files.
 
+FIXME
+
 ]]
 local mod = {}
 

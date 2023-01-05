@@ -349,14 +349,12 @@ function core:includeall()
     self.output = worklist
 end
 
-function core:runmacros()
-    -- FIXME
+function core:processall()
+    self:includeall()
+    -- FIXME resolve links
 end
 
-function core:resolveall()
-end
-
-function core:write()
+function core:writeall()
     local output = self.output
     local directory = self.config.output.directory
     local rootdir = self.config.input.directory

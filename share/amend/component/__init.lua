@@ -15,7 +15,7 @@ where the 'indicator' is
     *           The component is always executed (even if option 'all' is not used).
     _           This defines a "hidden" component (which is only executed as dependency).
 
-If the <indicator> is omitted, the component behaves like a command and is executed only on 
+If the \<indicator\> is omitted, the component behaves like a command and is executed only on 
 explicit request.
 
 Example:
@@ -43,8 +43,10 @@ local tconcat = table.concat
 local tunpack = table.unpack
 local sformat = string.format
 
---- `help()`
+--- `component.help()`
+--
 -- Print components help.
+--
 local function help()
     printf("Builtins:\n")
     for _, v in ipairs(COMPONENTS) do
@@ -72,7 +74,6 @@ local function help()
     end
 end
 
---- `shebang()`
 -- Get parsed "shebang" from file.
 local function shebang(fname)
     for line in io.lines(fname) do
@@ -89,7 +90,6 @@ local function shebang(fname)
     end
 end
 
---- `scandir()`
 -- Scan users '.amend' dir.
 local function scandir(dname)
     fs.dodir(
@@ -154,7 +154,8 @@ local function scandir(dname)
     )
 end
 
---- `find()`
+--- `component.find()`
+--
 -- Find all components in the project tree.
 --
 local function find()
@@ -172,7 +173,6 @@ local function find()
     )
 end
 
---- `_run()`
 -- Run the component (if not yet done)
 local function _run(t)
     if not t.done then
@@ -214,8 +214,10 @@ local function _run(t)
     end
 end
 
---- `run()`
+--- `component.run(name)`
+--
 -- Run a "component".
+--
 local function run(name)
     message(TRACE, "COMPONENT run(%s)", name)
 
@@ -248,7 +250,9 @@ Use 'help' for more information.
 end
 
 --- `depends '<name>'`
+--
 -- Include a dependecy.
+--
 function depends(name)
     message(TRACE, 'depends(%s)', name)
     for _, c in ipairs(COMPONENTS) do

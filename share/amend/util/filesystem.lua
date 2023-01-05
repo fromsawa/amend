@@ -31,9 +31,12 @@ local mkdir = fs.mkdir
 local touch = fs.touch
 
 --- `fs.exists(filename)`
+--
 -- Check if file exists.
+--
 -- @param
 --      filename        Path or file-name to check.
+--
 -- @returns
 --      ''true'' if file or path exists, ''false'' otherwise.
 --
@@ -42,7 +45,9 @@ local function exists(filename)
 end
 
 --- `fs.isnewer(file, another)`
+--
 -- Check if a ''file'' is newer than ''another''.
+--
 -- @returns
 --      ''nil'' if `file` does not exist,
 --      ''true'' if `file` is newer or `another` does not exist,
@@ -62,9 +67,8 @@ local function isnewer(file, another)
 end
 
 --- `fs.anynewer(file, ...)`
--- Check if any other file is newer than `file`.
 --
--- FIXME
+-- Check if any other file is newer than `file`.
 --
 local function anynewer(file, ...)
     if exists(file) then
@@ -86,7 +90,9 @@ local function anynewer(file, ...)
 end
 
 --- `fs.concat(...)`
+--
 -- Concatenate path elements.
+--
 -- @param
 --      ...             List of path elements.
 -- @returns
@@ -97,10 +103,12 @@ local function concat(...)
 end
 
 --- `fs.parts(fname)`
+--
 -- Get parts of a file name (path, file and extension).
+--
 -- @param
 --      fname           The file- or path-name.
--- @returns <path>,<file-name>,<extension>
+-- @returns \<path\>,\<file-name\>,\<extension\>
 --
 local function parts(fname)
     -- see https://stackoverflow.com/questions/5243179/what-is-the-neatest-way-to-split-out-a-path-name-into-its-components-in-lua/12191225
@@ -125,11 +133,13 @@ local function parts(fname)
 end
 
 --- `fs.relpath(path, root)`
+--
 -- Get relative path with respect to a "root".
+--
 -- @param
 --      path            The 'path' to split.
 --      root [optional] The root path.
--- @returns <relative-path>
+-- @returns \<relative-path\>
 --
 local function relpath(path, root)
     -- prepare "root"
@@ -164,7 +174,9 @@ local function wildtorx(s)
 end
 
 --- `fs.readwild(file, tbl)`
+--
 -- Read a wildcard pattern file.
+--
 -- @param
 --      file                The file name (containing wildcard patterns and comments).
 --      tbl [optional]      Existing table (with regex patterns).
@@ -190,7 +202,9 @@ local function readwild(file, tbl)
 end
 
 --- `fs.dodir(path, callback, options)`
+--
 -- Execute a function for each directory element possibly recursively.
+--
 -- @param
 --      path                    The path to iterate over.
 --      callback                Callback function for elements (must return true for recursion).
@@ -209,6 +223,7 @@ end
 -- The callback may return a boolean value overriding option ''recurse''.
 --
 -- Options:
+--
 --      exclude             List of regex-patterns of files or directories to ignore (default: {'[.]', '[.][.]'}).
 --      include             List of regex-patterns of files or directories to include (overrides 'exclude').
 --      directories         Additional directories to search.
@@ -336,6 +351,7 @@ setmetatable(
 )
 
 --- `fs.pushd(dir)`
+--
 -- "Push" directory.
 --
 -- Equivalent of shell command ''pushd''.
@@ -346,6 +362,7 @@ local function pushd(dir)
 end
 
 --- `fs.popd()`
+--
 -- "Pop" directory.
 --
 -- Equivalent of shell command ''popd''.
@@ -356,11 +373,12 @@ local function popd()
 end
 
 --- `fs.rmkdir(fpath)`
+--
 -- Recursively create directory.
+--
 -- @param
 --      fpath       The directory-path to create.
--- @returns <status>[, <error-message>]
---      The value of LuaFilesystem's [mkdir](https://keplerproject.github.io/luafilesystem/manual.html#mkdir) command.
+-- @returns \<status\>[, \<error-message\>]
 --
 local function rmkdir(fpath)
     local parent = parts(fpath)
@@ -375,6 +393,7 @@ local function rmkdir(fpath)
 end
 
 --- `fs.grep(fname, pattern)`
+--
 -- Grep-like matching
 --
 local function grep(fname, pattern)
@@ -386,8 +405,9 @@ local function grep(fname, pattern)
 end
 
 --- `fs.filetype(fname)`
+--
 -- Get file type (from extension).
--- FIXME
+--
 local function filetype(fname)
     local _, _, ext = parts(fname)
     return EXTENSIONS[ext]
@@ -412,11 +432,12 @@ local function which(executable)
 end
 
 --- `fs.touch(...)`
--- @args
---      files...    File names to touch.
---      [options]   Options (last argument).
 --
 -- Touch all files, ensuring same access and modification time.
+--
+-- @param
+--      files...    File names to touch.
+--      [options]   Options (last argument).
 --
 -- FIXME options
 --
@@ -446,6 +467,7 @@ end
 --- `fs.fullpath(path)`
 --
 -- Retrieve full path of a possibly relative `path`.
+--
 local function fullpath(path)
     local dir, file = parts(path)
     return concat(fulldir(dir), file)

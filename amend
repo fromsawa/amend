@@ -87,11 +87,11 @@ Usage:
     }
 )
 
--->>[amend.api.lua.package] `package`
+-->>[amend.api.lua.package] `package` library
 --
 -- @note
--- In addition to standard [Lua](https://github.com/lua/lua/blob/master/luaconf.h) conventions,
--- here, also the /?/__init.lua/ file is searched.
+-- In addition to standard [Lua](https://github.com/lua/lua/blob/master/luaconf.h) 
+-- conventions, here, also the `?/__init.lua` file is searched.
 --
 local dirsep = package.config:sub(1, 1)
 local pathsep = package.config:sub(3, 3)
@@ -134,7 +134,7 @@ local package_meta = {
     end,
     --- `package:poppath()`
     --
-    --- Remove previously added script search path.
+    -- Remove previously added script search path.
     --
     poppath = function(_)
         local n = #package_path_stack

@@ -3,8 +3,8 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] 
 
---[===[>>[amend.api.use.cxx] C++ support.
---]===]
+--[===[>>[amend.api.use.cxx] CXX support
+]===]
 local M = {}
 
 -- CONFIG defaults

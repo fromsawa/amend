@@ -20,6 +20,8 @@ and, therefore, disclose it to the public.
 
 ## Overview
 
+TODO
+
 ## Installation
 
 The `amend` software is intended to be installed either as a sub-module in an existing
@@ -59,10 +61,6 @@ must be run.
 ### Examples
 
 <<[amend.example]
-
-<<[amend.tools]
-
-<<[amend.license]
 
 # API
 

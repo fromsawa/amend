@@ -4,13 +4,11 @@
 ]] --
 
 --[===[>>[amend.api.use] External tools.
-
-FIXME
-
 <<[amend.api.use.cmake]
 <<[amend.api.use.git]
+<<[amend.api.use.c]
 <<[amend.api.use.cxx]
---]===] --
+]===] --
 
 local M = {}
 

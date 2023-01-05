@@ -39,7 +39,9 @@ local tokey = M.tokey
 local tovalue = M.tovalue
 
 --- `isdocument()`
+--
 -- Check if start of document.
+--
 -- @returns boolean, name
 local function isdocument(line)
     local tag, name = line:match("^([^ ]+)[ ]*(.*)$")
@@ -54,6 +56,7 @@ local function isdocument(line)
 end
 
 --- `splitindent()`
+--
 -- Split of indentation
 --
 local function splitindent(line)
@@ -63,12 +66,15 @@ local function splitindent(line)
 end
 
 --- `unindent()`
+--
 -- Unindent.
+--
 local function unindent(line, n)
     return line:sub(n + 1)
 end
 
 --- `checkindent()`
+--
 -- Check indentation
 --
 local function checkindent(iter)
@@ -101,6 +107,7 @@ end
 --{
 local import_mt = {
     --- `setup`
+    --
     -- Setup importer.
     --
     setup = function(self, opts)
@@ -114,6 +121,7 @@ local import_mt = {
         self._compat = opts.compat -- YAML compatibility
     end,
     --- `error`
+    --
     -- Emit error message.
     --
     error = function(self, fmt, ...)
@@ -122,6 +130,7 @@ local import_mt = {
         error(where .. txt, 2)
     end,
     --- `assert`
+    --
     -- Formatted assertion.
     --
     assert = function(self, expr, fmt, ...)
@@ -136,7 +145,9 @@ local import_mt = {
         end
     end,
     --- `next`
+    --
     -- Get next line.
+    --
     -- @returns <level>, "<content>"
     next = function(self)
         local line = self._iter()
@@ -149,7 +160,9 @@ local import_mt = {
         end
     end,
     --- `literal`
+    --
     -- Get next "literal" line.
+    --
     -- @param
     --      n       Spaces count.
     -- @returns <content>
@@ -180,7 +193,9 @@ local import_mt = {
         return tconcat(value, "\n") .. "\n", next, content
     end,
     --- `parse`
+    --
     -- Parse elements in current context (ie. indentation level).
+    --
     -- @param
     --      level       Current indentation level.
     --      content     Current line content.
@@ -396,7 +411,9 @@ local import_mt = {
         return next, content
     end,
     --- `run`
+    --
     -- Run the importer.
+    --
     --
     run = function(self)
         -- check if file starts with a document
@@ -439,6 +456,7 @@ import_mt.__index = import_mt
 
 -- [[ MODULE ]]
 --- Import data.
+--
 -- @param
 --      [opts]  Import options (FIXME).
 --

@@ -2,7 +2,7 @@
     Copyright (C) 2022-2023 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[>>[amend.api.lua.string] String library extensions.
+--[[>>[amend.api.lua.string] `string` library
 ]]
 --- `string.any(s, tbl, exact)`
 -- Match elements from a table.

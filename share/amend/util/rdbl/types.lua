@@ -3,9 +3,6 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
 --[[>>[amend.api.util.rdbl.types] Types.
-
-FIXME
-
 ]] --
 local M = require "amend.util.rdbl.version"
 
@@ -22,6 +19,7 @@ local utf8codes = utf8.codes
 local utf8char = utf8.char
 
 --- `ORDER`
+--
 -- Element order.
 --
 -- FIXME
@@ -30,6 +28,7 @@ local ORDER = {}
 M.ORDER = ORDER
 
 --- `NULL`
+--
 -- Non-destructive ''nil''.
 --
 -- Empty values, are represented as 'null', otherwise, in Lua,
@@ -39,6 +38,7 @@ local NULL = {}
 M.NULL = NULL
 
 --- `isnull`
+--
 -- Check if 'null'.
 --
 local function isnull(t)
@@ -47,6 +47,7 @@ end
 M.isnull = isnull
 
 --- `isinteger`
+--
 --  Check if value is an integer.
 --
 local function isinteger(x)
@@ -55,7 +56,9 @@ end
 M.isinteger = isinteger
 
 --- `typeof`
+--
 -- Get type of a value.
+--
 -- @param
 --      x       Value to get type of.
 --      fine    "Fine-grained" type (default: true).
@@ -63,10 +66,12 @@ M.isinteger = isinteger
 --
 -- This function returns the standard return values of Lua's ''type'', but additionally
 -- the strings
+--
 --      "null"      if ''x'' is a NULL,
 --      "integer"   if ''x'' is an integral number.
 --
 -- If ''fine'' is ''true'', the returned ''subtype'' is
+--
 --      "null"      if empty,
 --      "array"     for arrays containing only tables (then, the ''subtype'' is identified),
 --      "map"       otherwise.
@@ -117,6 +122,7 @@ end
 M.typeof = typeof
 
 --- `escape()`
+--
 -- Escape a string.
 --
 local escape_table = {
@@ -155,6 +161,7 @@ end
 M.escape = escape
 
 --- `unescape`
+--
 -- Unescape a string.
 --
 -- FIXME
@@ -215,7 +222,9 @@ end
 M.unescape = unescape
 
 --- `getkeys()`
+--
 -- Get sorted list of keys.
+--
 -- @param
 --      t           The table.
 -- @returns
@@ -253,7 +262,9 @@ end
 M.getkeys = getkeys
 
 --- `tovalue()`
+--
 -- Convert literal to a value.
+--
 -- @param
 --      s       Character string.
 --      [fn]    User-supplied conversion function (optional).
@@ -344,7 +355,9 @@ end
 M.tovalue = tovalue
 
 --- `toliteral()`
+--
 -- Convert value to a literal.
+--
 -- @param
 --      x       Lua value.
 --      [fn]    User-supplied conversion function (optional).
@@ -422,7 +435,9 @@ end
 M.toliteral = toliteral
 
 --- `tokey()`
+--
 -- Transform into a key.
+--
 -- @param
 --      x           The value to convert.
 -- @returns

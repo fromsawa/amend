@@ -3,12 +3,6 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
 
---[[>>[amend.tools] Tools.
-
-FIXME
-
-]] --
-
 local tinsert = table.insert
 
 local function builtin(m)

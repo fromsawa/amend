@@ -10,19 +10,22 @@ local strim = string.trim
 local slen = string.len
 local tinsert = table.insert
 
---- `csv.load(fname, [opts])`
+--- `csv.load(fname, opts)`
+--
 --  Read a CSV file.
+--
 -- @param 
---      fname       File name.
---      opts        Options.
+--      fname               File name.
+--      opts [optional]     Options.
 --
 -- Options:
--- >    {
--- >        comment = '<pattern>',
--- >        separator = 'separator',
--- >        columns = { <column-names-list> },   
--- >        filter = <item-filter-function>
--- >    }
+-- 
+--     {
+--         comment = '<pattern>',
+--         separator = 'separator',
+--         columns = { <column-names-list> },   
+--         filter = <item-filter-function>
+--     }
 --
 function mod.load(fname, opts)
     local res = {}

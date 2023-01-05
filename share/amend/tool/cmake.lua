@@ -4,7 +4,7 @@
 ]] 
 
 --[===[>>[amend.api.use.cmake] CMake support.
---]===] 
+]===] 
 
 local M = {}
 

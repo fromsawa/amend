@@ -3,7 +3,7 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
 
---[[>>[amend.api.lua.io] IO-library extensions.
+--[[>>[amend.api.lua.io] ``io`` library
 ]] --
 
 local stdout = io.stdout
@@ -11,7 +11,9 @@ local sformat = string.format
 local tconcat = table.concat
 
 --- `io.printf(...)`
+--
 -- Equivalent to C's ''printf''
+--
 function io.printf(...)
     return stdout:write(sformat(...))
 end
@@ -297,12 +299,14 @@ local function io_dump(value, options)
 end
 
 --- `io.dump(value, options)`
--- Dump value.
+--
+-- Dump `value`.
+--
 -- @param
 --      value                   Value to stream to output.
 --      options [optional]      Display options.
 --
--- This function dumps value to an output stream.
+-- This function dumps a `value` to an output stream.
 --
 -- The ''options'' is a table, that may contain the following fields:
 --
@@ -349,9 +353,12 @@ function io.dump(value, options)
 end
 
 --- `io.readall(fname)`
+--
 -- Read file.
+--
 -- @param
 --      fname           The file name.
+--
 -- @returns text, error
 function io.readall(fname)
     local f = io.open(fname)
@@ -359,12 +366,15 @@ function io.readall(fname)
 end
 
 --- `io.command(program, ...)`
+--
 -- Execute command and read output.
+--
 -- @param
 --          program                 The command to execute (as format string).
---          ...                     Format options.
+--          ...                     Format arguments.
+--
 -- @returns output,error
---      FIXME
+--
 function io.command(program, ...)
     local cmd = string.format(program, ...)
     local f, e = io.popen(cmd)

@@ -13,6 +13,7 @@ local strrep = string.rep
 require "amend.docs.stream"
 require "amend.docs.structure"
 require "amend.docs.generator"
+require "amend.docs.macros"
 
 --- `docs.extension`
 --

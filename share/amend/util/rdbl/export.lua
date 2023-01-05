@@ -268,7 +268,9 @@ export_mt.__index = export_mt
 -- [[ MODULE ]]
 
 --- `export()` 
+--
 -- Export a table.
+--
 -- @param
 --      t       The table.
 --      [opts]  Export options (FIXME).

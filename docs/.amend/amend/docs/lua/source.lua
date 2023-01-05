@@ -3,12 +3,10 @@
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
 
-local M = require "amend.docs.lua.__module"
+local M = require "amend.docs.lua.__module" --
 
 --[[>>[amend.api.docs.api.lua.source] Lua source.
-]] --
-
-local md = require "amend.docs.markdown"
+]] local md = require "amend.docs.markdown"
 local docs = require "amend.docs.__module"
 
 local mtype = math.type
@@ -54,22 +52,113 @@ function source:__init(core)
 end
 
 function source:parse(stream)
-    local thedoc
+    local thedoc, level
 
-    local level = 0
-    local fragment  -- a markdown fragment
-    local function handle_fragment()
-        if not thedoc then
-            docs.notice(ERROR, fragment[1].origin, "comment is not associated with a document")
+    local function parse_comment(block)
+        ::retry::
+        if not block[0] then
+            return
         end
 
-        -- level up/down
-        local levelup = fragment[#fragment]:re("^%s-{%s*$")
-        if levelup then
-            tremove(fragment, #fragment)
+        -- remove leading/trailing empty lines
+        while (#block > 0) and block[1]:re("^%s*$") do
+            tremove(block, 1)
+        end
+        while (#block > 0) and block[#block]:re("^%s*$") do
+            tremove(block, #block)
+        end
+
+        -- check for "group start"
+        local openbrace
+        if #block > 0 then
+            local brace = block[#block]:re("^{(.*)")
+            if brace and brace[1]:re("^%s*$") then
+                openbrace = {[0] = block[#block]}
+                tremove(block, #block)
+            end
+        end
+
+        -- expand/process macros
+        docs.expand(block)
+
+        -- parse
+        local first = block[0]
+
+        -- DOCUMENT
+        local document = first:re("%s*>>[[]([^]]+)[]]%s*(.*)")
+        if document then
+            local reference, title = tunpack(document)
+
+            thedoc = md.document(self.core)
+            thedoc.id = tostring(reference)
+
+            level = 0
+            tinsert(self.documents, thedoc)
+
+            title:trim()
+            if #title > 0 then
+                thedoc:addheading(
+                    1,
+                    {
+                        text = title,
+                        reference = reference
+                    },
+                    title.origin
+                )
+            end
+        end
+
+        -- sanity check (document required)
+        if not thedoc then
+            docs.notice(ERROR, first.origin, "comment is not associated with a document")
+        end
+
+        -- PARAGRAPH
+        local paragraph = first:re("^%-(.*)")
+        if paragraph then
+            local line = paragraph[1]
+            if not line:re("^%s*$") then
+                local reference, title
+
+                local tmp = line:re("^[[]([^]]+)[]]%s*(.*)")
+                if tmp then
+                    reference, title = tunpack(tmp)
+                else
+                    title = line:trim()
+                end
+
+                thedoc:addheading(
+                    level + 1,
+                    {
+                        text = title,
+                        reference = reference
+                    },
+                    title.origin
+                )
+            end
+        end
+
+        -- LEVEL UP/DOWN
+        if first:re("^{") then
+            if level == 0 then
+                docs.notice(ERROR, first.origin, "cannot open a section here")
+            end
+
+            level = level + 1
+            return
+        elseif first:re("^}") then
+            level = level - 1
+            if level == 0 then
+                docs.notice(ERROR, first.origin, "stray closing brace")
+            end
+            return
         end
 
         -- parse the fragment
+        local fragment = docs.stream.file()
+        for _, line in ipairs(block) do
+            fragment:insert(line)
+        end
         thedoc:parse(fragment)
 
         -- set level after introduction
@@ -79,26 +168,18 @@ function source:parse(stream)
                     level = level + 1
                 end
             end
-
-            if level > 0 then
-                level = level + 1
-            end
         end
 
-        if levelup then
-            if level == 0 then
-                docs.notice(ERROR, levelup.origin, "cannot open a section here")
-            end
-
-            level = level + 1
+        -- handle hanging "--{"
+        if openbrace then
+            block = openbrace
+            goto retry
         end
-
-        -- clear fragment
-        fragment = nil
     end
 
     -- loop over the lines
     local state, pattern
+    local block
     for aline in stream:lines() do
         ::again::
         if state == "longcomment" then
@@ -111,14 +192,17 @@ function source:parse(stream)
                 comment = {aline}
             end
 
-            -- handle comment
-            if fragment then
-                fragment:insert(comment[1])
-            end
+            if block then
+                -- add lines
+                if state or (#comment[1] > 0) then
+                    tinsert(block, comment[1])
+                end
 
-            -- handle fragment
-            if fragment and (state == nil) then
-                handle_fragment()
+                -- parse comment block
+                if state == nil then
+                    parse_comment(block)
+                    block = nil
+                end
             end
 
             -- parse rest of line after long-comment closing pattern
@@ -130,7 +214,7 @@ function source:parse(stream)
             -- check for long comments
             local comment = aline:re("^[%s]*%-%-[[]([^[]*)[[](.*)")
             if not comment then
-                -- check for line comments
+                -- check for single-line comments
                 comment = aline:re("^[%s]*%-%-(.*)")
             end
 
@@ -143,103 +227,35 @@ function source:parse(stream)
                 else
                     -- normal comment
                     comment = comment[1]
+
+                    -- strip (single) space after "--"
+                    if block then
+                        comment = comment:re("%s?(.*)")[1] or comment
+                    end
                 end
 
-                if not fragment then
-                    -- document start
-                    local document = comment:re("%s*>>[[]([^]]+)[]]%s*(.*)")
-                    if document then
-                        local reference, title = tunpack(document)
+                -- make a block (if applicable)
+                if not block then
+                    local text = tostring(comment)
 
-                        thedoc = md.document(self.core)
-                        thedoc.id = tostring(reference)
-
-                        level = 0
-                        tinsert(self.documents, thedoc)
-
-                        title:trim()
-                        if #title > 0 then
-                            thedoc:addheading(
-                                1,
-                                {
-                                    text = title,
-                                    reference = reference
-                                },
-                                title.origin
-                            )
-                        end
-
-                        fragment = docs.stream.file()
+                    if text:match("^%-") then
+                    elseif text:match("^>>") then
+                    elseif text:match("^[{}]") then
+                    else
                         goto continue
                     end
 
-                    -- fragment
-                    local begin = comment:re("^([^%s])")
-                    if begin then
-                        begin = begin[1]
-                        if begin[1] == "-" then
-                            -- function/class description
-                            local desc = comment:re("-%s*[[]([^]]+)[]]%s+(.*)")
-                            if not desc then
-                                desc = comment:re("-%s+(.*)")
-                            end
-
-                            if not desc then
-                                docs.notice(ERROR, comment.origin, "invalid fragment")
-                            end
-
-                            local reference, title
-                            if #desc == 2 then
-                                reference, title = desc[1], desc[2]
-                            else
-                                title = desc[1]
-                            end
-
-                            if #title == 0 then
-                                docs.notice(ERROR, desc.origin, "missing title")
-                            end
-
-                            if not thedoc then
-                                docs.notice(ERROR, desc.origin, "no document declared")
-                            end
-
-                            -- FIXME commands should not be headings? maybe?
-                            title.text = '⎔ ' .. title.text
-                            thedoc:addheading(
-                                level,
-                                {
-                                    text = title,
-                                    reference = reference
-                                },
-                                title.origin
-                            )
-                        end
-                    end
-
-                    -- level up/down
-                    if thedoc and thedoc.id then
-                        local levelup = comment:re("^%s-{%s*$")
-                        if levelup then
-                            level = level + 1
-                        end
-
-                        local leveldown = comment:re("^%s-}%s*$")
-                        if leveldown and (level > 0) then
-                            level = level - 1
-
-                            if level == 0 then
-                                docs.notice(ERROR, leveldown.origin, "stray closing brace")
-                            end
-                        end
-                    end
+                    block = {
+                        [0] = comment
+                    }
                 else
-                    comment = comment:re("%s-(.*)")[1]
-                    fragment:insert(comment)
+                    tinsert(block, comment)
                 end
             else
-                -- parse fragement (if applicable)
-                if fragment then
-                    handle_fragment()
+                -- parse comment block (if applicable)
+                if block then
+                    parse_comment(block)
+                    block = nil
                 end
 
                 -- reset state
@@ -247,6 +263,10 @@ function source:parse(stream)
             end
         end
         ::continue::
+    end
+
+    if block then
+        parse_comment(block)
     end
 end
 

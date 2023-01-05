@@ -2,14 +2,19 @@
     Copyright (C) 2022-2023 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
---[[>>[amend.api.lua.os] OS-library extensions.
+--[[>>[amend.api.lua.os] `os` library
 ]]
 
 local stringformat = string.format
 local osexecute = os.execute
 
 --- `os.command(program, ...)`
+--
 -- Execute a command.
+--
+-- @param
+--          program                 The command to execute (as format string).
+--          ...                     Format arguments.
 function os.command(program, ...)
     local cmd = stringformat(program,...)
     return osexecute(cmd)

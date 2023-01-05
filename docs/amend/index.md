@@ -22,6 +22,8 @@ and, therefore, disclose it to the public.
 
 ## Overview
 
+TODO
+
 ## Installation
 
 The `amend` software is intended to be installed either as a sub-module in an existing
@@ -63,42 +65,57 @@ must be run.
 
 #### Copyright
 
-TODO
+```.lua
+local symbol = "(C)" -- copyright symbol
+local pattern = {"Yogev Sawa"} -- author pattern(s)
+local year = tonumber(OPTIONS[1] or os.date("%Y")) -- current year
 
+function fix_copyright(fname)
+    -- read file
+    local txt = io.readall(fname)
+    if not txt then
+        return
+    end
 
-#### Tools
+    -- find and check copyright
+    local bpos, epos, copyright, sym, year_from, year_to, author =
+        txt:find("(Copyright)[ ]+([^0-9]*)[ ]+([0-9]+)[ ]*[%-]-[ ]*([0-9]*)[ ]+([^\n]+)")
 
-FIXME
+    -- edit files (if applicable)
+    if table.has(pattern, author) then
+        year_from = tonumber(year_from)
+        year_to = tonumber(year_to)
 
+        if ((year_to or year_from) ~= year) or (sym ~= symbol) then
+            local years = string.format("%d", year)
+            if year_from ~= year then
+                years = string.format("%d-%d", year_from, year)
+            end
+            message(STATUS, "    updating %s", fname)
 
-#### License
+            local before, after = txt:sub(1, bpos - 1), txt:sub(epos + 1, -1)
+            local newcopyright = string.format("%s %s %s %s", copyright, symbol, years, author)
 
-##### UNLICENSE
+            f = assert(io.open(fname, "w"))
+            f:write(before, newcopyright, after)
+            f:close()
+        end
+    end
+end
 
-This is free and unencumbered software released into the public domain.
-
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a compiled
-binary, for any purpose, commercial or non-commercial, and by any
-means.
-
-In jurisdictions that recognize copyright laws, the author or authors
-of this software dedicate any and all copyright interest in the
-software to the public domain. We make this dedication for the benefit
-of the public at large and to the detriment of our heirs and
-successors. We intend this dedication to be an overt act of
-relinquishment in perpetuity of all present and future rights to this
-software under copyright law.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-
-For more information, please refer to <http://unlicense.org/>
+fs.dodir(
+    ".",
+    function(item)
+        fix_copyright(item[0])
+    end,
+    {
+        exclude = IGNORE,
+        extension = {".lua", ".cmake", ".md"},
+        include = {},
+        recurse = true
+    }
+)
+```
 
 # API
 
@@ -115,7 +132,7 @@ where the 'indicator' is
     *           The component is always executed (even if option 'all' is not used).
     _           This defines a "hidden" component (which is only executed as dependency).
 
-If the <indicator> is omitted, the component behaves like a command and is executed only on 
+If the \<indicator\> is omitted, the component behaves like a command and is executed only on 
 explicit request.
 
 Example:
@@ -127,163 +144,329 @@ Example:
     assert(os.command("cmake --version"))
 
     -- ...
-    
 
-### ⎔ `help()`
+### `component.help()`
 
-### ⎔ `shebang()`
+Print components help.
 
-### ⎔ `scandir()`
+### `component.find()`
 
-### ⎔ `find()`
+Find all components in the project tree.
 
-### ⎔ `_run()`
+### `component.run(name)`
 
-### ⎔ `run()`
+Run a "component".
 
-### ⎔ `depends '<name>'`
+### `depends '<name>'`
 
- The following global variables are set or determined at startup:
+Include a dependecy.
 
-      EXECDIR             Path, where ''amend.lua'' was started.
-      ROOTDIR             Project root (where ''.amend/project.lua'' was found).
-      PROJECTFILE         Full path to the ''.amend/project.lua'' file.
+The following global variables are set or determined at startup:
 
- To separate source from other files, the variable
+     EXECDIR             Path, where ''amend.lua'' was started.
+     ROOTDIR             Project root (where ''.amend/project.lua'' was found).
+     PROJECTFILE         Full path to the ''.amend/project.lua'' file.
 
-      IGNORE              Files or directories generally to ignore.
+To separate source from other files, the variable
 
- is populated (regular expressions) at startup. This list is automatically
- extended if ''amend'' finds the following files, containing wild-card patterns,
- in the ''ROOTDIR'':
+     IGNORE              Files or directories generally to ignore.
 
-      .amend/ignore
-      .gitignore
+is populated (regular expressions) at startup. This list is automatically
+extended if ''amend'' finds the following files, containing wild-card patterns,
+in the ''ROOTDIR'':
 
- The project file contains the general configuration variables:
+     .amend/ignore
+     .gitignore
 
-      PROJECT             Project settings.
-      CONFIG              Amend settings.
-      TOOLS               System tools (see 'amend/tools.lua')
-      PATHS               Additional module paths.
+The project file contains the general configuration variables:
 
- See [amend.api.project] for details.
+     PROJECT             Project settings.
+     CONFIG              Amend settings.
+     TOOLS               System tools (see 'amend/tools.lua')
+     PATHS               Additional module paths.
 
-## Message logging
+See [amend.api.project] for details.
 
-### ⎔ `VERBOSE`
+## Logging
 
-### ⎔ Verbosity levels
+### `VERBOSE`
 
-### ⎔ ERROR
+The global verbosity level (default: INFO).
 
-### ⎔ WARNING
+### Verbosity levels
 
-### ⎔ NOTICE
+     ERROR
+     WARNING
+     NOTICE
+     STATUS
+     INFO
+     DEBUG
 
-### ⎔ STATUS
+### `message(level, fmt, ...)`
 
-### ⎔ INFO
+Emit an informational message.
 
-### ⎔ DEBUG
+*Call*\
 
-### ⎔ ERROR
+>   `message "<text>"`\
+>   `message {<level>} "<text>"`\
+>   `message(<level>|<level-name>, fmt, ...)`\
 
-### ⎔ `message()`
+*Parameters*\
 
-### ⎔ `verbosity [{<level>}]`
+        level           The verbosity level (see above).
+        fmt,...         Format string and arguments.
+
+### `verbosity(level)`
+
+Set verbosity level.
+
+*Call*\
+
+>   `verbosity "<level>"`\
+>   `verbosity {<level>}`\
+>   `verbosity(level)`\
 
 ## Lua extensions
 
 
 ### Classes
 
-    
-FIXME
+Here we provide a simple class implementation supporting inheritance.
 
-#### ⎔ `class.tag`
+#### `class.tag`
 
-#### ⎔ `void`
+This class tag serves two purposes, first to mark a table as 'class'
+and second, provides the meta-method `__call` for class instatiation.
 
-#### ⎔ `isvoid(t)`
+#### `void`
 
-#### ⎔ `isclass(t)`
+A place-holder (for `__public` fields).
 
-#### ⎔ `isobject(t)`
+#### `isvoid(t)`
 
-#### ⎔ `resolve(...)`
+Check if `t` is `void`.
 
-#### ⎔ `isa(obj, ...)`
+#### `isclass(t)`
 
-#### ⎔ `newindex`
+Check if `t` is a `class`.
 
-#### ⎔ `class "name" { <declaration> }`
+#### `isobject(t)`
 
-#### ⎔ `index(t,k)`
+Check if `t` is an object.
 
-### IO-library extensions
+#### `isa(obj, ...)`
 
-#### ⎔ `io.printf(...)`
+*Call*\
 
-#### ⎔ `io.dump(value, options)`
+>   `isa(obj, T)`\
 
-#### ⎔ `io.readall(fname)`
+Check if `obj` is of type `T`. Here, `T` may also be
+a string as it would be returned by `type()` or `math.type()`.
 
-#### ⎔ `io.command(program, ...)`
+*Call*\
 
-### OS-library extensions
+>   `isa(obj, {T})`\
 
-#### ⎔ `os.command(program, ...)`
+Check if `obj` is or is derived from type `T`. This requires
+`obj` to be an object (see [amend.api.lua.class.isobject]).
 
-### `package`
+#### `class.index(t,k)`
 
- @note
- In addition to standard [Lua](https://github.com/lua/lua/blob/master/luaconf.h) conventions,
- here, also the /?/__init.lua/ file is searched.
+Retrieve index `k` from table `t` in the same way, standard `__index` does it,
+however, using 'rawget' internally.
 
-#### ⎔ `package:addpath(path)`
+#### `class.newindex`
 
-#### ⎔ `package:pushpath(path)`
+Standard `__newindex` meta-method for classes.
 
-#### ⎔ `package:poppath()`
+#### `class "name" { <declaration> }`
 
-#### ⎔ Remove previously added script search path
+Declare a class.
 
-### String library extensions
+*Call*\
 
-#### ⎔ `string.any(s, tbl, exact)`
+>   `class "name" { <declaration> }`\
+>   `class(t) "name" { <declaration> }`\
 
-#### ⎔ `string.trim(s)`
+*Parameters*\
 
-#### ⎔ `string.title(s)`
+        t               Destination table (default: `_G`).
+        name            Class name (dot-separated identifiers).
 
-#### ⎔ `string.untitle(s)`
+*Declaration*\
 
-#### ⎔ `string:split(sSeparator, nMax, bRegexp)`
+     {
+         __inherit = { <inheritance-list> },
+         __public = {
+             <variables>
+         },
+         <methods>
+     }
 
-#### ⎔ `string.wrap(s, col)`
+ FIXME
 
-### Table library extensions
+### ``io`` library
 
-#### ⎔ `table.has(tbl, item)`
+#### `io.printf(...)`
 
-#### ⎔ `table.kpairs(tbl)`
+Equivalent to C's ''printf''
 
-#### ⎔ `table.count(tbl)`
+#### `io.dump(value, options)`
 
-#### ⎔ `table.hint(tbl)`
+Dump `value`.
 
-#### ⎔ `table.top(tbl, idx)`
+*Parameters*\
 
-#### ⎔ `table.copy(tbl)`
+        value                   Value to stream to output.
+        options [optional]      Display options.
 
-#### ⎔ `table.merge(t, other)`
+This function dumps a `value` to an output stream.
 
-#### ⎔ `table.make(...)`
+The ''options'' is a table, that may contain the following fields:
 
-#### ⎔ `table.unique(t)`
+     stream          Output stream (default: io.stdout).
+     file            Output file name.
+     indent          Indentation string.
+     level           Indentation level.
+     key             Table key.
+     prefix          Prefix for output (usually only for adding a "return" statement).
+     quoted          Always output keys in the ["quoted"] format (default: false)
 
-#### ⎔ `table.insert_unique(t, v)`
+#### `io.readall(fname)`
+
+Read file.
+
+*Parameters*\
+
+        fname           The file name.
+
+*Returns* text, error\
+
+
+#### `io.command(program, ...)`
+
+Execute command and read output.
+
+*Parameters*\
+
+            program                 The command to execute (as format string).
+            ...                     Format arguments.
+
+*Returns* output,error\
+
+
+### `os` library
+
+#### `os.command(program, ...)`
+
+Execute a command.
+
+*Parameters*\
+
+            program                 The command to execute (as format string).
+            ...                     Format arguments.
+
+### `package` library
+
+___Note___\
+
+In addition to standard [Lua](https://github.com/lua/lua/blob/master/luaconf.h) 
+conventions, here, also the `?/__init.lua` file is searched.
+
+#### `package:addpath(path)`
+
+Add search directory to script search path.
+
+#### `package:pushpath(path)`
+
+Temporarily add a script search path.
+
+#### `package:poppath()`
+
+Remove previously added script search path.
+
+### `string` library
+
+#### `string.any(s, tbl, exact)`
+
+Match elements from a table.
+
+*Parameters*\
+
+        s                   The string.
+        tbl                 Table with regex-patterns.
+        exact [optional]    Boolean value indicating if matching must be exact. ??? FIXME what does this mean ???
+
+*Returns* \
+
+>       Matched string, otherwise ''nil''.
+
+#### `string.trim(s)`
+
+Trim string.
+
+#### `string.title(s)`
+
+Make string "titlecase".
+
+#### `string.untitle(s)`
+
+Undo "titlecase".
+
+#### `string:split(sSeparator, nMax, bRegexp)`
+
+String split.
+See http://lua-users.org/wiki/SplitJoin
+
+#### `string.wrap(s, col)`
+
+Wrap string (each line is detected as a paragraph) to specified column-width.
+
+### `table` library
+
+#### `table.has(tbl, item)`
+
+Check if array-part of a table has an element.
+
+*Parameters*\
+
+        tbl         The table to check.
+        item        The item.
+
+#### `table.kpairs(tbl)`
+
+Key-only table iterator.
+
+This function ignores integer-valued keys.
+
+#### `table.count(tbl)`
+
+Count all keys in a table.
+
+#### `table.top(tbl, idx)`
+
+Get array items from top
+
+#### `table.copy(tbl)`
+
+Create a table copy.
+
+#### `table.merge(t, other)`
+
+Merge another table into `t`.
+
+#### `table.make(...)`
+
+Create a new table from many.
+
+#### `table.unique(t)`
+
+Make array elements unique.
+
+#### `table.insert_unique(t, v)`
+
+Add a unique value.
 
 ## Projects
 
@@ -292,18 +475,18 @@ FIXME
 
 ### Configuration
 
-    Project settings.
+Project settings.
 
-    This table contains two required entries:
+This table contains two required entries:
 
-        NAME            Project name.
-        VERSION         Project version.
+    NAME            Project name.
+    VERSION         Project version.
 
-    as well as 
+as well as 
 
-        USES            List of tools in use.
+    USES            List of tools in use.
 
-    Users are free to add additional entries.
+Users are free to add additional entries.
 
 ### Settings
 
@@ -315,91 +498,252 @@ FIXME
 
 ## External tools
 
-FIXME
-
 
 ### CMake support
 
---
+#### `parse_args(options, one_value_keywords, multi_value_keywords, ...)`
 
-#### ⎔ `parse_args(options, one_value_keywords, multi_value_keywords, ...)`
+#### `update(configfile)`
 
-#### ⎔ `update(configfile)`
+Update PROJECT configuration.
 
-#### ⎔ `check()`
+#### `check()`
+
+FIXME
+
+### Git support
+
+#### `check()`
+
+Check if project uses git and update PROJECT settings.
 
 ### C support
 
---
+### CXX support
 
-### C++ support
+## Utilities
 
---
---
 
-## CSV-file tools
+### Extensions to LuaFileSystem
 
-### ⎔ `csv.load(fname, [opts])`
+#### `fs.exists(filename)`
 
-## Editing
+Check if file exists.
+
+*Parameters*\
+
+        filename        Path or file-name to check.
+
+*Returns* \
+
+>       ''true'' if file or path exists, ''false'' otherwise.
+
+#### `fs.isnewer(file, another)`
+
+Check if a ''file'' is newer than ''another''.
+
+*Returns* \
+
+>       ''nil'' if `file` does not exist,
+>       ''true'' if `file` is newer or `another` does not exist,
+>       ''false'' otherwise.
+
+#### `fs.anynewer(file, ...)`
+
+Check if any other file is newer than `file`.
+
+#### `fs.concat(...)`
+
+Concatenate path elements.
+
+*Parameters*\
+
+        ...             List of path elements.
+*Returns* \
+
+>       Concatenated path elements using builtin directory seperator.
+
+#### `fs.parts(fname)`
+
+Get parts of a file name (path, file and extension).
+
+*Parameters*\
+
+        fname           The file- or path-name.
+*Returns* \<path\>,\<file-name\>,\<extension\>\
+
+
+#### `fs.relpath(path, root)`
+
+Get relative path with respect to a "root".
+
+*Parameters*\
+
+        path            The 'path' to split.
+        root [optional] The root path.
+*Returns* \<relative-path\>\
+
+
+#### `fs.readwild(file, tbl)`
+
+Read a wildcard pattern file.
+
+*Parameters*\
+
+        file                The file name (containing wildcard patterns and comments).
+        tbl [optional]      Existing table (with regex patterns).
+
+#### `fs.dodir(path, callback, options)`
+
+Execute a function for each directory element possibly recursively.
+
+*Parameters*\
+
+        path                    The path to iterate over.
+        callback                Callback function for elements (must return true for recursion).
+        options [optional]      Options.
+
+This function executes the `callback` for each element in the alpha-numerically
+sorted directory list. Arguments passed to the callback are:
+
+     [0]     Full path to file.
+     [1]     The directory part.
+     [2]     The file name part.
+     [3]     The file extension.
+     attr    The attribute table as returned by `symlinkattributes`.
+     options The options table (from the arguments).
+
+The callback may return a boolean value overriding option ''recurse''.
+
+Options:
+
+     exclude             List of regex-patterns of files or directories to ignore (default: {'[.]', '[.][.]'}).
+     include             List of regex-patterns of files or directories to include (overrides 'exclude').
+     directories         Additional directories to search.
+     extension           Only report files or directories matching list of given extensions.
+     mode                File type (`mode` field of `attributes()` function).
+     follow              Follow symbolic links (default: false)
+     recurse             Enable directory recursion (default: false).
+     depth               Directory depth (default: 0)
+
+#### `fs.pushd(dir)`
+
+"Push" directory.
+
+Equivalent of shell command ''pushd''.
+
+#### `fs.popd()`
+
+"Pop" directory.
+
+Equivalent of shell command ''popd''.
+
+#### `fs.rmkdir(fpath)`
+
+Recursively create directory.
+
+*Parameters*\
+
+        fpath       The directory-path to create.
+*Returns* \<status\>[, \<error-message\>]\
+
+
+#### `fs.grep(fname, pattern)`
+
+Grep-like matching
+
+#### `fs.filetype(fname)`
+
+Get file type (from extension).
+
+#### `fs.which(executable)`
+
+Get full path to an executable.
+
+#### `fs.touch(...)`
+
+Touch all files, ensuring same access and modification time.
+
+*Parameters*\
+
+        files...    File names to touch.
+        [options]   Options (last argument).
+
+FIXME options
+
+#### `fs.fullpath(path)`
+
+Retrieve full path of a possibly relative `path`.
+
+### Editing
 
 Amend provides several utilities for editing files.
 
-### ⎔ `clear()`
+FIXME
 
-### ⎔ `addln(code, ...)`
+#### `clear()`
 
-### ⎔ `add(code, ...)`
+Clear contents.
 
-### ⎔ `sed(pattern, replace)`
+#### `addln(code, ...)`
 
-### ⎔ `write(stream)`
+Add a code line.
 
-### ⎔ **section**`()`
+#### `add(code, ...)`
 
-### ⎔ `parse(path)`
+Add code to current line.
 
-### ⎔ `update()`
+#### `sed(pattern, replace)`
 
-### ⎔ `sed(pattern, replace)`
+In-place sed.
 
-### ⎔ `edit.file(fname)`
+#### `write(stream)`
 
-## Extensions to LuaFileSystem
+Write section to a stream.
 
-### ⎔ `fs.exists(filename)`
+#### **section**`()`
 
-### ⎔ `fs.isnewer(file, another)`
+Constructor.
 
-### ⎔ `fs.anynewer(file, ...)`
+#### `parse(path)`
 
-### ⎔ `fs.concat(...)`
+Parse file (into sections)
 
-### ⎔ `fs.parts(fname)`
+#### `update()`
 
-### ⎔ `fs.relpath(path, root)`
+Update file.
 
-### ⎔ `fs.readwild(file, tbl)`
+#### `sed(pattern, replace)`
 
-### ⎔ `fs.dodir(path, callback, options)`
+In-place sed.
 
-### ⎔ `fs.pushd(dir)`
+#### `edit.file(fname)`
 
-### ⎔ `fs.popd()`
+Edit a file.
 
-### ⎔ `fs.rmkdir(fpath)`
+FIXME
 
-### ⎔ `fs.grep(fname, pattern)`
+### CSV-file tools
 
-### ⎔ `fs.filetype(fname)`
+#### `csv.load(fname, opts)`
 
-### ⎔ `fs.which(executable)`
+ Read a CSV file.
 
-### ⎔ `fs.touch(...)`
+*Parameters*\
 
-### ⎔ `fs.fullpath(path)`
+        fname               File name.
+        opts [optional]     Options.
 
-## ReaDaBLe
+Options:
+
+    {
+        comment = '<pattern>',
+        separator = 'separator',
+        columns = { <column-names-list> },   
+        filter = <item-filter-function>
+    }
+
+### ReaDaBLe
 
 Configuration files suck - yet they are invaluable. They are especially valuable if they are
 _indeed_ human readable and possibly even grep'able (oh yes, the good ol' days of text-only files).
@@ -410,14 +754,14 @@ do either not follow the [KISS principle](https://www.urbandictionary.com/define
 are hardly human readable (without an IDE), or, simply lack the possibility of annotations
 (read: comments).
 
-Well, you heard it, YAML to the rescue: yes, but [No thanks!](noyaml.com).@footnote
-    The author does recognize the ideas behind YAML. He also wants to express, that alternatives,
-    such as XML or JSON, have their merit. 
+Well, you heard it, YAML to the rescue: yes, but [No thanks!](noyaml.com) 
+(the author does recognize the ideas behind YAML; he also wants to express, 
+that alternatives, such as XML or JSON, have their merit). 
 
 RDBL provides a [simple sub-set](https://xkcd.com/927/) of YAML, is easy to parse and consitent.
 
 
-### Format
+#### Format
 
 The typical structure of an RDBL document is:
 
@@ -483,121 +827,249 @@ not generally unambiguous.
 
 ##### Value types
 
-###### ''string''
+###### `string`
 
-    Character sequences are represented in three forms:
+Character sequences are represented in three forms:
 
-    1. character literals (unquoted, may contain spaces),
-    2. quoted, if a string contains or requires escape sequences, and
-    3. verbatim (multi-line) strings.
+1. character literals (unquoted, may contain spaces),
+2. quoted, if a string contains or requires escape sequences, and
+3. verbatim (multi-line) strings.
 
-    Example:
-            literal: a string literal may contain spaces
-            quoted: "This is a \"quoted\" string."
-            verbatim: |
-                Verbatim strings
-                span multiple lines
-                and
-                    retain
-                        their
-                    indentation
+Example:
+        literal: a string literal may contain spaces
+        quoted: "This is a \"quoted\" string."
+        verbatim: |
+            Verbatim strings
+            span multiple lines
+            and
+                retain
+                    their
+                indentation
 
-###### ''integer''
+###### `integer`
 
-    When using integral types (including binary, octal and hexadecimal representation), care
-    has to be taken, that the target system reading the data does support their size.
+When using integral types (including binary, octal and hexadecimal representation), care
+has to be taken, that the target system reading the data does support their size.
 
-###### ''float''
+###### `float`
 
-    Floating-point values are supported in scientific notation (e.g. "1.0E-3"). Infinity
-    is represented as "∞" or "inf". For unrepresentable floats, "NaN" (any case) is used.
+Floating-point values are supported in scientific notation (e.g. "1.0E-3"). Infinity
+is represented as "∞" or "inf". For unrepresentable floats, "NaN" (any case) is used.
 
-###### ''array''
+###### `array`
 
-    Arrays may be represented by a comma-separated list of values enclosed in braces.
+Arrays may be represented by a comma-separated list of values enclosed in braces.
 
 ###### user-types
 
-    Implementations may choose to support other types by supplying a dictionary
-    or translation function.
+Implementations may choose to support other types by supplying a dictionary
+or translation function.
 
-    For example, to support boolean and similar values (here, Lua language), a
-    table of the format 
+For example, to support boolean and similar values (here, Lua language), a
+table of the format 
 
-        {
-            ["true"] = true,
-            ["false"] = false,
-            ["on"] = true,
-            ["off"] = false,
-            ["yes"] = true,
-            ["no"] = false
-        }
+    {
+        ["true"] = true,
+        ["false"] = false,
+        ["on"] = true,
+        ["off"] = false,
+        ["yes"] = true,
+        ["no"] = false
+    }
 
-    may be provided to the `import` function.
+may be provided to the `import` function.
 
-### API
+#### API
 
 
-#### Types
+##### Types
 
-FIXME
+###### `ORDER`
 
-##### ⎔ `ORDER`
-
-##### ⎔ `NULL`
-
-##### ⎔ `isnull`
-
-##### ⎔ `isinteger`
-
-##### ⎔ `typeof`
-
-##### ⎔ `escape()`
-
-##### ⎔ `unescape`
-
-##### ⎔ `getkeys()`
-
-##### ⎔ `tovalue()`
-
-##### ⎔ `toliteral()`
-
-##### ⎔ `tokey()`
-
-#### Importing
+Element order.
 
 FIXME
 
-##### ⎔ `isdocument()`
+###### `NULL`
 
-##### ⎔ `splitindent()`
+Non-destructive ''nil''.
 
-##### ⎔ `unindent()`
+Empty values, are represented as 'null', otherwise, in Lua,
+the table entry would be deleted.
 
-##### ⎔ `checkindent()`
+###### `isnull`
 
-##### ⎔ `import`
+Check if 'null'.
 
-###### ⎔ `setup`
+###### `isinteger`
 
-###### ⎔ `error`
+ Check if value is an integer.
 
-###### ⎔ `assert`
+###### `typeof`
 
-###### ⎔ `next`
+Get type of a value.
 
-###### ⎔ `literal`
+*Parameters*\
 
-###### ⎔ `parse`
+        x       Value to get type of.
+        fine    "Fine-grained" type (default: true).
+*Returns* typename [, category [, subtype]]\
 
-###### ⎔ `run`
 
-##### ⎔ Import data
+This function returns the standard return values of Lua's ''type'', but additionally
+the strings
 
-#### Exporting
+     "null"      if ''x'' is a NULL,
+     "integer"   if ''x'' is an integral number.
+
+If ''fine'' is ''true'', the returned ''subtype'' is
+
+     "null"      if empty,
+     "array"     for arrays containing only tables (then, the ''subtype'' is identified),
+     "map"       otherwise.
+
+Note, that tables containing array or sequence elements with additional map entries
+(as available in Lua) are not identified.
+
+###### `escape()`
+
+Escape a string.
+
+###### `unescape`
+
+Unescape a string.
 
 FIXME
 
-##### ⎔ `export()` 
+###### `getkeys()`
+
+Get sorted list of keys.
+
+*Parameters*\
+
+        t           The table.
+*Returns* \
+
+>       Array of keys in `t`.
+
+###### `tovalue()`
+
+Convert literal to a value.
+
+*Parameters*\
+
+        s       Character string.
+        [fn]    User-supplied conversion function (optional).
+
+###### `toliteral()`
+
+Convert value to a literal.
+
+*Parameters*\
+
+        x       Lua value.
+        [fn]    User-supplied conversion function (optional).
+
+###### `tokey()`
+
+Transform into a key.
+
+*Parameters*\
+
+        x           The value to convert.
+*Returns* \
+
+>       FIXME
+
+##### Importing
+
+FIXME
+
+###### `isdocument()`
+
+Check if start of document.
+
+*Returns* boolean, name\
+
+
+###### `splitindent()`
+
+Split of indentation
+
+###### `unindent()`
+
+Unindent.
+
+###### `checkindent()`
+
+Check indentation
+
+###### `import`
+
+####### `setup`
+
+Setup importer.
+
+####### `error`
+
+Emit error message.
+
+####### `assert`
+
+Formatted assertion.
+
+####### `next`
+
+Get next line.
+
+*Returns* <level>, "<content>"\
+
+
+####### `literal`
+
+Get next "literal" line.
+
+*Parameters*\
+
+        n       Spaces count.
+*Returns* <content>\
+
+>       literal content, or ''nil'' when end is reached
+
+####### `parse`
+
+Parse elements in current context (ie. indentation level).
+
+*Parameters*\
+
+        level       Current indentation level.
+        content     Current line content.
+
+####### `run`
+
+Run the importer.
+
+###### Import data
+
+*Parameters*\
+
+        [opts]  Import options (FIXME).
+
+##### Exporting
+
+FIXME
+
+###### `export()`
+
+Export a table.
+
+*Parameters*\
+
+        t       The table.
+        [opts]  Export options (FIXME).
+
+The provided table `t` has the format (named an unnamed documents may be mixed):
+
+     { { {doc1_elements} }, {doc2_name = {doc2_elements} }, ...}
 
 --

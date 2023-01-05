@@ -4,10 +4,10 @@
 ]]
 
 --[===[>>[amend.api.use.git] Git support.
---]===]
+]===]
 local M = {}
 
--- -- [[ git ]]
+-- [[ git ]]
 -- local git = TOOLS["git-command"]
 -- if git == nil then
 --     local v = io.command("git version")

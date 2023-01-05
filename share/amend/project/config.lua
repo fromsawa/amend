@@ -4,18 +4,18 @@
 ]]
 
 --[[>>[amend.api.project.config] Configuration
-    Project settings.
+Project settings.
 
-    This table contains two required entries:
+This table contains two required entries:
 
-        NAME            Project name.
-        VERSION         Project version.
+    NAME            Project name.
+    VERSION         Project version.
 
-    as well as 
+as well as 
 
-        USES            List of tools in use.
+    USES            List of tools in use.
 
-    Users are free to add additional entries.
+Users are free to add additional entries.
 ]]
 CONFIG.EXTENSIONS = CONFIG.EXTENSIONS or {}
 CONFIG.LANG = CONFIG.LANG or {}

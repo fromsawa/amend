@@ -4,8 +4,7 @@
 ]] --
 --[[>>[amend.api.lua.class] Classes.
 
-    
-FIXME
+Here we provide a simple class implementation supporting inheritance.
 
 ]] --
 class = {}
@@ -39,7 +38,7 @@ end
 --- `class.tag`
 --
 -- This class tag serves two purposes, first to mark a table as 'class'
--- and second, provides the meta-method ''__call'' for class instatiation.
+-- and second, provides the meta-method `__call` for class instatiation.
 --
 local tag = {
     __call = function(self, ...)
@@ -67,7 +66,7 @@ local tag = {
 
 --- `void`
 --
--- A place-holder (for ''__public'' fields).
+-- A place-holder (for `__public` fields).
 --
 void = {}
 setmetatable(
@@ -82,7 +81,7 @@ setmetatable(
 
 --- `isvoid(t)`
 --
--- Check if ''t'' is `void`.
+-- Check if `t` is `void`.
 --
 function isvoid(t)
     return t == void
@@ -90,7 +89,7 @@ end
 
 --- `isclass(t)`
 --
--- Check if ''t'' is a `class`.
+-- Check if `t` is a `class`.
 --
 function isclass(t)
     return getmetatable(t) == tag
@@ -98,21 +97,23 @@ end
 
 ---[.object] `isobject(t)`
 --
--- Check if ''t'' is an object.
+-- Check if `t` is an object.
 --
 function isobject(t)
     return isclass(getmetatable(t))
 end
 
---- `resolve(...)`
+-- `resolve(...)`
+--
+-- Find a class by name.
+--
 -- @call
 --      `resolve(name)`
 --      `resolve(name, root)`
+--
 -- @param
 --      name            The class name.
 --      root            The root namespace (default: _G)
---
--- Find a class by name.
 --
 local function resolve(name, root)
     local cls = root or _G
@@ -133,14 +134,14 @@ end
 -- @call
 --      `isa(obj, T)`
 --
--- Check if ''obj'' is of type ''T''. Here, ''T'' may also be
+-- Check if `obj` is of type `T`. Here, `T` may also be
 -- a string as it would be returned by `type()` or `math.type()`.
 --
 -- @call
 --      `isa(obj, {T})`
 --
--- Check if ''obj'' is or is derived from type ''T''. This requires
--- ''obj'' to be an object (see [amend.api.lua.class.isobject]).
+-- Check if `obj` is or is derived from type `T`. This requires
+-- `obj` to be an object (see [amend.api.lua.class.isobject]).
 --
 function isa(obj, T)
     local mtype = math.type
@@ -189,9 +190,18 @@ function isa(obj, T)
     end
 end
 
---- `newindex`
+--- `class.index(t,k)`
 --
--- Standard ''__newindex'' meta-method for classes.
+-- Retrieve index `k` from table `t` in the same way, standard `__index` does it,
+-- however, using 'rawget' internally.
+--
+local function index(t, k)
+    return rawget(t, k) or rawget(getmetatable(t), k)
+end
+
+--- `class.newindex`
+--
+-- Standard `__newindex` meta-method for classes.
 --
 local function newindex(self, k, v)
     if not getmetatable(self).__public[k] then
@@ -202,9 +212,29 @@ local function newindex(self, k, v)
 end
 
 --- `class "name" { <declaration> }`
+-- 
+-- Declare a class.
 --
--- FIXME
---
+-- @call
+--      `class "name" { <declaration> }`
+--      `class(t) "name" { <declaration> }`
+-- 
+-- @param
+--      t               Destination table (default: `_G`).
+--      name            Class name (dot-separated identifiers).
+-- 
+-- *Declaration*\
+-- 
+--      {
+--          __inherit = { <inheritance-list> },
+--          __public = {
+--              <variables>
+--          },
+--          <methods>
+--      }
+-- 
+--  FIXME
+-- 
 local function declare_class(t, name, decl, _level)
     local root = t
 
@@ -369,15 +399,6 @@ setmetatable(
         end
     }
 )
-
---- `index(t,k)`
---
--- Retrieve index `k` from table `t` in the same way, standard ''__index'' does it,
--- however, using 'rawget' internally.
---
-local function index(t, k)
-    return rawget(t, k) or rawget(getmetatable(t), k)
-end
 
 --[[ MODULE ]]
 class.tag = tag

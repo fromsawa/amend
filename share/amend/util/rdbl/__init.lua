@@ -13,9 +13,9 @@ do either not follow the [KISS principle](https://www.urbandictionary.com/define
 are hardly human readable (without an IDE), or, simply lack the possibility of annotations
 (read: comments).
 
-Well, you heard it, YAML to the rescue: yes, but [No thanks!](noyaml.com).@footnote
-    The author does recognize the ideas behind YAML. He also wants to express, that alternatives,
-    such as XML or JSON, have their merit. 
+Well, you heard it, YAML to the rescue: yes, but [No thanks!](noyaml.com) 
+(the author does recognize the ideas behind YAML; he also wants to express, 
+that alternatives, such as XML or JSON, have their merit). 
 
 RDBL provides a [simple sub-set](https://xkcd.com/927/) of YAML, is easy to parse and consitent.
 
