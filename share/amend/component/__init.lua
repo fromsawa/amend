@@ -61,14 +61,12 @@ local function help()
     for _, v in ipairs(COMPONENTS) do
         if v.scope == "user" then
             local cmpnt = v.invocation or v.name
-            if v.always then
-                cmpnt = "*" .. cmpnt
-            end
+            local space = v.always and "*" or " "
 
             if lastcmpnt == cmpnt then
                 cmpnt = ""
             end
-            printf("    %-28s %s\n", cmpnt, v.comment or "")
+            printf("   %s%-28s %s\n", space, cmpnt, v.comment or "")
             lastcmpnt = cmpnt
         end
     end
@@ -121,6 +119,8 @@ local function scandir(dname)
                         error("invalid component name: '" .. name .. "'")
                     end
                     res.name = name
+
+                    sb[1] = name
                     res.invocation = tconcat(sb, " ")
 
                     -- arguments

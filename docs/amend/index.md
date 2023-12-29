@@ -38,7 +38,7 @@ created.
 
 **Required packages**:
 
-- [Lua 5.3](https://www.lua.org/download.html)
+- [Lua 5.4](https://www.lua.org/download.html)
 - [LuaFileSystem](https://github.com/lunarmodules/luafilesystem)
 
 ## Quick start

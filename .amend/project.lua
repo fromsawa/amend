@@ -17,7 +17,7 @@ PROJECT = {
     USES = {
         "GIT"
     },
-    VERSION = "0.90"
+    VERSION = {0, 91}
 }
 
 --[[

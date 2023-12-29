@@ -46,30 +46,30 @@ if PROJECT.UPDATE then
     table.sort(PROJECT.USES)
 
     local usage = {
-        PROJECT = [[
+        PROJECT = [=[
     Project settings.
 
     This table contains two required entries:
 
         NAME            Project name.
-        VERSION         Project version.
+        VERSION         Project version ({major, minor[, patch[, tweak]]}).
 
     as well as 
 
         USES            List of tools in use.
 
     Users are free to add additional entries.
-]],
-        CONFIG = [[
+]=],
+        CONFIG = [=[
     Amend configuration.
 
-]],
-        TOOLS = [[
+]=],
+        TOOLS = [=[
     Tools.
-]],
-        PATHS = [[
+]=],
+        PATHS = [=[
     Package paths.
-]]
+]=]
     }
 
     local function comment(f, sec, paragraph)

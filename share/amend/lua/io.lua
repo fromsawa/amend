@@ -9,6 +9,7 @@
 local stdout = io.stdout
 local sformat = string.format
 local tconcat = table.concat
+local tinsert = table.insert
 
 --- `io.printf(...)`
 --
@@ -363,6 +364,65 @@ end
 function io.readall(fname)
     local f = io.open(fname)
     return f:read("a")
+end
+
+--- `io.sed(fname, pattern, replacement, options)`
+--
+-- Replace file contents using a pattern.
+--
+-- @param
+--      fname           The file name.
+--      pattern         A 'gsub' pattern.
+--      replacement     Replacement string.
+--      options         Currently not supported.
+--
+function io.sed(fname, pattern, replace, opts)
+    message(TRACE, "sed(%q,%q,%q)", fname, pattern, replace)
+
+    opts = opts or {}
+    local dryrun = opts.dryrun
+
+    local output = {}
+    local modified
+
+    local ins = assert(io.open(fname))
+    if dryrun then
+        modified = {}
+        for line in ins:lines() do
+            if line:match(pattern) then
+                local rep = line:gsub(pattern, replace)
+                tinsert(modified, {[fname] = {line, rep}})
+            end
+        end
+    else
+        local ins = assert(io.open(fname))
+        for line in ins:lines() do
+            if line:match(pattern) then
+                local repl = line:gsub(pattern, replace)
+                tinsert(output, repl)
+                modified = true
+            else
+                tinsert(output, line)
+            end
+        end
+    end
+    ins:close()
+
+    if dryrun then
+        for _, t in ipairs(modified) do
+            local fname, diff = next(t)
+
+            message(INFO, "%s", fs.relpath(fname, ROODIR))
+            message(INFO, "--- %s", diff[1])
+            message(INFO, "+++ %s", diff[2])
+        end
+    else
+        local outs = assert(io.open(fname, "w+b"))
+        for _, line in ipairs(output) do
+            outs:write(line, '\n')
+        end
+        outs:close()
+    end
 end
 
 --- `io.command(program, ...)`

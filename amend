@@ -1,9 +1,9 @@
-#!/usr/bin/env lua5.3
+#!/usr/bin/env lua5.4
 
-local copyright = "Copyright (C) 2021-2022 Yogev Sawa"
+local copyright = "Copyright (C) 2021-2024 Yogev Sawa"
 local license = "UNLICENSE (see <http://unlicense.org/>)" -- see below
 local invocation = "amend [<options>...]"
-local version = "0.90"
+local version = "0.91"
 local description = "Utility for revising source code."
 local usage = {
     [[
