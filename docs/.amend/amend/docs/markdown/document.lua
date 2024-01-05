@@ -289,14 +289,23 @@ function document:write(path)
                 emit(v, level + 1)
             end
         elseif part.tag == "section" then
-            f:write("\n", strrep("#", level), " ", tostring(part.title))
+            f:write("\n", strrep("#", level))
 
-            if part.reference then
-            -- FIXME
-            end
+            f:write(" ", tostring(part.title))
 
-            if part.attributes then
-                f:write(" {", part.attributes, "}")
+            local has_attr = part.reference or part.attributes
+            if has_attr then
+                f:write("{")
+
+                if part.reference then
+                    f:write('#', tostring(part.reference))
+                end
+
+                if part.attributes then
+                    f:write(part.attributes)
+                end
+
+                f:write("}")
             end
 
             f:write("\n")

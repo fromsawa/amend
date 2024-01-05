@@ -20,10 +20,6 @@ package is (a possibly [futile](https://xkcd.com/927/)) attempt to create a gene
 tool for such purposes: yet, the author(s) are using it succesfully in several projects
 and, therefore, disclose it to the public.
 
-## Overview
-
-TODO
-
 ## Installation
 
 The `amend` software is intended to be installed either as a sub-module in an existing
@@ -43,13 +39,6 @@ created.
 
 ## Quick start
 
-TODO
-
-- project configuration
-- components
-- libraries
-- framework basics
-
 ### Project file
 
 To use `amend` within a project the file `.amend/project.lua`:
@@ -57,13 +46,24 @@ To use `amend` within a project the file `.amend/project.lua`:
 PROJECT = {}
 ```
 must be created. As `amend` updates this configuration file each run automatically
-(based on project and operating system features it can detect), the command `amend --update`
-must be run. 
+(based on project and operating system features it can detect, for example, if 
+``CMakeLists.txt`` file is detected, the project version will be updated from the CMake 
+file), the command `amend --update` must be run. 
+
+See the [Poject](#amend.api.project) API for further details.
+
+### Components and Libraries
+
+TODO
+
+### Framework fundamentals
+
+TODO
 
 ### Examples
 
 
-#### Copyright
+#### Copyright {#amend.example.copyright}
 
 ```.lua
 local symbol = "(C)" -- copyright symbol
@@ -94,7 +94,8 @@ function fix_copyright(fname)
             message(STATUS, "    updating %s", fname)
 
             local before, after = txt:sub(1, bpos - 1), txt:sub(epos + 1, -1)
-            local newcopyright = string.format("%s %s %s %s", copyright, symbol, years, author)
+            local newcopyright = string.format("%s %s %s %s", 
+                                            copyright, symbol, years, author)
 
             f = assert(io.open(fname, "w"))
             f:write(before, newcopyright, after)
@@ -117,10 +118,10 @@ fs.dodir(
 )
 ```
 
-# API
+## API
 
 
-## Components
+### Components {#amend.api.components}
 
 "Amend components" can be created anywhere in the source code tree in a sub-folder ".amend".
 The first line of such a component starts with a shebang of the format
@@ -145,19 +146,19 @@ Example:
 
     -- ...
 
-### `component.help()`
+#### `component.help()`
 
 Print components help.
 
-### `component.find()`
+#### `component.find()`
 
 Find all components in the project tree.
 
-### `component.run(name)`
+#### `component.run(name)`
 
 Run a "component".
 
-### `depends '<name>'`
+#### `depends '<name>'`
 
 Include a dependecy.
 
@@ -187,13 +188,13 @@ The project file contains the general configuration variables:
 
 See [amend.api.project] for details.
 
-## Logging
+### Logging {#amend.api.logging}
 
-### `VERBOSE`
+#### `VERBOSE`
 
 The global verbosity level (default: INFO).
 
-### Verbosity levels
+#### Verbosity levels
 
      ERROR
      WARNING
@@ -202,7 +203,7 @@ The global verbosity level (default: INFO).
      INFO
      DEBUG
 
-### `message(level, fmt, ...)`
+#### `message(level, fmt, ...)`
 
 Emit an informational message.
 
@@ -217,7 +218,7 @@ Emit an informational message.
         level           The verbosity level (see above).
         fmt,...         Format string and arguments.
 
-### `verbosity(level)`
+#### `verbosity(level)`
 
 Set verbosity level.
 
@@ -227,35 +228,35 @@ Set verbosity level.
 >   `verbosity {<level>}`\
 >   `verbosity(level)`\
 
-## Lua extensions
+### Lua extensions {#amend.api.lua}
 
 
-### Classes
+#### Classes {#amend.api.lua.class}
 
 Here we provide a simple class implementation supporting inheritance.
 
-#### `class.tag`
+##### `class.tag`
 
 This class tag serves two purposes, first to mark a table as 'class'
 and second, provides the meta-method `__call` for class instatiation.
 
-#### `void`
+##### `void`
 
 A place-holder (for `__public` fields).
 
-#### `isvoid(t)`
+##### `isvoid(t)`
 
 Check if `t` is `void`.
 
-#### `isclass(t)`
+##### `isclass(t)`
 
 Check if `t` is a `class`.
 
-#### `isobject(t)`
+##### `isobject(t)` {#.object}
 
 Check if `t` is an object.
 
-#### `isa(obj, ...)`
+##### `isa(obj, ...)`
 
 *Call*\
 
@@ -271,16 +272,16 @@ a string as it would be returned by `type()` or `math.type()`.
 Check if `obj` is or is derived from type `T`. This requires
 `obj` to be an object (see [amend.api.lua.class.isobject]).
 
-#### `class.index(t,k)`
+##### `class.index(t,k)`
 
 Retrieve index `k` from table `t` in the same way, standard `__index` does it,
 however, using 'rawget' internally.
 
-#### `class.newindex`
+##### `class.newindex`
 
 Standard `__newindex` meta-method for classes.
 
-#### `class "name" { <declaration> }`
+##### `class "name" { <declaration> }`
 
 Declare a class.
 
@@ -306,13 +307,13 @@ Declare a class.
 
  FIXME
 
-### ``io`` library
+#### ``io`` library {#amend.api.lua.io}
 
-#### `io.printf(...)`
+##### `io.printf(...)`
 
 Equivalent to C's ''printf''
 
-#### `io.dump(value, options)`
+##### `io.dump(value, options)`
 
 Dump `value`.
 
@@ -333,7 +334,7 @@ The ''options'' is a table, that may contain the following fields:
      prefix          Prefix for output (usually only for adding a "return" statement).
      quoted          Always output keys in the ["quoted"] format (default: false)
 
-#### `io.readall(fname)`
+##### `io.readall(fname)`
 
 Read file.
 
@@ -344,7 +345,18 @@ Read file.
 *Returns* text, error\
 
 
-#### `io.command(program, ...)`
+##### `io.sed(fname, pattern, replacement, options)`
+
+Replace file contents using a pattern.
+
+*Parameters*\
+
+        fname           The file name.
+        pattern         A 'gsub' pattern.
+        replacement     Replacement string.
+        options         Currently not supported.
+
+##### `io.command(program, ...)`
 
 Execute command and read output.
 
@@ -356,9 +368,9 @@ Execute command and read output.
 *Returns* output,error\
 
 
-### `os` library
+#### `os` library {#amend.api.lua.os}
 
-#### `os.command(program, ...)`
+##### `os.command(program, ...)`
 
 Execute a command.
 
@@ -367,28 +379,28 @@ Execute a command.
             program                 The command to execute (as format string).
             ...                     Format arguments.
 
-### `package` library
+#### `package` library {#amend.api.lua.package}
 
 ___Note___\
 
 In addition to standard [Lua](https://github.com/lua/lua/blob/master/luaconf.h) 
 conventions, here, also the `?/__init.lua` file is searched.
 
-#### `package:addpath(path)`
+##### `package:addpath(path)`
 
 Add search directory to script search path.
 
-#### `package:pushpath(path)`
+##### `package:pushpath(path)`
 
 Temporarily add a script search path.
 
-#### `package:poppath()`
+##### `package:poppath()`
 
 Remove previously added script search path.
 
-### `string` library
+#### `string` library {#amend.api.lua.string}
 
-#### `string.any(s, tbl, exact)`
+##### `string.any(s, tbl, exact)`
 
 Match elements from a table.
 
@@ -402,30 +414,30 @@ Match elements from a table.
 
 >       Matched string, otherwise ''nil''.
 
-#### `string.trim(s)`
+##### `string.trim(s)`
 
 Trim string.
 
-#### `string.title(s)`
+##### `string.title(s)`
 
 Make string "titlecase".
 
-#### `string.untitle(s)`
+##### `string.untitle(s)`
 
 Undo "titlecase".
 
-#### `string:split(sSeparator, nMax, bRegexp)`
+##### `string:split(sSeparator, nMax, bRegexp)`
 
 String split.
 See http://lua-users.org/wiki/SplitJoin
 
-#### `string.wrap(s, col)`
+##### `string.wrap(s, col)`
 
 Wrap string (each line is detected as a paragraph) to specified column-width.
 
-### `table` library
+#### `table` library {#amend.api.lua.table}
 
-#### `table.has(tbl, item)`
+##### `table.has(tbl, item)`
 
 Check if array-part of a table has an element.
 
@@ -434,46 +446,46 @@ Check if array-part of a table has an element.
         tbl         The table to check.
         item        The item.
 
-#### `table.kpairs(tbl)`
+##### `table.kpairs(tbl)`
 
 Key-only table iterator.
 
 This function ignores integer-valued keys.
 
-#### `table.count(tbl)`
+##### `table.count(tbl)`
 
 Count all keys in a table.
 
-#### `table.top(tbl, idx)`
+##### `table.top(tbl, idx)`
 
 Get array items from top
 
-#### `table.copy(tbl)`
+##### `table.copy(tbl)`
 
 Create a table copy.
 
-#### `table.merge(t, other)`
+##### `table.merge(t, other)`
 
 Merge another table into `t`.
 
-#### `table.make(...)`
+##### `table.make(...)`
 
 Create a new table from many.
 
-#### `table.unique(t)`
+##### `table.unique(t)`
 
 Make array elements unique.
 
-#### `table.insert_unique(t, v)`
+##### `table.insert_unique(t, v)`
 
 Add a unique value.
 
-## Projects
+### Projects {#amend.api.project}
 
 FIXME
 
 
-### Configuration
+#### Configuration {#amend.api.project.config}
 
 Project settings.
 
@@ -488,45 +500,45 @@ as well as
 
 Users are free to add additional entries.
 
-### Settings
+#### Settings {#amend.api.project.settings}
 
 FIXME
 
-### Tools
+#### Tools {#amend.api.project.tools}
 
 FIXME
 
-## External tools
+### External tools {#amend.api.use}
 
 
-### CMake support
+#### CMake support {#amend.api.use.cmake}
 
-#### `parse_args(options, one_value_keywords, multi_value_keywords, ...)`
+##### `parse_args(options, one_value_keywords, multi_value_keywords, ...)`
 
-#### `update(configfile)`
+##### `update(configfile)`
 
 Update PROJECT configuration.
 
-#### `check()`
+##### `check()`
 
 FIXME
 
-### Git support
+#### Git support {#amend.api.use.git}
 
-#### `check()`
+##### `check()`
 
 Check if project uses git and update PROJECT settings.
 
-### C support
+#### C support {#amend.api.use.c}
 
-### CXX support
+#### CXX support {#amend.api.use.cxx}
 
-## Utilities
+### Utilities {#amend.api.util}
 
 
-### Extensions to LuaFileSystem
+#### Extensions to LuaFileSystem {#amend.api.util.filesystem}
 
-#### `fs.exists(filename)`
+##### `fs.exists(filename)`
 
 Check if file exists.
 
@@ -538,7 +550,7 @@ Check if file exists.
 
 >       ''true'' if file or path exists, ''false'' otherwise.
 
-#### `fs.isnewer(file, another)`
+##### `fs.isnewer(file, another)`
 
 Check if a ''file'' is newer than ''another''.
 
@@ -548,11 +560,11 @@ Check if a ''file'' is newer than ''another''.
 >       ''true'' if `file` is newer or `another` does not exist,
 >       ''false'' otherwise.
 
-#### `fs.anynewer(file, ...)`
+##### `fs.anynewer(file, ...)`
 
 Check if any other file is newer than `file`.
 
-#### `fs.concat(...)`
+##### `fs.concat(...)`
 
 Concatenate path elements.
 
@@ -563,7 +575,7 @@ Concatenate path elements.
 
 >       Concatenated path elements using builtin directory seperator.
 
-#### `fs.parts(fname)`
+##### `fs.parts(fname)`
 
 Get parts of a file name (path, file and extension).
 
@@ -573,7 +585,7 @@ Get parts of a file name (path, file and extension).
 *Returns* \<path\>,\<file-name\>,\<extension\>\
 
 
-#### `fs.relpath(path, root)`
+##### `fs.relpath(path, root)`
 
 Get relative path with respect to a "root".
 
@@ -584,7 +596,7 @@ Get relative path with respect to a "root".
 *Returns* \<relative-path\>\
 
 
-#### `fs.readwild(file, tbl)`
+##### `fs.readwild(file, tbl)`
 
 Read a wildcard pattern file.
 
@@ -593,7 +605,7 @@ Read a wildcard pattern file.
         file                The file name (containing wildcard patterns and comments).
         tbl [optional]      Existing table (with regex patterns).
 
-#### `fs.dodir(path, callback, options)`
+##### `fs.dodir(path, callback, options)`
 
 Execute a function for each directory element possibly recursively.
 
@@ -626,19 +638,19 @@ Options:
      recurse             Enable directory recursion (default: false).
      depth               Directory depth (default: 0)
 
-#### `fs.pushd(dir)`
+##### `fs.pushd(dir)`
 
 "Push" directory.
 
 Equivalent of shell command ''pushd''.
 
-#### `fs.popd()`
+##### `fs.popd()`
 
 "Pop" directory.
 
 Equivalent of shell command ''popd''.
 
-#### `fs.rmkdir(fpath)`
+##### `fs.rmkdir(fpath)`
 
 Recursively create directory.
 
@@ -648,19 +660,19 @@ Recursively create directory.
 *Returns* \<status\>[, \<error-message\>]\
 
 
-#### `fs.grep(fname, pattern)`
+##### `fs.grep(fname, pattern)`
 
 Grep-like matching
 
-#### `fs.filetype(fname)`
+##### `fs.filetype(fname)`
 
 Get file type (from extension).
 
-#### `fs.which(executable)`
+##### `fs.which(executable)`
 
 Get full path to an executable.
 
-#### `fs.touch(...)`
+##### `fs.touch(...)`
 
 Touch all files, ensuring same access and modification time.
 
@@ -671,61 +683,61 @@ Touch all files, ensuring same access and modification time.
 
 FIXME options
 
-#### `fs.fullpath(path)`
+##### `fs.fullpath(path)`
 
 Retrieve full path of a possibly relative `path`.
 
-### Editing
+#### Editing {#amend.api.util.edit}
 
 Amend provides several utilities for editing files.
 
 FIXME
 
-#### `clear()`
+##### `clear()`
 
 Clear contents.
 
-#### `addln(code, ...)`
+##### `addln(code, ...)`
 
 Add a code line.
 
-#### `add(code, ...)`
+##### `add(code, ...)`
 
 Add code to current line.
 
-#### `sed(pattern, replace)`
+##### `sed(pattern, replace)`
 
 In-place sed.
 
-#### `write(stream)`
+##### `write(stream)`
 
 Write section to a stream.
 
-#### **section**`()`
+##### **section**`()`
 
 Constructor.
 
-#### `parse(path)`
+##### `parse(path)`
 
 Parse file (into sections)
 
-#### `update()`
+##### `update()`
 
 Update file.
 
-#### `sed(pattern, replace)`
+##### `sed(pattern, replace)`
 
 In-place sed.
 
-#### `edit.file(fname)`
+##### `edit.file(fname)`
 
 Edit a file.
 
 FIXME
 
-### CSV-file tools
+#### CSV-file tools {#amend.api.util.csv}
 
-#### `csv.load(fname, opts)`
+##### `csv.load(fname, opts)`
 
  Read a CSV file.
 
@@ -743,7 +755,7 @@ Options:
         filter = <item-filter-function>
     }
 
-### ReaDaBLe
+#### ReaDaBLe {#amend.api.util.rdbl}
 
 Configuration files suck - yet they are invaluable. They are especially valuable if they are
 _indeed_ human readable and possibly even grep'able (oh yes, the good ol' days of text-only files).
@@ -761,7 +773,7 @@ that alternatives, such as XML or JSON, have their merit).
 RDBL provides a [simple sub-set](https://xkcd.com/927/) of YAML, is easy to parse and consitent.
 
 
-#### Format
+##### Format {#amend.api.util.rdbl.version}
 
 The typical structure of an RDBL document is:
 
@@ -774,9 +786,9 @@ The typical structure of an RDBL document is:
         - a: 1
         - b: 2
 
-#### General
+##### General
 
-##### Documents
+###### Documents
 
 RDBL files contain at least one document. A document starts with
 
@@ -785,7 +797,7 @@ RDBL files contain at least one document. A document starts with
 where the 'document-name' is optional. If YAML compatibility is 
 required (default in v0.0), the document marker is "---".
 
-##### Hierarchy
+###### Hierarchy
 
 Hierarchical order is defined by indentation. The document must always use the
 same indentation, consisting of number of spaces (default: 4).
@@ -813,21 +825,21 @@ Maps are of the format
 
 FIXME
 
-##### Comments
+###### Comments
 
 RDBL files may be commented using the number sign or hash (#). Comments may
 only appear prior to an entry using identical indentation, otherwise, the
 '#' is recognized as a normal character.
 
-##### Keys
+###### Keys
 
 RDBL only allows integral or character literals as keys. Other types, such
 as floating-point values or boolean types will not be supported, as these are
 not generally unambiguous.
 
-##### Value types
+###### Value types
 
-###### `string`
+####### `string`
 
 Character sequences are represented in three forms:
 
@@ -846,21 +858,21 @@ Example:
                     their
                 indentation
 
-###### `integer`
+####### `integer`
 
 When using integral types (including binary, octal and hexadecimal representation), care
 has to be taken, that the target system reading the data does support their size.
 
-###### `float`
+####### `float`
 
 Floating-point values are supported in scientific notation (e.g. "1.0E-3"). Infinity
 is represented as "∞" or "inf". For unrepresentable floats, "NaN" (any case) is used.
 
-###### `array`
+####### `array`
 
 Arrays may be represented by a comma-separated list of values enclosed in braces.
 
-###### user-types
+####### user-types
 
 Implementations may choose to support other types by supplying a dictionary
 or translation function.
@@ -879,33 +891,33 @@ table of the format
 
 may be provided to the `import` function.
 
-#### API
+##### API
 
 
-##### Types
+###### Types {#amend.api.util.rdbl.types}
 
-###### `ORDER`
+####### `ORDER`
 
 Element order.
 
 FIXME
 
-###### `NULL`
+####### `NULL`
 
 Non-destructive ''nil''.
 
 Empty values, are represented as 'null', otherwise, in Lua,
 the table entry would be deleted.
 
-###### `isnull`
+####### `isnull`
 
 Check if 'null'.
 
-###### `isinteger`
+####### `isinteger`
 
  Check if value is an integer.
 
-###### `typeof`
+####### `typeof`
 
 Get type of a value.
 
@@ -931,17 +943,17 @@ If ''fine'' is ''true'', the returned ''subtype'' is
 Note, that tables containing array or sequence elements with additional map entries
 (as available in Lua) are not identified.
 
-###### `escape()`
+####### `escape()`
 
 Escape a string.
 
-###### `unescape`
+####### `unescape`
 
 Unescape a string.
 
 FIXME
 
-###### `getkeys()`
+####### `getkeys()`
 
 Get sorted list of keys.
 
@@ -952,7 +964,7 @@ Get sorted list of keys.
 
 >       Array of keys in `t`.
 
-###### `tovalue()`
+####### `tovalue()`
 
 Convert literal to a value.
 
@@ -961,7 +973,7 @@ Convert literal to a value.
         s       Character string.
         [fn]    User-supplied conversion function (optional).
 
-###### `toliteral()`
+####### `toliteral()`
 
 Convert value to a literal.
 
@@ -970,7 +982,7 @@ Convert value to a literal.
         x       Lua value.
         [fn]    User-supplied conversion function (optional).
 
-###### `tokey()`
+####### `tokey()`
 
 Transform into a key.
 
@@ -981,51 +993,51 @@ Transform into a key.
 
 >       FIXME
 
-##### Importing
+###### Importing {#amend.api.util.rdbl.import}
 
 FIXME
 
-###### `isdocument()`
+####### `isdocument()`
 
 Check if start of document.
 
 *Returns* boolean, name\
 
 
-###### `splitindent()`
+####### `splitindent()`
 
 Split of indentation
 
-###### `unindent()`
+####### `unindent()`
 
 Unindent.
 
-###### `checkindent()`
+####### `checkindent()`
 
 Check indentation
 
-###### `import`
+####### `import`
 
-####### `setup`
+######## `setup`
 
 Setup importer.
 
-####### `error`
+######## `error`
 
 Emit error message.
 
-####### `assert`
+######## `assert`
 
 Formatted assertion.
 
-####### `next`
+######## `next`
 
 Get next line.
 
 *Returns* <level>, "<content>"\
 
 
-####### `literal`
+######## `literal`
 
 Get next "literal" line.
 
@@ -1036,7 +1048,7 @@ Get next "literal" line.
 
 >       literal content, or ''nil'' when end is reached
 
-####### `parse`
+######## `parse`
 
 Parse elements in current context (ie. indentation level).
 
@@ -1045,21 +1057,21 @@ Parse elements in current context (ie. indentation level).
         level       Current indentation level.
         content     Current line content.
 
-####### `run`
+######## `run`
 
 Run the importer.
 
-###### Import data
+####### Import data
 
 *Parameters*\
 
         [opts]  Import options (FIXME).
 
-##### Exporting
+###### Exporting {#amend.api.util.rdbl.export}
 
 FIXME
 
-###### `export()`
+####### `export()`
 
 Export a table.
 

@@ -1,6 +1,6 @@
 % License
 
-# License
+# License {#amend.license}
 
 ## UNLICENSE
 

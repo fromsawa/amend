@@ -180,7 +180,7 @@ function line:__dump(options)
     local line = self.origin.line
     local column = self.origin.column
 
-    local out = strformat("--[[%3d:%d]] [=[%s]=]", line, column, text)
+    local out = strformat("--[[%3d:%d]] [====[%s]====]", line, column, text)
     options.stream:write(out)
 end
 --}

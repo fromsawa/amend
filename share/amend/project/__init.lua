@@ -40,6 +40,8 @@ end
 
 -- [[ UPDATE/SAVE SETTINGS ]]
 if PROJECT.UPDATE then
+    message(TRACE[1], 'updating project file...')
+
     -- cleanup
     PROJECT.UPDATE = nil
     table.unique(PROJECT.USES)
@@ -78,9 +80,9 @@ if PROJECT.UPDATE then
         end
 
         if usage[sec] then
-            f:write("--[[\n")
+            f:write("--[=[\n")
             f:write(usage[sec])
-            f:write("]]\n")
+            f:write("]=]\n")
         end
     end
 

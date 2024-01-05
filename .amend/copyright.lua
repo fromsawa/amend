@@ -32,7 +32,8 @@ function fix_copyright(fname)
             message(STATUS, "    updating %s", fname)
 
             local before, after = txt:sub(1, bpos - 1), txt:sub(epos + 1, -1)
-            local newcopyright = string.format("%s %s %s %s", copyright, symbol, years, author)
+            local newcopyright = string.format("%s %s %s %s", 
+                                            copyright, symbol, years, author)
 
             f = assert(io.open(fname, "w"))
             f:write(before, newcopyright, after)

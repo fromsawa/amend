@@ -6,7 +6,8 @@
 local M = require "amend.docs.__module"
 
 --[[>>[amend.api.docs.api.core] Generator core.
-]] local strsplit = string.split
+]] 
+local strsplit = string.split
 local strformat = string.format
 local strlen = string.len
 local tinsert = table.insert
@@ -349,9 +350,49 @@ function core:includeall()
     self.output = worklist
 end
 
+function core:linkall()
+    local seen = {}
+
+    local function find(ref)
+        local t = ref:split(".")
+        if #t > 0 and self.output[t[1]] then
+            local res = {}
+
+
+
+            return res
+        end
+    end
+
+    local function walk(node)
+        for k,v in pairs(node) do
+            if not seen[v] then
+                if isobject(v) then
+                    if v.tag == 'link' then
+                        local ref = find(tostring(v.content.reference))
+
+                        if ref then
+                            FIXME(v)
+                        end
+                    end
+                end
+
+                if type(v) == 'table' then
+                    seen[v] = true
+                    walk(v)
+                end
+            end
+        end
+    end
+
+    walk(self.output)
+
+    os.exit()
+end
+
 function core:processall()
     self:includeall()
-    -- FIXME resolve links
+    self:linkall()
 end
 
 function core:writeall()

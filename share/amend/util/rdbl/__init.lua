@@ -13,7 +13,7 @@ do either not follow the [KISS principle](https://www.urbandictionary.com/define
 are hardly human readable (without an IDE), or, simply lack the possibility of annotations
 (read: comments).
 
-Well, you heard it, YAML to the rescue: yes, but [No thanks!](noyaml.com) 
+Well, you heard it, YAML to the rescue: yes, but [No thanks!](https://noyaml.com)
 (the author does recognize the ideas behind YAML; he also wants to express, 
 that alternatives, such as XML or JSON, have their merit). 
 

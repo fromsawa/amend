@@ -18,10 +18,6 @@ package is (a possibly [futile](https://xkcd.com/927/)) attempt to create a gene
 tool for such purposes: yet, the author(s) are using it succesfully in several projects
 and, therefore, disclose it to the public.
 
-## Overview
-
-TODO
-
 ## Installation
 
 The `amend` software is intended to be installed either as a sub-module in an existing
@@ -41,13 +37,6 @@ created.
 
 ## Quick start
 
-TODO
-
-- project configuration
-- components
-- libraries
-- framework basics
-
 ### Project file
 
 To use `amend` within a project the file `.amend/project.lua`:
@@ -55,16 +44,24 @@ To use `amend` within a project the file `.amend/project.lua`:
 PROJECT = {}
 ```
 must be created. As `amend` updates this configuration file each run automatically
-(based on project and operating system features it can detect), the command `amend --update`
-must be run. 
+(based on project and operating system features it can detect, for example, if 
+``CMakeLists.txt`` file is detected, the project version will be updated from the CMake 
+file), the command `amend --update` must be run. 
+
+See the [amend.api.project] API for further details.
+
+### Components and Libraries
+
+TODO
+
+### Framework fundamentals
+
+TODO
 
 ### Examples
 
 <<[amend.example]
 
-# API
+## API
 
 <<[amend.api]
-
-
-

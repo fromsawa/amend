@@ -1,4 +1,4 @@
-#!build-docs -- generate source documentation
+#!docs -- generate source documentation
 
 message "Generating source documentation..."
 
