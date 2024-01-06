@@ -50,7 +50,7 @@ must be created. As `amend` updates this configuration file each run automatical
 ``CMakeLists.txt`` file is detected, the project version will be updated from the CMake 
 file), the command `amend --update` must be run. 
 
-See the [Poject](#amend.api.project) API for further details.
+See the [amend.api.project] API for further details.
 
 ### Components and Libraries
 
@@ -63,7 +63,7 @@ TODO
 ### Examples
 
 
-#### Copyright {#amend.example.copyright}
+#### Copyright{#amend.example.copyright}
 
 ```.lua
 local symbol = "(C)" -- copyright symbol
@@ -121,7 +121,7 @@ fs.dodir(
 ## API
 
 
-### Components {#amend.api.components}
+### Components{#amend.api.components}
 
 "Amend components" can be created anywhere in the source code tree in a sub-folder ".amend".
 The first line of such a component starts with a shebang of the format
@@ -188,7 +188,7 @@ The project file contains the general configuration variables:
 
 See [amend.api.project] for details.
 
-### Logging {#amend.api.logging}
+### Logging{#amend.api.logging}
 
 #### `VERBOSE`
 
@@ -228,10 +228,10 @@ Set verbosity level.
 >   `verbosity {<level>}`\
 >   `verbosity(level)`\
 
-### Lua extensions {#amend.api.lua}
+### Lua extensions{#amend.api.lua}
 
 
-#### Classes {#amend.api.lua.class}
+#### Classes{#amend.api.lua.class}
 
 Here we provide a simple class implementation supporting inheritance.
 
@@ -252,7 +252,7 @@ Check if `t` is `void`.
 
 Check if `t` is a `class`.
 
-##### `isobject(t)` {#.object}
+##### `isobject(t)`{#.object}
 
 Check if `t` is an object.
 
@@ -307,7 +307,7 @@ Declare a class.
 
  FIXME
 
-#### ``io`` library {#amend.api.lua.io}
+#### ``io`` library{#amend.api.lua.io}
 
 ##### `io.printf(...)`
 
@@ -368,7 +368,7 @@ Execute command and read output.
 *Returns* output,error\
 
 
-#### `os` library {#amend.api.lua.os}
+#### `os` library{#amend.api.lua.os}
 
 ##### `os.command(program, ...)`
 
@@ -379,7 +379,7 @@ Execute a command.
             program                 The command to execute (as format string).
             ...                     Format arguments.
 
-#### `package` library {#amend.api.lua.package}
+#### `package` library{#amend.api.lua.package}
 
 ___Note___\
 
@@ -398,7 +398,7 @@ Temporarily add a script search path.
 
 Remove previously added script search path.
 
-#### `string` library {#amend.api.lua.string}
+#### `string` library{#amend.api.lua.string}
 
 ##### `string.any(s, tbl, exact)`
 
@@ -435,7 +435,7 @@ See http://lua-users.org/wiki/SplitJoin
 
 Wrap string (each line is detected as a paragraph) to specified column-width.
 
-#### `table` library {#amend.api.lua.table}
+#### `table` library{#amend.api.lua.table}
 
 ##### `table.has(tbl, item)`
 
@@ -480,12 +480,12 @@ Make array elements unique.
 
 Add a unique value.
 
-### Projects {#amend.api.project}
+### Projects{#amend.api.project}
 
 FIXME
 
 
-#### Configuration {#amend.api.project.config}
+#### Configuration{#amend.api.project.config}
 
 Project settings.
 
@@ -500,18 +500,18 @@ as well as
 
 Users are free to add additional entries.
 
-#### Settings {#amend.api.project.settings}
+#### Settings{#amend.api.project.settings}
 
 FIXME
 
-#### Tools {#amend.api.project.tools}
+#### Tools{#amend.api.project.tools}
 
 FIXME
 
-### External tools {#amend.api.use}
+### External tools{#amend.api.use}
 
 
-#### CMake support {#amend.api.use.cmake}
+#### CMake support{#amend.api.use.cmake}
 
 ##### `parse_args(options, one_value_keywords, multi_value_keywords, ...)`
 
@@ -523,20 +523,20 @@ Update PROJECT configuration.
 
 FIXME
 
-#### Git support {#amend.api.use.git}
+#### Git support{#amend.api.use.git}
 
 ##### `check()`
 
 Check if project uses git and update PROJECT settings.
 
-#### C support {#amend.api.use.c}
+#### C support{#amend.api.use.c}
 
-#### CXX support {#amend.api.use.cxx}
+#### CXX support{#amend.api.use.cxx}
 
-### Utilities {#amend.api.util}
+### Utilities{#amend.api.util}
 
 
-#### Extensions to LuaFileSystem {#amend.api.util.filesystem}
+#### Extensions to LuaFileSystem{#amend.api.util.filesystem}
 
 ##### `fs.exists(filename)`
 
@@ -687,7 +687,7 @@ FIXME options
 
 Retrieve full path of a possibly relative `path`.
 
-#### Editing {#amend.api.util.edit}
+#### Editing{#amend.api.util.edit}
 
 Amend provides several utilities for editing files.
 
@@ -735,7 +735,7 @@ Edit a file.
 
 FIXME
 
-#### CSV-file tools {#amend.api.util.csv}
+#### CSV-file tools{#amend.api.util.csv}
 
 ##### `csv.load(fname, opts)`
 
@@ -755,7 +755,7 @@ Options:
         filter = <item-filter-function>
     }
 
-#### ReaDaBLe {#amend.api.util.rdbl}
+#### ReaDaBLe{#amend.api.util.rdbl}
 
 Configuration files suck - yet they are invaluable. They are especially valuable if they are
 _indeed_ human readable and possibly even grep'able (oh yes, the good ol' days of text-only files).
@@ -766,14 +766,14 @@ do either not follow the [KISS principle](https://www.urbandictionary.com/define
 are hardly human readable (without an IDE), or, simply lack the possibility of annotations
 (read: comments).
 
-Well, you heard it, YAML to the rescue: yes, but [No thanks!](noyaml.com) 
+Well, you heard it, YAML to the rescue: yes, but [No thanks!](https://noyaml.com)
 (the author does recognize the ideas behind YAML; he also wants to express, 
 that alternatives, such as XML or JSON, have their merit). 
 
 RDBL provides a [simple sub-set](https://xkcd.com/927/) of YAML, is easy to parse and consitent.
 
 
-##### Format {#amend.api.util.rdbl.version}
+##### Format{#amend.api.util.rdbl.version}
 
 The typical structure of an RDBL document is:
 
@@ -894,7 +894,7 @@ may be provided to the `import` function.
 ##### API
 
 
-###### Types {#amend.api.util.rdbl.types}
+###### Types{#amend.api.util.rdbl.types}
 
 ####### `ORDER`
 
@@ -993,7 +993,7 @@ Transform into a key.
 
 >       FIXME
 
-###### Importing {#amend.api.util.rdbl.import}
+###### Importing{#amend.api.util.rdbl.import}
 
 FIXME
 
@@ -1067,7 +1067,7 @@ Run the importer.
 
         [opts]  Import options (FIXME).
 
-###### Exporting {#amend.api.util.rdbl.export}
+###### Exporting{#amend.api.util.rdbl.export}
 
 FIXME
 

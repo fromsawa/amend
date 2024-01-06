@@ -15,6 +15,7 @@ local tremove = table.remove
 local tmake = table.make
 local thas = table.has
 local tcount = table.count
+local tconcat = table.concat
 local kpairs = table.kpairs
 local tsort = table.sort
 local tconcat = table.concat
@@ -353,14 +354,25 @@ end
 function core:linkall()
     local seen = {}
 
-    local function find(ref)
-        local t = ref:split(".")
-        if #t > 0 and self.output[t[1]] then
-            local res = {}
+    local function find(ref, idx, where)
+        if idx > #ref then
+            return where
+        end
 
+        local key = ref[idx]
+        local id = tconcat(ref, '.', 1, idx)
 
+        if where[key] then
+            return find(ref, idx+1, where[key])
+        elseif where.id == id then
+            return find(ref, idx+1, where)
+        end
 
-            return res
+        for i, node in ipairs(where) do
+            local res = find(ref, idx, node)
+            if res then
+                return res
+            end
         end
     end
 
@@ -369,10 +381,17 @@ function core:linkall()
             if not seen[v] then
                 if isobject(v) then
                     if v.tag == 'link' then
-                        local ref = find(tostring(v.content.reference))
+                        local what = tostring(v.content.reference):split(".") 
+                        local ref = self.output[what[1]]
 
                         if ref then
-                            FIXME(v)
+                            ref = find(what, 2, ref)
+
+                            if ref then
+                                v.content.reference = '#'..tostring(v.content.reference)
+                                v.content.text = '<'..tostring(v.content.reference)..'>'
+                                -- FIXME
+                            end
                         end
                     end
                 end
@@ -386,8 +405,6 @@ function core:linkall()
     end
 
     walk(self.output)
-
-    os.exit()
 end
 
 function core:processall()
