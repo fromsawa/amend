@@ -38,7 +38,7 @@ if fs.exists("../../fromsawa.github.io/amend") then
     os.command(
         "pandoc -f markdown -t html --standalone --template template.html amend/index.md -o ../../fromsawa.github.io/amend/index.html"
     )
-    os.command(
-        "pandoc -f markdown -t gfm amend/index.md -o amend/index.md"
-    )
+    -- os.command(
+    --     "pandoc -f markdown -t gfm amend/index.md -o amend/index.md"
+    -- )
 end

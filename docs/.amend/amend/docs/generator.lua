@@ -140,7 +140,7 @@ function core:parseall()
     end
 end
 
-function core:includeall()
+function core:processall()
     -- find namespace or create it
     local function namespace(t, name, create)
         local ns = strsplit(name, ".")
@@ -161,9 +161,9 @@ function core:includeall()
         return t, parent
     end
 
-    -- build worklist
+    -- gather documents by id, build hierarchy
     local documents = {}
-    local worklist = {}
+    local hierarchy = {}
 
     local visited = {}
     local function findid(t)
@@ -175,11 +175,11 @@ function core:includeall()
                     findid(v)
                 end
 
-                -- create worklist entry
+                -- create id entry
                 local id = v.id
                 if id then
                     if id ~= "index" then
-                        local ns, parent = namespace(worklist, id, true)
+                        local ns, parent = namespace(hierarchy, id, true)
                         if not thas(ns, id) then
                             tinsert(ns, id)
                             documents[id] = v
@@ -191,15 +191,24 @@ function core:includeall()
     end
 
     findid(self.parsed)
-    for _, v in kpairs(worklist) do
+    for _, v in kpairs(hierarchy) do
         tinsert(v, "index")
         documents["index"] = self.parsed[self.config.output.template]
         break
     end
 
+    -- helper for recursing the structure
+    local function recurse(t, fn)
+        for _, v in kpairs(t) do
+            recurse(v, fn)
+        end
+
+        fn(t)
+    end
+
     -- do the including (top to bottom)
     local function make(id, node)
-        local ns = namespace(worklist, id)
+        local ns = namespace(hierarchy, id)
 
         message(INFO, "creating document %q", id)
         local md = M.markdown.document()
@@ -321,15 +330,16 @@ function core:includeall()
         parse(doc)
     end
 
-    local function workon(t)
-        for _, v in kpairs(t) do
-            workon(v)
-        end
+    recurse(hierarchy, include)
 
-        include(t)
-    end
-    workon(worklist)
-
+    -- resolve autolinks
+    -- for id, doc in pairs(documents) do
+    --     print(id, doc)
+    --     if id == 'amend.api.lua.io' then
+    --         print("IO")
+    --     end
+    -- end
+    
     -- build output
     local function make_output(t)
         for k, v in kpairs(t) do
@@ -347,69 +357,8 @@ function core:includeall()
             end
         end
     end
-    make_output(worklist)
-    self.output = worklist
-end
-
-function core:linkall()
-    local seen = {}
-
-    local function find(ref, idx, where)
-        if idx > #ref then
-            return where
-        end
-
-        local key = ref[idx]
-        local id = tconcat(ref, '.', 1, idx)
-
-        if where[key] then
-            return find(ref, idx+1, where[key])
-        elseif where.id == id then
-            return find(ref, idx+1, where)
-        end
-
-        for i, node in ipairs(where) do
-            local res = find(ref, idx, node)
-            if res then
-                return res
-            end
-        end
-    end
-
-    local function walk(node)
-        for k,v in pairs(node) do
-            if not seen[v] then
-                if isobject(v) then
-                    if v.tag == 'link' then
-                        local what = tostring(v.content.reference):split(".") 
-                        local ref = self.output[what[1]]
-
-                        if ref then
-                            ref = find(what, 2, ref)
-
-                            if ref then
-                                v.content.reference = '#'..tostring(v.content.reference)
-                                v.content.text = '<'..tostring(v.content.reference)..'>'
-                                -- FIXME
-                            end
-                        end
-                    end
-                end
-
-                if type(v) == 'table' then
-                    seen[v] = true
-                    walk(v)
-                end
-            end
-        end
-    end
-
-    walk(self.output)
-end
-
-function core:processall()
-    self:includeall()
-    self:linkall()
+    make_output(hierarchy)
+    self.output = hierarchy
 end
 
 function core:writeall()
