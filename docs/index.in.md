@@ -43,16 +43,19 @@ To use `amend` within a project the file `.amend/project.lua`:
 ```.lua
 PROJECT = {}
 ```
-must be created. As `amend` updates this configuration file each run automatically
-(based on project and operating system features it can detect, for example, if 
-``CMakeLists.txt`` file is detected, the project version will be updated from the CMake 
-file), the command `amend --update` must be run. 
+must be created and the command `amend --update` must be run.
+
+This project file may be updated automatically in some circumenstances (such as a new CMake file).
 
 See the [Projects](#amend.api.project) API for further details.
 
 ### Components and Libraries
 
-TODO
+Components (i.e. an executable script) may be created on a per directory basis 
+inside a sub-directory `.amend/`. These components are executed within the 
+directory (as work directory). Also, the `.amend/`-subdirectory is added as
+search path for Lua scripts. See the [copyright updater](#amend.example.copyright) 
+as example, and, as well, the [full](#amend.api.components) documentation.
 
 ### Framework fundamentals
 

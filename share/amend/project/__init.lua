@@ -71,6 +71,8 @@ if PROJECT.UPDATE then
 ]=],
         PATHS = [=[
     Package paths.
+
+    Here, additional Lua paths may be listed, if necessary.
 ]=]
     }
 
