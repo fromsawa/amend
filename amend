@@ -173,7 +173,7 @@ setmetatable(package, package_meta)
 --      TOOLS               System tools (see 'amend/tools.lua')
 --      PATHS               Additional module paths.
 --
--- See [amend.api.project] for details.
+-- See [Projects](#amend.api.project) for details.
 
 -- set EXECDIR
 local lfs = require "lfs" -- amend.filesystem cannot be loaded yet

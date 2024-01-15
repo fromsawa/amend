@@ -50,7 +50,7 @@ must be created. As `amend` updates this configuration file each run automatical
 ``CMakeLists.txt`` file is detected, the project version will be updated from the CMake 
 file), the command `amend --update` must be run. 
 
-See the [amend.api.project] API for further details.
+See the [Projects](#amend.api.project) API for further details.
 
 ### Components and Libraries
 
@@ -186,7 +186,7 @@ The project file contains the general configuration variables:
      TOOLS               System tools (see 'amend/tools.lua')
      PATHS               Additional module paths.
 
-See [amend.api.project] for details.
+See [Projects](#amend.api.project) for details.
 
 ### Logging{#amend.api.logging}
 
@@ -252,7 +252,7 @@ Check if `t` is `void`.
 
 Check if `t` is a `class`.
 
-##### `isobject(t)`{#.object}
+##### `isobject(t)`{#isobject}
 
 Check if `t` is an object.
 
@@ -270,7 +270,7 @@ a string as it would be returned by `type()` or `math.type()`.
 >   `isa(obj, {T})`\
 
 Check if `obj` is or is derived from type `T`. This requires
-`obj` to be an object (see [amend.api.lua.class.isobject]).
+`obj` to be an object (see [isobject](#isobject)).
 
 ##### `class.index(t,k)`
 

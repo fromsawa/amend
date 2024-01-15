@@ -48,7 +48,7 @@ must be created. As `amend` updates this configuration file each run automatical
 ``CMakeLists.txt`` file is detected, the project version will be updated from the CMake 
 file), the command `amend --update` must be run. 
 
-See the [amend.api.project] API for further details.
+See the [Projects](#amend.api.project) API for further details.
 
 ### Components and Libraries
 

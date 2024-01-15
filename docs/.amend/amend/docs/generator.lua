@@ -332,14 +332,6 @@ function core:processall()
 
     recurse(hierarchy, include)
 
-    -- resolve autolinks
-    -- for id, doc in pairs(documents) do
-    --     print(id, doc)
-    --     if id == 'amend.api.lua.io' then
-    --         print("IO")
-    --     end
-    -- end
-    
     -- build output
     local function make_output(t)
         for k, v in kpairs(t) do
@@ -357,8 +349,43 @@ function core:processall()
             end
         end
     end
+
     make_output(hierarchy)
     self.output = hierarchy
+
+    -- resolve autolinks
+    local autolink_visited = {}
+    local function autolink(node) 
+        local annotation = node.annotation
+        if annotation then
+            for _, v in ipairs(annotation) do
+                if v.tag == "link" then
+                    if not v.content.text then
+                        local ref = tostring(v.content.reference)
+                        if ref:match('^[a-zA-Z.]+$') then
+                            local target = nil
+
+                            v.content.reference = '#'..ref
+
+                            if not target then
+                                message(ERROR, "Could not resolve reference [" .. tostring(ref) .. "]")
+                                v.content.text = '???'
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            for k,v in pairs(node) do
+                if type(v) == 'table' and not autolink_visited[v] then
+                    autolink_visited[v] = true
+                    autolink(v)
+                end
+            end
+        end
+    end
+
+    autolink(hierarchy)
 end
 
 function core:writeall()

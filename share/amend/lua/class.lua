@@ -95,7 +95,7 @@ function isclass(t)
     return getmetatable(t) == tag
 end
 
----[.object] `isobject(t)`
+---[isobject] `isobject(t)`
 --
 -- Check if `t` is an object.
 --
@@ -141,7 +141,7 @@ end
 --      `isa(obj, {T})`
 --
 -- Check if `obj` is or is derived from type `T`. This requires
--- `obj` to be an object (see [amend.api.lua.class.isobject]).
+-- `obj` to be an object (see [isobject](#isobject)).
 --
 function isa(obj, T)
     local mtype = math.type
