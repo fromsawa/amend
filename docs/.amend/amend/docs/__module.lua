@@ -58,5 +58,5 @@ return {
     --
     -- Document generator version.
     --
-    VERSION = {0, 91}
+    VERSION = {0, 99}
 }

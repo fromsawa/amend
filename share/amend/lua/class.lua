@@ -1,5 +1,5 @@
 --[[
-    Copyright (C) 2022-2023 Yogev Sawa
+    Copyright (C) 2022-2024 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
 --[[>>[amend.api.lua.class] Classes.
@@ -233,7 +233,6 @@ end
 --          <methods>
 --      }
 -- 
---  FIXME
 -- 
 local function declare_class(t, name, decl, _level)
     local root = t

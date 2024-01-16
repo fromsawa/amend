@@ -1,11 +1,13 @@
 --[[
-    Copyright (C) 2022-2023 Yogev Sawa
+    Copyright (C) 2022-2024 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] --
 
 --[===[>>[amend.api.use] External tools.
+
 <<[amend.api.use.cmake]
 <<[amend.api.use.git]
+<<[amend.api.use.clang]
 <<[amend.api.use.c]
 <<[amend.api.use.cxx]
 ]===] --

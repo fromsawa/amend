@@ -5,10 +5,8 @@
 
 --[[>>[amend.api.project] Projects
 
-FIXME
-
-<<[.config]
 <<[.settings]
+<<[.config]
 <<[.tools]
 ]]
 

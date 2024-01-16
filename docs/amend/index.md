@@ -61,7 +61,9 @@ as example, and, as well, the [full](#amend.api.components) documentation.
 
 ### Framework fundamentals
 
-TODO
+A versatile framework is provided for developing 'components'. This includes,
+for example, the possibility to update code regions in several files (e.g., 
+source files may be updated from an enumeration in a header file).
 
 ### Examples
 
@@ -308,8 +310,6 @@ Declare a class.
          <methods>
      }
 
- FIXME
-
 #### ``io`` library{#amend.api.lua.io}
 
 ##### `io.printf(...)`
@@ -485,17 +485,13 @@ Add a unique value.
 
 ### Projects{#amend.api.project}
 
-FIXME
 
+#### Settings{#amend.api.project.settings}
 
-#### Configuration{#amend.api.project.config}
-
-Project settings.
-
-This table contains two required entries:
+The `PROJECT` settings table contains two required entries:
 
     NAME            Project name.
-    VERSION         Project version.
+    VERSION         Project version ({major, minor[, patch[, tweak]]}).
 
 as well as 
 
@@ -503,28 +499,38 @@ as well as
 
 Users are free to add additional entries.
 
-#### Settings{#amend.api.project.settings}
+#### Configuration{#amend.api.project.config}
 
 FIXME
 
 #### Tools{#amend.api.project.tools}
 
-FIXME
+The `TOOLS` table associates an external command with a "tool". For example:
+
+```.lua
+TOOLS = {
+    ["git"] = auto,
+    ["clang"] = "/usr/bin/clang-15"
+}
+```
+
+will tell `amend` to automatically detect the git command and version, while
+clang will explicitely use major version 15.
+
+See the [external tools](#amend.api.use) chapter for further information.
 
 ### External tools{#amend.api.use}
 
 
 #### CMake support{#amend.api.use.cmake}
 
-##### `parse_args(options, one_value_keywords, multi_value_keywords, ...)`
-
 ##### `update(configfile)`
 
-Update PROJECT configuration.
+Update PROJECT configuration from the 'CMakeLists.txt' file.
 
 ##### `check()`
 
-FIXME
+Check if project uses CMake and update PROJECT settings.
 
 #### Git support{#amend.api.use.git}
 
@@ -532,9 +538,17 @@ FIXME
 
 Check if project uses git and update PROJECT settings.
 
+#### CLang support{#amend.api.use.clang}
+
+FIXME
+
 #### C support{#amend.api.use.c}
 
+TBD
+
 #### CXX support{#amend.api.use.cxx}
+
+TBD
 
 ### Utilities{#amend.api.util}
 

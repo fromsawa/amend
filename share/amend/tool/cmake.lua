@@ -1,5 +1,5 @@
 --[[
-    Copyright (C) 2022-2023 Yogev Sawa
+    Copyright (C) 2022-2024 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]] 
 
@@ -8,7 +8,7 @@
 
 local M = {}
 
---- `parse_args(options, one_value_keywords, multi_value_keywords, ...)`
+-- `parse_args(options, one_value_keywords, multi_value_keywords, ...)`
 --
 local function parse_args(options, one_value_keywords, multi_value_keywords, ...)
     local arguments = {...}
@@ -59,7 +59,7 @@ end
 
 --- `update(configfile)`
 --
--- Update PROJECT configuration.
+-- Update PROJECT configuration from the 'CMakeLists.txt' file.
 --
 local function update(configfile)
     message(TRACE[2], "Updating project from %q...", configfile)
@@ -125,7 +125,7 @@ end
 
 --- `check()`
 --
--- FIXME
+-- Check if project uses CMake and update PROJECT settings.
 --
 local function check()
     local file = fs.concat(ROOTDIR, "CMakeLists.txt")

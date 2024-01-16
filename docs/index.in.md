@@ -59,7 +59,9 @@ as example, and, as well, the [full](#amend.api.components) documentation.
 
 ### Framework fundamentals
 
-TODO
+A versatile framework is provided for developing 'components'. This includes,
+for example, the possibility to update code regions in several files (e.g., 
+source files may be updated from an enumeration in a header file).
 
 ### Examples
 
