@@ -6,8 +6,6 @@
 
 Amend provides several utilities for editing files.
 
-FIXME
-
 ]]
 local mod = {}
 
@@ -247,11 +245,30 @@ setmetatable(
 
 -- [[ MODULE ]]
 
---- `edit.file(fname)`
--- Edit a file.
+--- `edit.file{fname, ...}`
+-- Edit a single or multiple files.
 --
--- FIXME
---
+-- Example:
+-- Assuming we have a file 'myfile.hh' with the following 
+-- ```.hh
+-- constexpr const char *version_s = "1.2.3";
+-- constexpr int version[] = {
+--     //@AMEND{myfile:version}
+--     //@END{myfile:version}
+-- }
+-- ```
+-- then we can use the following script snippet to automatically
+-- update the contents:
+-- ```.lua
+-- local version = {0,1,2,3}
+-- local code = edit.file{'myfile.hh'}
+-- code:sed('(constexpr const char [*]version_s) = .*;', '%1 = %q', table.concat(version, "."))
+-- code['myfile:version']:clear()
+-- for _, v in ipairs(version) do
+--     code['myfile:version']:addln("%d,", v)
+-- end
+-- code:update()
+-- ```
 function mod.file(fname)
     if type(fname) ~= "table" then
         fname = {fname}

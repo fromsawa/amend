@@ -87,7 +87,6 @@ end
 
 -- Escape string.
 local function escape(s, q)
-    -- FIXME there's more to escape
     s = s:gsub('([\'"])', "\\%1")
     return s
 end

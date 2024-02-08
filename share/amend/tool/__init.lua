@@ -14,18 +14,6 @@
 
 local M = {}
 
--- local mt = {
---     __index = function(t, k)
---         -- FIXME
---         return rawget(t, k)
---     end,
---     __newindex = function(t, k, v)
---         -- FIXME
---         rawset(t, k, v)
---     end
--- }
--- setmetatable(M, mt)
-
 local dirsep = package.config:sub(1, 1)
 local pathsep = package.config:sub(3, 3)
 local modulemark = package.config:sub(5, 5)

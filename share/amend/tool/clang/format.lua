@@ -9,5 +9,4 @@ if cmd == auto then
 end
 
 return function(...)
-    -- FIXME
 end

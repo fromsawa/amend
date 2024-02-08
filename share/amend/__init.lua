@@ -21,7 +21,7 @@ function filename()
     return cwd .. dirsep .. module
 end
 
--- FIXME
+-- tag resembling "automatic".
 auto = {}
 setmetatable(
     auto,

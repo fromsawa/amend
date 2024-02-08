@@ -45,14 +45,10 @@ Sequences are of the form:
     - key: value
     - value
 
-FIXME
-
 Maps are of the format
 
     key:
     key: value
-
-FIXME
 
 ## Comments
 

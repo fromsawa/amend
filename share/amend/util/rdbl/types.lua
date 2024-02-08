@@ -22,8 +22,6 @@ local utf8char = utf8.char
 --
 -- Element order.
 --
--- FIXME
---
 local ORDER = {}
 M.ORDER = ORDER
 
@@ -163,8 +161,6 @@ M.escape = escape
 --- `unescape`
 --
 -- Unescape a string.
---
--- FIXME
 --
 local unescape_table = {
     ["\\a"] = 0x07,

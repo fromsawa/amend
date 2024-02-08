@@ -10,7 +10,7 @@
 -- @param
 --      s                   The string.
 --      tbl                 Table with regex-patterns.
---      exact [optional]    Boolean value indicating if matching must be exact. ??? FIXME what does this mean ???
+--      exact [optional]    If ''true'', the matched part must be identical to the full string.
 --
 -- @returns
 --      Matched string, otherwise ''nil''.

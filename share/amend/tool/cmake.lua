@@ -104,7 +104,11 @@ local function update(configfile)
         --         [LANGUAGES <language-name>...])
         local param = parse_args({}, {"VERSION", "DESCRIPTION", "HOMEPAGE_URL"}, {"LANGUAGES"}, project)
         if param.VERSION then
-            PROJECT.VERSION = param.VERSION
+            local ver = string.split(param.VERSION, ".")
+            for i,v in ipairs(ver) do
+                ver[i] = tonumber(v) or v
+            end
+            PROJECT.VERSION = ver
         end
 
         if param.UNPARSED_ARGUMENTS then

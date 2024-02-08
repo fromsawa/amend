@@ -411,7 +411,7 @@ Match elements from a table.
 
         s                   The string.
         tbl                 Table with regex-patterns.
-        exact [optional]    Boolean value indicating if matching must be exact. ??? FIXME what does this mean ???
+        exact [optional]    If ''true'', the matched part must be identical to the full string.
 
 *Returns* \
 
@@ -501,7 +501,47 @@ Users are free to add additional entries.
 
 #### Configuration{#amend.api.project.config}
 
-FIXME
+The CONFIG table has the following entries:
+
+##### EXTENSIONS
+
+This table maps language to file extensions. Example:
+```.lua
+EXTENSIONS = {
+    C = {
+        ".h",
+        ".c",
+    },
+    CXX = {
+        ".hh",
+        ".hpp",
+        ".hxx",
+        ".cc",
+        ".cpp",
+        ".cxx",
+    }
+}
+```
+
+##### LANG
+
+Here, additional processing can be defined, for example:
+```.lua
+LANG = {
+    C = {
+        POST = {
+            TIDY = "clang-format",
+        },
+        PRE = {},
+    },
+    CXX = {
+        POST = {
+            TIDY = "clang-format",
+        },
+        PRE = {},
+    },
+}
+```
 
 #### Tools{#amend.api.project.tools}
 
@@ -539,8 +579,6 @@ Check if project uses CMake and update PROJECT settings.
 Check if project uses git and update PROJECT settings.
 
 #### CLang support{#amend.api.use.clang}
-
-FIXME
 
 #### C support{#amend.api.use.c}
 
@@ -698,7 +736,9 @@ Touch all files, ensuring same access and modification time.
         files...    File names to touch.
         [options]   Options (last argument).
 
-FIXME options
+**Options**:
+     ''atime''   The file access time (current time if omitted).
+     ''mtime''   The file modification time (current time if omitted).
 
 ##### `fs.fullpath(path)`
 
@@ -707,8 +747,6 @@ Retrieve full path of a possibly relative `path`.
 #### Editing{#amend.api.util.edit}
 
 Amend provides several utilities for editing files.
-
-FIXME
 
 ##### `clear()`
 
@@ -746,11 +784,31 @@ Update file.
 
 In-place sed.
 
-##### `edit.file(fname)`
+##### `edit.file{fname, ...}`
 
-Edit a file.
+Edit a single or multiple files.
 
-FIXME
+Example:
+Assuming we have a file 'myfile.hh' with the following 
+```.hh
+constexpr const char *version_s = "1.2.3";
+constexpr int version[] = {
+    //@AMEND{myfile:version}
+    //@END{myfile:version}
+}
+```
+then we can use the following script snippet to automatically
+update the contents:
+```.lua
+local version = {0,1,2,3}
+local code = edit.file{'myfile.hh'}
+code:sed('(constexpr const char [*]version_s) = .*;', '%1 = %q', table.concat(version, "."))
+code['myfile:version']:clear()
+for _, v in ipairs(version) do
+    code['myfile:version']:addln("%d,", v)
+end
+code:update()
+```
 
 #### CSV-file tools{#amend.api.util.csv}
 
@@ -833,14 +891,10 @@ Sequences are of the form:
     - key: value
     - value
 
-FIXME
-
 Maps are of the format
 
     key:
     key: value
-
-FIXME
 
 ###### Comments
 
@@ -917,8 +971,6 @@ may be provided to the `import` function.
 
 Element order.
 
-FIXME
-
 ####### `NULL`
 
 Non-destructive ''nil''.
@@ -967,8 +1019,6 @@ Escape a string.
 ####### `unescape`
 
 Unescape a string.
-
-FIXME
 
 ####### `getkeys()`
 

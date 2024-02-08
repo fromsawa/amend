@@ -2,6 +2,7 @@
     Copyright (C) 2022-2024 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
+
 return {
     name = "dirs",
     comment = "list component folders in current project",

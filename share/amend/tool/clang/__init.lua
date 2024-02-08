@@ -5,8 +5,6 @@
 
 --[===[>>[amend.api.use.clang] CLang support.
 
-FIXME
-
 ]===] 
 
 local M = {}

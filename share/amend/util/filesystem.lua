@@ -418,7 +418,6 @@ end
 -- Get full path to an executable.
 --
 local function which(executable)
-    -- FIXME windows
     local sep = ":"
     local search = os.getenv("PATH")
     local list = string.split(search, sep)
@@ -439,7 +438,9 @@ end
 --      files...    File names to touch.
 --      [options]   Options (last argument).
 --
--- FIXME options
+-- **Options**:
+--      ''atime''   The file access time (current time if omitted).
+--      ''mtime''   The file modification time (current time if omitted).
 --
 local function touchall(...)
     local args = {...}
