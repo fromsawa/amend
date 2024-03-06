@@ -361,7 +361,7 @@ end
 --
 -- @returns text, error
 function io.readall(fname)
-    local f = io.open(fname)
+    local f = assert(io.open(fname))
     return f:read("a")
 end
 

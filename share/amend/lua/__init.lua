@@ -8,6 +8,7 @@
 <<[.io]
 <<[.os]
 <<[.package]
+<<[.version]
 <<[.string]
 <<[.table]
 ]]
@@ -15,5 +16,6 @@
 require "amend.lua.class"
 require "amend.lua.io"
 require "amend.lua.os"
+require "amend.lua.version"
 require "amend.lua.string"
 require "amend.lua.table"
