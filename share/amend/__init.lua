@@ -18,6 +18,10 @@ function filename()
     local cwd = fs.currentdir()
     local dirsep = package.config:sub(1, 1)
     local module = debug.getinfo(2, "S").source:sub(2)
+
+    if fs.exists(module) then
+        return module
+    end
     return cwd .. dirsep .. module
 end
 
