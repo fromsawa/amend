@@ -276,7 +276,10 @@ end
 
 -- load .amend/ignore, .gitignore, etc.
 fs.readwild(fs.concat(ROOTDIR, ".amend", "ignore"), IGNORE)
-fs.readwild(fs.concat(ROOTDIR, ".gitignore"), IGNORE)
+
+-- FIXME the .gitignore file has a different format (see https://git-scm.com/docs/gitignore)
+--       which is incompatible with the "wildcard" pattern used in fs.dodir !!!
+-- fs.readwild(fs.concat(ROOTDIR, ".gitignore"), IGNORE)
 
 -- we're done, if no project file was found
 if not PROJECT then
