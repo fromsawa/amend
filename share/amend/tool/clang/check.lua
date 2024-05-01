@@ -1,19 +1,21 @@
 --[[
     Copyright (C) 2022-2024 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]]
+]] 
 
 local function clang_format()
     local res = fs.exists(fs.concat(ROOTDIR, ".clang-format"))
 
     if res then
-        local exe = fs.which("clang-format")
-        if not exe then
-            message(WARNING, "clang-format executable could not be found")
-            return false
-        end
+        if not TOOLS["clang-format"] then
+            local exe = fs.which("clang-format")
+            if not exe then
+                message(WARNING, "clang-format executable could not be found")
+                return false
+            end
 
-        TOOLS["clang-format"] = TOOLS["clang-format"] or auto
+            TOOLS["clang-format"] = TOOLS["clang-format"] or auto
+        end
     end
 
     return res
@@ -23,13 +25,15 @@ local function clang_tidy()
     local res = fs.exists(fs.concat(ROOTDIR, ".clang-tidy"))
 
     if res then
-        local exe = fs.which("clang-tidy")
-        if not exe then
-            message(WARNING, "clang-tidy executable could not be found")
-            return false
-        end
+        if not TOOLS["clang-tidy"] then
+            local exe = fs.which("clang-tidy")
+            if not exe then
+                message(WARNING, "clang-tidy executable could not be found")
+                return false
+            end
 
-        TOOLS["clang-tidy"] = TOOLS["clang-tidy"] or auto
+            TOOLS["clang-tidy"] = TOOLS["clang-tidy"] or auto
+        end
     end
 
     return res
