@@ -23,7 +23,7 @@ local function amend_edit()
             message(NOTICE, "invalid option: %q", a)
             os.exit(1)
         else
-            tinsert(args, a)
+            table.insert(args, a)
         end
     end
 
