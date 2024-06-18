@@ -401,6 +401,36 @@ Temporarily add a script search path.
 
 Remove previously added script search path.
 
+#### Version number library{#amend.api.lua.version}
+
+##### `version`
+
+A broken down version number which consist of a major, minor and a patch version. 
+
+##### `version(t)`
+
+*Parameters*\
+
+        t       Version definition (table of numbers or string).
+
+A version number is expected to be sequence of three numbers, the
+major, minor and patch version. Additional version specifications
+may be provided but are ignored.
+
+In string notation, the version is 
+
+     "<major>[.<minor>[.<patch>[<punctuation><rest>]]]"
+
+where '[]' denotes optional parts.
+
+##### `version:tostring()`
+
+Convert version to a string.
+
+##### `version:value()`
+
+Calculate a comparable number.
+
 #### `string` library{#amend.api.lua.string}
 
 ##### `string.any(s, tbl, exact)`
