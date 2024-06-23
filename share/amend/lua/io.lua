@@ -87,7 +87,7 @@ end
 
 -- Escape string.
 local function escape(s, q)
-    s = s:gsub('([\'"])', "\\%1")
+    s = s:gsub('([\'"\\])', "\\%1")
     return s
 end
 
