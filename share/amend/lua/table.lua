@@ -29,6 +29,21 @@ function table.has(tbl, item)
 end
 local thas = table.has
 
+--- `table.keys(tbl)`
+--
+-- Get list of keys in a table.
+--
+function table.keys(tbl)
+    local res = {}
+
+    for k,_ in pairs(tbl) do
+        tinsert(res, k)
+    end
+
+    return res
+end
+local tkeys = table.keys
+
 --- `table.kpairs(tbl)`
 -- 
 -- Key-only table iterator.

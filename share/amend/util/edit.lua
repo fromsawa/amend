@@ -1,13 +1,11 @@
 --[[
     Copyright (C) 2022-2024 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]]
---[[>>[amend.api.util.edit] Editing
+]] --[[>>[amend.api.util.edit] Editing
 
 Amend provides several utilities for editing files.
 
-]]
-local mod = {}
+]] local mod = {}
 
 local tinsert = table.insert
 local tremove = table.remove
@@ -30,20 +28,6 @@ function section:clear()
     end
 end
 
---- `addln(code, ...)`
--- Add a code line.
-function section:addln(code, ...)
-    if ... then
-        tinsert(self, sformat(code, ...))
-    elseif type(code) == "table" then
-        for _, v in ipairs(code) do
-            tinsert(self, v)
-        end
-    else
-        tinsert(self, code)
-    end
-end
-
 --- `add(code, ...)`
 -- Add code to current line.
 function section:add(code, ...)
@@ -51,10 +35,37 @@ function section:add(code, ...)
         tinsert(self, "")
     end
 
+    assert(type(code) == 'string', "expected a string")
     if ... then
         self[#self] = self[#self] .. sformat(code, ...)
     else
         self[#self] = self[#self] .. code
+    end
+end
+
+--- `addln(code, ...)`
+-- ::as
+--      addln()
+--      addln(<table>)
+--      addln(<plain string>)
+--      addln(<format>, <format arguments...>)
+--
+-- Add a code line with formatting or array of lines.
+--
+function section:addln(code, ...)
+    if code == nil then
+        tinsert(self, "")
+    elseif type(code) == "table" then
+        for _, v in ipairs(code) do
+            tinsert(self, v)
+        end
+    else
+        assert(type(code) == 'string', "expected a string")
+        if ... then
+            tinsert(self, sformat(code, ...))
+        else
+            tinsert(self, code)
+        end
     end
 end
 
@@ -95,21 +106,18 @@ function section:write(stream)
 end
 
 section.__index = section
-setmetatable(
-    section,
-    {
-        --- **section**`()`
-        -- Constructor.
-        __call = function(mt, file_)
-            local t = {}
-            setmetatable(t, mt)
-            if file_ then
-                tinsert(file_, t)
-            end
-            return t
+setmetatable(section, {
+    --- **section**`()`
+    -- Constructor.
+    __call = function(mt, file_)
+        local t = {}
+        setmetatable(t, mt)
+        if file_ then
+            tinsert(file_, t)
         end
-    }
-)
+        return t
+    end
+})
 
 -- [[ file meta ]]
 local file = {}
@@ -228,20 +236,17 @@ function file:sed(pattern, replace)
 end
 
 file.__index = file
-setmetatable(
-    file,
-    {
-        -- Constructor.
-        __call = function(mt, path)
-            local t = {}
-            setmetatable(t, mt)
-            if path then
-                t:parse(path)
-            end
-            return t
+setmetatable(file, {
+    -- Constructor.
+    __call = function(mt, path)
+        local t = {}
+        setmetatable(t, mt)
+        if path then
+            t:parse(path)
         end
-    }
-)
+        return t
+    end
+})
 
 -- [[ MODULE ]]
 
