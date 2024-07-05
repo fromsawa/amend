@@ -152,6 +152,13 @@ local function io_dump(value, options)
         elseif type(d) == "function" then
             return fnname(d)
         end
+
+        if type(d) == 'table' then
+            local mt = getmetatable(d)
+            if mt and mt.tostring then
+                return mt.tostring(d)
+            end
+        end
         return tostring(d)
     end
 
