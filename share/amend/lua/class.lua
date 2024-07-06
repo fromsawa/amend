@@ -35,18 +35,73 @@ local function tcopy(t)
     return res
 end
 
+-- Internal marker denoting an "implemented" class.
+--
+-- This marker (see class.tag) allows out-of-order method declarations 
+-- for inheritance.
+local implemented = {}
+
 --- `class.tag`
 --
 -- This class tag serves two purposes, first to mark a table as 'class'
 -- and second, provides the meta-method `__call` for class instatiation.
 --
 local tag = {
-    __call = function(self, ...)
+    __call = function(decl, ...)
+        -- inherit methods (first time only)
+        if not decl[implemented] then
+            -- inherit
+            local excluded = {
+                __public = true,
+                __inherit = true,
+                __init = true
+            }
+
+            local methods = {}
+            for _, parent in ipairs(decl.__inherit) do
+                for k, v in pairs(parent) do
+                    if not excluded[k] and type(v) == "function" then
+                        methods[k] = methods[k] or v
+                    end
+                end
+            end
+
+            for k, v in pairs(methods) do
+                decl[k] = decl[k] or v
+            end
+
+            -- constructor
+            decl.__init = decl.__init or function(self, ...)
+            end
+
+            -- member access
+            decl.__index = decl.__index or decl
+            decl.__newindex = decl.__newindex or newindex
+
+            -- __dump
+            local function dumper(self, options)
+                io.dump(self, tmake(options, {
+                    prefix = self.__name .. ":table"
+                }))
+            end
+            decl.__dump = decl.__dump or dumper
+
+            -- :table
+            local function table(self, v)
+                setmetatable(v, self)
+                return v
+            end
+            decl.table = decl.table or table
+
+            decl[implemented] = true
+        end
+
+        -- instantiate
         local obj = {}
-        setmetatable(obj, self)
+        setmetatable(obj, decl)
 
         -- initialize member variables
-        for k, v in pairs(self.__public) do
+        for k, v in pairs(decl.__public) do
             if type(v) == "table" then
                 if v == void then
                     obj[k] = nil
@@ -60,7 +115,7 @@ local tag = {
 
         -- construct and return object
         -- (note: this allows singletons!)
-        return self.__init(obj, ...) or obj
+        return decl.__init(obj, ...) or obj
     end
 }
 
@@ -69,15 +124,12 @@ local tag = {
 -- A place-holder (for `__public` fields).
 --
 void = {}
-setmetatable(
-    void,
-    {
-        __name = "void",
-        __dump = function(self, options)
-            options.stream:write("void")
-        end
-    }
-)
+setmetatable(void, {
+    __name = "void",
+    __dump = function(self, options)
+        options.stream:write("void")
+    end
+})
 
 --- `isvoid(t)`
 --
@@ -306,50 +358,6 @@ local function declare_class(t, name, decl, _level)
     end
     decl.__public = __public
 
-    local methods = {}
-    for _, parent in ipairs(__inherit) do
-        for k, v in pairs(parent) do
-            if (k == "__public") or (k == "__inherit") or (k == "__init") then
-                -- skip
-            elseif type(v) == "function" then
-                methods[k] = v
-            end
-        end
-    end
-
-    for k, v in pairs(methods) do
-        decl[k] = decl[k] or v
-    end
-
-    -- constructor
-    decl.__init = decl.__init or function(self, ...)
-        end
-
-    -- member access
-    decl.__index = decl.__index or decl
-    decl.__newindex = decl.__newindex or newindex
-
-    -- __dump
-    local function dumper(self, options)
-        io.dump(
-            self,
-            tmake(
-                options,
-                {
-                    prefix = self.__name .. ":table"
-                }
-            )
-        )
-    end
-    decl.__dump = decl.__dump or dumper
-
-    -- :table
-    local function table(self, v)
-        setmetatable(v, self)
-        return v
-    end
-    decl.table = decl.table or table
-
     -- return class
     t[clsname] = decl
 
@@ -390,14 +398,11 @@ local function declare(arg)
     end
 end
 
-setmetatable(
-    class,
-    {
-        __call = function(self, arg)
-            return declare(arg)
-        end
-    }
-)
+setmetatable(class, {
+    __call = function(self, arg)
+        return declare(arg)
+    end
+})
 
 --[[ MODULE ]]
 class.tag = tag

@@ -44,7 +44,7 @@ function section:add(code, ...)
 end
 
 --- `addln(code, ...)`
--- ::as
+-- @call
 --      addln()
 --      addln(<table>)
 --      addln(<plain string>)

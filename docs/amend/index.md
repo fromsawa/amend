@@ -479,6 +479,10 @@ Check if array-part of a table has an element.
         tbl         The table to check.
         item        The item.
 
+##### `table.keys(tbl)`
+
+Get list of keys in a table.
+
 ##### `table.kpairs(tbl)`
 
 Key-only table iterator.
@@ -782,13 +786,20 @@ Amend provides several utilities for editing files.
 
 Clear contents.
 
-##### `addln(code, ...)`
-
-Add a code line.
-
 ##### `add(code, ...)`
 
 Add code to current line.
+
+##### `addln(code, ...)`
+
+*Call*\
+
+>   addln()\
+>   addln(<table>)\
+>   addln(<plain string>)\
+>   addln(<format>, <format arguments...>)\
+
+Add a code line with formatting or array of lines.
 
 ##### `sed(pattern, replace)`
 
