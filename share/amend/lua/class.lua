@@ -18,6 +18,7 @@ local tinsert = table.insert
 local tremove = table.remove
 local tconcat = table.concat
 local tmake = table.make
+local mtype = math.type
 
 -- Simple deep table copy.
 local function tcopy(t)
@@ -255,9 +256,14 @@ end
 --
 -- Standard `__newindex` meta-method for classes.
 --
+-- This disallows unknown dictionary keys while integer keys (ie. array keys)
+-- are allowed.
+--
 local function newindex(self, k, v)
-    if not getmetatable(self).__public[k] then
-        error(strformat("variable %q is not a public member variable", tostring(k)), 2)
+    if mtype(k) ~= 'integer' then
+        if not getmetatable(self).__public[k] then
+            error(strformat("variable %q is not a public member variable", tostring(k)), 2)
+        end
     end
 
     rawset(self, k, v)

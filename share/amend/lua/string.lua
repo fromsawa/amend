@@ -1,7 +1,8 @@
 --[[
     Copyright (C) 2022-2024 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
-]]
+]] local tconcat = table.concat
+
 --[[>>[amend.api.lua.string] `string` library
 ]]
 --- `string.any(s, tbl, exact)`
@@ -120,6 +121,40 @@ function string.wrap(s, max_column, no_concat)
     else
         return table.concat(res, "\n")
     end
+end
+
+-- `string.stream()`
+--
+-- Create a string stream.
+--
+-- The result may be acquired using 'tostring'.
+-- 
+-- Example:
+--      local s = string.stream()
+--      io.dump(t, { stream = s })
+--      print(tostring(s))
+--      
+local streammt = {
+    open = function()
+    end,
+    close = function()
+    end,
+    write = function(self, ...)
+        self[1] = tconcat({self[1], ...})
+    end,
+    __tostring = function(self)
+        return self[1]
+    end
+}
+streammt.__index = streammt
+streammt.__newindex = function(...)
+    error("Invalid indexing operation")
+end
+
+function string.stream()
+    local obj = {""}
+    setmetatable(obj, streammt)
+    return obj
 end
 
 -- [[ MODULE ]]

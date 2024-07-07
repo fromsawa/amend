@@ -101,6 +101,7 @@ local function io_dump(value, options)
     local visited = options.visited
     local nocomma = options.nocomma
     local root = options.root
+    local indexes = options.indexes
 
     local format = options.format or {}
     local fmt_integer = format.integer or "%d"
@@ -155,8 +156,8 @@ local function io_dump(value, options)
 
         if type(d) == 'table' then
             local mt = getmetatable(d)
-            if mt and mt.tostring then
-                return mt.tostring(d)
+            if mt and mt.tokey then
+                return mt.tokey(d)
             end
         end
         return tostring(d)
@@ -216,6 +217,7 @@ local function io_dump(value, options)
                         format = format,
                         quoted = quoted,
                         always_index = always_index,
+                        indexes = indexes,
                         visited = visited,
                         root = root,
                         nocomma = false,
@@ -227,7 +229,14 @@ local function io_dump(value, options)
             else
                 stream:write("{\n")
 
-                local ks = getkeys(value, isobject(value))
+                local indexes_last = isobject(value)
+                if indexes == 'first' then
+                    indexes_last = false
+                elseif indexes == 'last' then
+                    indexes_last = true
+                end
+
+                local ks = getkeys(value, indexes_last)
                 for i, k in ipairs(ks) do
                     if math.type(k) == "integer" and k >= 1 and k <= #value and not always_index then
                         io_dump(
@@ -239,6 +248,7 @@ local function io_dump(value, options)
                                 format = format,
                                 quoted = quoted,
                                 always_index = always_index,
+                                indexes = indexes,
                                 visited = visited,
                                 root = root,
                                 nocomma = (i == #ks)
@@ -255,6 +265,7 @@ local function io_dump(value, options)
                                 format = format,
                                 quoted = quoted,
                                 always_index = always_index,
+                                indexes = indexes,
                                 visited = visited,
                                 root = root,
                                 nocomma = (i == #ks)
@@ -324,6 +335,7 @@ end
 --      key             Table key.
 --      prefix          Prefix for output (usually only for adding a "return" statement).
 --      quoted          Always output keys in the ["quoted"] format (default: false)
+--      indexes         Index sorting ("first" or "last"; default: last for objects, first otherwise)
 --
 function io.dump(value, options)
     -- defaults
