@@ -58,6 +58,16 @@ function section:add(code, ...)
     end
 end
 
+--- `replace(code, ...)`
+-- Replace current line.
+function section:replace(code, ...)
+    if ... then
+        self[#self] = sformat(code, ...)
+    else
+        self[#self] = code
+    end
+end
+
 --- `sed(pattern, replace)`
 -- In-place sed.
 --
