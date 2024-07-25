@@ -286,6 +286,9 @@ however, using 'rawget' internally.
 
 Standard `__newindex` meta-method for classes.
 
+This disallows unknown dictionary keys while integer keys (ie. array keys)
+are allowed.
+
 ##### `class "name" { <declaration> }`
 
 Declare a class.
@@ -336,6 +339,7 @@ The ''options'' is a table, that may contain the following fields:
      key             Table key.
      prefix          Prefix for output (usually only for adding a "return" statement).
      quoted          Always output keys in the ["quoted"] format (default: false)
+     indexes         Index sorting ("first" or "last"; default: last for objects, first otherwise)
 
 ##### `io.readall(fname)`
 
@@ -478,6 +482,10 @@ Check if array-part of a table has an element.
 
         tbl         The table to check.
         item        The item.
+
+##### `table.keys(tbl)`
+
+Get list of keys in a table.
 
 ##### `table.kpairs(tbl)`
 
@@ -782,13 +790,20 @@ Amend provides several utilities for editing files.
 
 Clear contents.
 
-##### `addln(code, ...)`
-
-Add a code line.
-
 ##### `add(code, ...)`
 
 Add code to current line.
+
+##### `addln(code, ...)`
+
+*Call*\
+
+>   addln()\
+>   addln(<table>)\
+>   addln(<plain string>)\
+>   addln(<format>, <format arguments...>)\
+
+Add a code line with formatting or array of lines.
 
 ##### `sed(pattern, replace)`
 
