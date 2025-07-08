@@ -1,5 +1,5 @@
 --[[
-    Copyright (C) 2022-2024 Yogev Sawa
+    Copyright (C) 2022-2025 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
 --[[>>[amend.api.util.rdbl.version] Format.
@@ -15,16 +15,18 @@ The typical structure of an RDBL document is:
         - a: 1
         - b: 2
 
+FIXME see RDBL library (currently in Maddox)
+
 # General
 
 ## Documents
 
 RDBL files contain at least one document. A document starts with
 
-    🗎 document-name
+    🗎 
 
-where the 'document-name' is optional. If YAML compatibility is 
-required (default in v0.0), the document marker is "---".
+which is optional for single documents. If YAML compatibility is enabled, 
+the document marker is "---".
 
 ## Hierarchy
 

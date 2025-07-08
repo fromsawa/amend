@@ -906,16 +906,18 @@ The typical structure of an RDBL document is:
         - a: 1
         - b: 2
 
+FIXME see RDBL library (currently in Maddox)
+
 ##### General
 
 ###### Documents
 
 RDBL files contain at least one document. A document starts with
 
-    🗎 document-name
+    🗎 
 
-where the 'document-name' is optional. If YAML compatibility is 
-required (default in v0.0), the document marker is "---".
+which is optional for single documents. If YAML compatibility is enabled, 
+the document marker is "---".
 
 ###### Hierarchy
 

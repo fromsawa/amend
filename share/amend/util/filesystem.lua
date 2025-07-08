@@ -1,5 +1,5 @@
 --[[
-    Copyright (C) 2022-2024 Yogev Sawa
+    Copyright (C) 2022-2025 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
 --[[>>[amend.api.util.filesystem] Extensions to LuaFileSystem.
@@ -250,6 +250,10 @@ local function __dodir(fname, callback, options, first)
     -- get file attributes
     local attr = symlinkattributes(fname)
     if attr.target then
+        local linkattr = attributes(fname)
+        if not linkattr then
+            return
+        end
         attr.mode = attributes(fname).mode
     end
 

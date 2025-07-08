@@ -1,5 +1,5 @@
 --[[
-    Copyright (C) 2024 Yogev Sawa
+    Copyright (C) 2024-2025 Yogev Sawa
     License: UNLICENSE (see  <http://unlicense.org/>)
 ]]
 --[[>>[amend.api.lua.version] Version number library
